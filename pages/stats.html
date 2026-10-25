@@ -1,0 +1,786 @@
+@extends('layouts.app')
+
+@section('title', 'Overall Stats | Pro HPCL')
+@section('description', 'View overall Pro HPCL tournament stats including top run scorers, wicket-takers, strike rates, and season leaders.')
+@section('canonical', '{{BASE}}/stats')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .stats-hero {
+                background: linear-gradient(135deg, rgba(9, 81, 167, 0.12), rgba(252, 109, 57, 0.12));
+                border-radius: 20px;
+                padding: 28px;
+                border: 1px solid rgba(9, 81, 167, 0.15);
+                box-shadow: 0 18px 40px rgba(9, 81, 167, 0.12);
+            }
+            .stats-card {
+                border-radius: 16px;
+                border: 1px solid rgba(9, 81, 167, 0.12);
+                box-shadow: 0 10px 20px rgba(9, 81, 167, 0.08);
+                transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+            }
+            .stats-card h3, .stats-card h4 {
+                color: #0f172a;
+                font-weight: 800;
+                letter-spacing: -0.01em;
+            }
+            .stats-card .card-body {
+                padding: 22px;
+            }
+            .stats-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 18px 34px rgba(9, 81, 167, 0.18);
+                border-color: rgba(9, 81, 167, 0.28);
+            }
+            .stats-label {
+                font-weight: 700;
+                letter-spacing: 0.08em;
+            }
+            .stats-section {
+                background: #edf2f8;
+                border-radius: 20px;
+                border: 1px solid rgba(9, 81, 167, 0.08);
+                padding: 24px;
+                box-shadow: 0 16px 32px rgba(9, 81, 167, 0.08);
+            }
+            .stats-section + .stats-section {
+                margin-top: 24px;
+            }
+            .stats-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .stats-section-title h3 {
+                margin: 0;
+            }
+            .top-list .list-group-item {
+                border: 0;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .top-list .list-group-item:last-child {
+                border-bottom: 0;
+            }
+            .player-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #fff;
+                box-shadow: 0 4px 10px rgba(9, 81, 167, 0.2);
+            }
+            .leader-card {
+                position: relative;
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(135deg, #0b3f84, #0b6db4 55%, #0e87c8);
+                color: #fff;
+                min-height: 140px;
+                box-shadow: 0 20px 40px rgba(9, 81, 167, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                transition: transform 200ms ease, box-shadow 200ms ease;
+            }
+            .leader-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 26px 46px rgba(9, 81, 167, 0.32);
+            }
+            .leader-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    radial-gradient(120px 120px at 90% 20%, rgba(252, 109, 57, 0.3), transparent 60%),
+                    radial-gradient(140px 140px at 20% 20%, rgba(255, 255, 255, 0.12), transparent 60%);
+                pointer-events: none;
+            }
+            .leader-table-card {
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(135deg, #0b3f84, #0b6db4 55%, #0e87c8);
+                color: #fff;
+                min-height: 140px;
+                box-shadow: 0 20px 40px rgba(9, 81, 167, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                position: relative;
+            }
+            .leader-table-card .leader-card-body {
+                grid-template-columns: 110px 1fr;
+                padding: 16px 18px;
+            }
+            .leader-table-card .leader-stat .value {
+                font-size: 26px;
+            }
+            .leader-card-body {
+                position: relative;
+                z-index: 1;
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 16px;
+                align-items: center;
+                padding: 18px 20px;
+            }
+            .leader-player {
+                width: 110px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 14px;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 10px 22px rgba(2, 6, 23, 0.35);
+                background: #0b2b5a;
+            }
+            .leader-label {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 10px;
+                border-radius: 999px;
+                background: rgba(15, 23, 42, 0.4);
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .leader-name {
+                font-size: 16px;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+                margin: 8px 0 2px;
+                color: #fff;
+            }
+            .leader-meta {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.8);
+            }
+            .leader-stat {
+                text-align: right;
+            }
+            .leader-stat .label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                opacity: 0.9;
+            }
+            .leader-stat .value {
+                font-size: 28px;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+            }
+            .leader-rank {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                font-size: 12px;
+                font-weight: 800;
+            }
+            .leader-link {
+                color: #fff;
+                text-decoration: none;
+            }
+            .leader-link:hover {
+                color: #fff;
+                text-decoration: underline;
+            }
+            .stats-performer-card {
+                min-height: 220px;
+            }
+            .stats-performer-card.stats-performer-card--long {
+                min-height: 250px;
+            }
+            @media (max-width: 991.98px) {
+                .stats-performer-card.stats-performer-card--long {
+                    min-height: 236px;
+                }
+            }
+            .stats-performer-card {
+                overflow: visible;
+            }
+            .stats-performer-card .tpv2-card__player {
+                width: 150px;
+                height: 220px;
+                left: 8px;
+                top: -50px;
+                object-position: left top;
+            }
+            .stats-performer-card .tpv2-card__meta {
+                top: 14px;
+                right: 14px;
+                bottom: 14px;
+                width: min(60%, 250px);
+                justify-content: flex-start;
+                gap: 4px;
+                overflow: hidden;
+            }
+            .stats-performer-card .tpv2-card__tag {
+                margin-bottom: 2px;
+                padding: 5px 10px;
+            }
+            .stats-performer-card .tpv2-card__name {
+                text-align: right;
+                line-height: 0.9;
+                font-size: clamp(32px, 3vw, 48px);
+                max-width: 240px;
+                word-break: break-word;
+                margin: 0;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .stats-performer-card .tpv2-card__metric-label {
+                margin-top: 2px;
+            }
+            .stats-performer-card .tpv2-card__metric-value {
+                margin-top: 0;
+                line-height: 0.88;
+                font-size: clamp(54px, 4vw, 72px);
+                align-self: flex-end;
+            }
+            .stats-performer-link {
+                color: inherit;
+                text-decoration: none;
+            }
+            .stats-performer-link:hover {
+                text-decoration: underline;
+            }
+            @media (max-width: 991.98px) {
+                .stats-performer-card {
+                    min-height: 210px;
+                }
+                .stats-performer-card .tpv2-card__player {
+                    width: 138px;
+                    height: 200px;
+                    top: -50px;
+                }
+                .stats-performer-card .tpv2-card__meta {
+                    width: min(62%, 220px);
+                }
+                .stats-performer-card .tpv2-card__name {
+                    font-size: clamp(28px, 7vw, 40px);
+                }
+                .stats-performer-card .tpv2-card__metric-value {
+                    font-size: clamp(46px, 11vw, 64px);
+                }
+            }
+            .filter-bar {
+                background: linear-gradient(135deg, rgba(9, 81, 167, 0.95), rgba(9, 81, 167, 0.75));
+                border-radius: 14px;
+                padding: 14px;
+                box-shadow: 0 14px 30px rgba(9, 81, 167, 0.22);
+            }
+            .filter-control {
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 10px 12px;
+                font-weight: 600;
+            }
+            .filter-control:focus {
+                box-shadow: 0 0 0 0.2rem rgba(252, 109, 57, 0.35);
+                border-color: rgba(252, 109, 57, 0.6);
+            }
+            .season-overview {
+                border-radius: 20px;
+                padding: 22px;
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                background: linear-gradient(135deg, #0b3f84 0%, #0b6db4 58%, #0e87c8 100%);
+                box-shadow: 0 18px 40px rgba(9, 81, 167, 0.3);
+            }
+            .season-overview__header {
+                margin-bottom: 16px;
+            }
+            .season-overview__title {
+                margin: 0;
+                font-size: clamp(22px, 2.6vw, 34px);
+                font-weight: 900;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                color: #ffffff;
+            }
+            .season-overview__subtitle {
+                margin: 6px 0 0;
+                color: rgba(255, 255, 255, 0.82);
+                font-size: 0.95rem;
+            }
+            .season-overview__groups {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+            }
+            .season-overview__group {
+                position: relative;
+                overflow: hidden;
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                padding: 14px;
+                box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+            }
+            .season-overview__group h4 {
+                margin: 0 0 10px;
+                font-size: 0.92rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #ffffff;
+                display: inline-flex;
+                align-items: center;
+                border-radius: 8px;
+                padding: 6px 10px;
+                background: rgba(44, 44, 44, 0.46);
+            }
+            .season-overview__group--batting {
+                background: linear-gradient(180deg, #3fcad0 0%, #0f76ad 100%);
+            }
+            .season-overview__group--bowling {
+                background: linear-gradient(180deg, #f4d95f 0%, #f23735 100%);
+            }
+            .season-overview__group--fielding {
+                background: linear-gradient(135deg, #ff2e68 0%, #f20c2e 100%);
+            }
+            .season-overview__group--insights {
+                background: linear-gradient(145deg, #54415d 0%, #0c0a55 100%);
+            }
+            .season-overview__stats {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+            .season-overview__stats > div {
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                background: rgba(15, 23, 42, 0.2);
+                padding: 10px;
+                display: grid;
+                gap: 4px;
+            }
+            .season-overview__stats span {
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 0.07em;
+                color: rgba(255, 255, 255, 0.86);
+                font-weight: 700;
+            }
+            .season-overview__stats strong {
+                font-size: 1.08rem;
+                line-height: 1.1;
+                color: #ffffff;
+                font-weight: 900;
+            }
+            @media (max-width: 991px) {
+                .season-overview__groups {
+                    grid-template-columns: 1fr;
+                }
+            }
+            @media (max-width: 575px) {
+                .season-overview {
+                    padding: 16px;
+                }
+                .season-overview__stats {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+                    <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"CollectionPage","name":"Pro HPCL Cricket Stats","url":"{{BASE}}/stats","about":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","sport":"Cricket","url":"{{BASE}}"},"mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"Person","name":"Jatin Pradhan (raja)","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/jatin-pradhan-raja"}},{"@type":"ListItem","position":2,"item":{"@type":"Person","name":"Anuj Rana","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/anuj-rana-2"}},{"@type":"ListItem","position":3,"item":{"@type":"Person","name":"Sandeep Bhattacharya","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/sandeep-bhattacharya"}},{"@type":"ListItem","position":4,"item":{"@type":"Person","name":"Naksh","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/naksh"}},{"@type":"ListItem","position":5,"item":{"@type":"Person","name":"Sachin","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/sachin-5"}},{"@type":"ListItem","position":6,"item":{"@type":"Person","name":"ASHISH MALHOTRA","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/ashish-malhotra-1"}},{"@type":"ListItem","position":7,"item":{"@type":"Person","name":"Bobby Mehta","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/bobby-mehta"}},{"@type":"ListItem","position":8,"item":{"@type":"Person","name":"Harsh Sharma","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/harsh-sharma-1"}},{"@type":"ListItem","position":9,"item":{"@type":"Person","name":"Bhagvender","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/bhagvender"}},{"@type":"ListItem","position":10,"item":{"@type":"Person","name":"Sunil Thakur","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/sunil-thakur-5"}},{"@type":"ListItem","position":11,"item":{"@type":"Person","name":"Nitish Sharma","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/nitish-sharma-2"}},{"@type":"ListItem","position":12,"item":{"@type":"Person","name":"Harsh Sharma","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/harsh-sharma"}},{"@type":"ListItem","position":13,"item":{"@type":"Person","name":"Shubham Thakur","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/shubham-thakur-1"}},{"@type":"ListItem","position":14,"item":{"@type":"Person","name":"Himashu Thakur","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/himashu-thakur-1"}},{"@type":"ListItem","position":15,"item":{"@type":"Person","name":"Aalokit","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/aalokit"}},{"@type":"ListItem","position":16,"item":{"@type":"Person","name":"Anil Yadav","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/anil-yadav-1"}},{"@type":"ListItem","position":17,"item":{"@type":"Person","name":"Deepak","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/deepak-1"}},{"@type":"ListItem","position":18,"item":{"@type":"Person","name":"Ankush","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/ankush-3"}},{"@type":"ListItem","position":19,"item":{"@type":"Person","name":"Uday","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/uday"}},{"@type":"ListItem","position":20,"item":{"@type":"Person","name":"Sudanshu Machhan","jobTitle":"Cricketer","knowsAbout":"Cricket","url":"{{BASE}}/player/sudanshu-machhan"}}]}}
+        </script>
+@endsection
+
+@section('content')
+                        
+    <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="section-padding">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                    <li class="breadcrumb-item active fw-semibold" aria-current="page">Stats</li>
+                </ol>
+            </nav>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="stats-hero">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div>
+                                <h2 class="section-title mb-2">Overall Stats</h2>
+                                <p class="mb-0 text-muted">All-time stats across Pro HPCL seasons.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{BASE}}/teams" class="btn btn-outline-primary btn-sm">Teams</a>
+                                                                    <a href="{{BASE}}/stats/season/4" class="btn btn-primary btn-sm">Latest Season</a>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stats-results">
+                <div class="row mb-4">
+    <div class="col-12">
+        <form method="GET" action="{{BASE}}/stats" class="filter-bar">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <select name="season" class="form-select filter-control js-filter-select">
+                        <option value="">All Seasons</option>
+                                                    <option value="4">
+                                Season 4
+                            </option>
+                                                    <option value="3">
+                                Season 3
+                            </option>
+                                                    <option value="2">
+                                Season 2
+                            </option>
+                                                    <option value="1">
+                                Season 1
+                            </option>
+                                            </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select name="metric" class="form-select filter-control js-filter-select" disabled>
+                        <option value="runs" selected>Most Runs</option>
+                        <option value="fours">Most Fours</option>
+                        <option value="sixes">Most Sixes</option>
+                        <option value="wickets">Most Wickets</option>
+                        <option value="mvp">Top MVP</option>
+                        <option value="mvp_batting">MVP Batting</option>
+                        <option value="mvp_bowling">MVP Bowling</option>
+                        <option value="mvp_fielding">MVP Fielding</option>
+                        <option value="avg">Best Average</option>
+                        <option value="sr">Best Strike Rate</option>
+                        <option value="fifties">Most 50s</option>
+                        <option value="hundreds">Most 100s</option>
+                        <option value="hs">Highest Score</option>
+                        <option value="balls_faced">Most Balls Faced</option>
+                        <option value="balls_bowled">Most Balls Bowled</option>
+                        <option value="runs_conceded">Most Runs Conceded</option>
+                        <option value="catches">Most Catches</option>
+                        <option value="stumpings">Most Stumpings</option>
+                        <option value="bowl_avg">Best Bowling Average</option>
+                        <option value="econ">Best Bowling Economy</option>
+                        <option value="bowl_sr">Best Bowling Strike Rate</option>
+                        <option value="best_bowling">Best Bowling Figures</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select name="team" class="form-select filter-control js-filter-select" disabled>
+                        <option value="">All Teams</option>
+                                                    <option value="3">
+                                ACC Theog
+                            </option>
+                                                    <option value="36">
+                                Acc Thyog
+                            </option>
+                                                    <option value="9">
+                                Aryans XI
+                            </option>
+                                                    <option value="19">
+                                Aspire 11
+                            </option>
+                                                    <option value="26">
+                                Aspire IIT
+                            </option>
+                                                    <option value="44">
+                                Bat Breaker Rampur
+                            </option>
+                                                    <option value="28">
+                                Black Boys
+                            </option>
+                                                    <option value="42">
+                                Boom Shiva Blasters
+                            </option>
+                                                    <option value="30">
+                                Chudeshwar Legends Sirmaur
+                            </option>
+                                                    <option value="11">
+                                Chudeshwar Leopards
+                            </option>
+                                                    <option value="50">
+                                Commando The Rising Star Solan
+                            </option>
+                                                    <option value="33">
+                                Commando Warrior Solan
+                            </option>
+                                                    <option value="29">
+                                CYBERBELLS TECH TITANS KOTKHAI
+                            </option>
+                                                    <option value="32">
+                                DICTATORS BHABA NAGAR
+                            </option>
+                                                    <option value="24">
+                                Gladiators
+                            </option>
+                                                    <option value="39">
+                                HITHAWKS SHIMLA
+                            </option>
+                                                    <option value="23">
+                                HP Police Shimla
+                            </option>
+                                                    <option value="37">
+                                INDIAN SAGA H COPS
+                            </option>
+                                                    <option value="45">
+                                Indian Saga Royals Shimla
+                            </option>
+                                                    <option value="34">
+                                Jindal Warrior
+                            </option>
+                                                    <option value="6">
+                                Jindal Warriors
+                            </option>
+                                                    <option value="38">
+                                JMR ROYALS
+                            </option>
+                                                    <option value="47">
+                                Kanwills Titans
+                            </option>
+                                                    <option value="13">
+                                Karsog XI
+                            </option>
+                                                    <option value="21">
+                                Knight Hawks
+                            </option>
+                                                    <option value="4">
+                                Mahakaal
+                            </option>
+                                                    <option value="7">
+                                Mandi Marvels
+                            </option>
+                                                    <option value="43">
+                                Mountain Army by TGW
+                            </option>
+                                                    <option value="12">
+                                PLB Super King
+                            </option>
+                                                    <option value="35">
+                                Radhe Krishna Warriors
+                            </option>
+                                                    <option value="5">
+                                Rising Star Baldeyan
+                            </option>
+                                                    <option value="20">
+                                Rising Stars Baldeyain
+                            </option>
+                                                    <option value="22">
+                                RMC Kotkhai
+                            </option>
+                                                    <option value="8">
+                                Royal Rivals Sarkaghat
+                            </option>
+                                                    <option value="41">
+                                Shangrila Farms
+                            </option>
+                                                    <option value="49">
+                                Shilonbagh Royals
+                            </option>
+                                                    <option value="27">
+                                Shimla Blasters
+                            </option>
+                                                    <option value="18">
+                                Shimla Gladiators
+                            </option>
+                                                    <option value="16">
+                                Shimla Royals
+                            </option>
+                                                    <option value="15">
+                                Shimla Titans
+                            </option>
+                                                    <option value="31">
+                                Sidhpur Warriors
+                            </option>
+                                                    <option value="40">
+                                Silent Killer Bilaspur
+                            </option>
+                                                    <option value="14">
+                                Theog Tigers
+                            </option>
+                                                    <option value="25">
+                                TU Matiyana
+                            </option>
+                                                    <option value="46">
+                                Valley Victor Jubbal
+                            </option>
+                                                    <option value="17">
+                                Wine Association
+                            </option>
+                                                    <option value="10">
+                                Yorkshire Mandyals
+                            </option>
+                                            </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <input type="text" name="q" value="" class="form-control filter-control" placeholder="Search By Player Name" disabled>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <section class="season-overview mb-4" aria-label="All seasons summary">
+        <div class="season-overview__header">
+            <h3 class="season-overview__title">All Seasons Summary</h3>
+            <p class="season-overview__subtitle">Aggregated Pro HPCL performance snapshot.</p>
+        </div>
+
+        <div class="season-overview__groups">
+            <article class="season-overview__group season-overview__group--batting">
+                <h4>Batting</h4>
+                <div class="season-overview__stats">
+                    <div><span>Runs</span><strong>27,817</strong></div>
+                    <div><span>Innings</span><strong>1,429</strong></div>
+                    <div><span>Balls Faced</span><strong>19,868</strong></div>
+                    <div><span>4s / 6s</span><strong>2,606 / 1,450</strong></div>
+                    <div><span>50s / 100s</span><strong>106 / 4</strong></div>
+                    <div><span>Strike Rate</span><strong>140.01</strong></div>
+                </div>
+            </article>
+
+            <article class="season-overview__group season-overview__group--bowling">
+                <h4>Bowling</h4>
+                <div class="season-overview__stats">
+                    <div><span>Wickets</span><strong>1,288</strong></div>
+                    <div><span>Balls Bowled</span><strong>19,645</strong></div>
+                    <div><span>Runs Conceded</span><strong>29,070</strong></div>
+                    <div><span>Economy</span><strong>8.88</strong></div>
+                    <div><span>Balls / Wicket</span><strong>15.25</strong></div>
+                </div>
+            </article>
+
+            <article class="season-overview__group season-overview__group--fielding">
+                <h4>Fielding</h4>
+                <div class="season-overview__stats">
+                    <div><span>Catches</span><strong>652</strong></div>
+                    <div><span>Stumpings</span><strong>57</strong></div>
+                    <div><span>Matches</span><strong>3,134</strong></div>
+                </div>
+            </article>
+
+            <article class="season-overview__group season-overview__group--insights">
+                <h4>Boundary Insights</h4>
+                <div class="season-overview__stats">
+                    <div><span>Total Boundaries</span><strong>4,056</strong></div>
+                    <div><span>Boundary %</span><strong>20.41</strong></div>
+                    <div><span>Boundary Frequency</span><strong>4.90</strong></div>
+                </div>
+            </article>
+        </div>
+    </section>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="h5 fw-bold mb-3">Season Stats</h3>
+                </div>
+            </div>
+            <div class="row">
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body">
+                                <h4 class="h6 mb-2">Season 4</h4>
+                                <p class="text-muted small mb-3">View full stats for this season.</p>
+                                <a href="{{BASE}}/stats/season/4" class="btn btn-primary btn-sm">View Season Stats</a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body">
+                                <h4 class="h6 mb-2">Season 3</h4>
+                                <p class="text-muted small mb-3">View full stats for this season.</p>
+                                <a href="{{BASE}}/stats/season/3" class="btn btn-primary btn-sm">View Season Stats</a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body">
+                                <h4 class="h6 mb-2">Season 2</h4>
+                                <p class="text-muted small mb-3">View full stats for this season.</p>
+                                <a href="{{BASE}}/stats/season/2" class="btn btn-primary btn-sm">View Season Stats</a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body">
+                                <h4 class="h6 mb-2">Season 1</h4>
+                                <p class="text-muted small mb-3">View full stats for this season.</p>
+                                <a href="{{BASE}}/stats/season/1" class="btn btn-primary btn-sm">View Season Stats</a>
+                            </div>
+                        </div>
+                    </div>
+                            </div>
+        </div>
+        </section>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+            <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const results = document.getElementById('stats-results');
+                let debounceTimer = null;
+
+                const getForm = () => document.querySelector('.filter-bar');
+
+                const runAjax = (override = {}) => {
+                    const form = getForm();
+                    if (!form) {
+                        return;
+                    }
+                    const formData = new FormData(form);
+                    Object.entries(override).forEach(([key, value]) => formData.set(key, value));
+                    const params = new URLSearchParams(formData);
+
+                    if (results) {
+                        results.style.opacity = '0.6';
+                    }
+
+                    fetch(`${form.getAttribute('action')}?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            if (results && data.html) {
+                                results.innerHTML = data.html;
+                            }
+                        })
+                        .finally(() => {
+                            if (results) {
+                                results.style.opacity = '1';
+                            }
+                        });
+                };
+
+                document.addEventListener('change', (event) => {
+                    if (event.target && event.target.classList.contains('js-filter-select')) {
+                        runAjax();
+                    }
+                });
+
+                document.addEventListener('input', (event) => {
+                    if (event.target && event.target.getAttribute('name') === 'q') {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => runAjax(), 350);
+                    }
+                });
+
+            });
+        </script>
+@endsection

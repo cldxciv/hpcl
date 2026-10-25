@@ -1,0 +1,15 @@
+@extends('layouts.app')
+
+@section('title', '{!! $heading !!} | Pro HPCL')
+@section('description', '{!! $message !!}')
+@section('canonical', '{{BASE}}/')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+@include('partials.error-styles')
+@endsection
+
+@section('content')
+@include('partials.error-page')
+@endsection

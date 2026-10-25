@@ -1,0 +1,24 @@
+    <title>@yield('title')</title>
+    <meta name="description" content="@yield('description')">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+    <link rel="canonical" href="@yield('canonical')">
+
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:locale" content="en">
+    <meta property="og:site_name" content="Pro HPCL">
+    <meta property="og:title" content="@yield('title')">
+    <meta property="og:description" content="@yield('description')">
+    <meta property="og:url" content="@hasSection('og_url')@yield('og_url')@else@yield('canonical')@endif">
+    <meta property="og:image" content="@yield('image', '{{BASE}}/seo.png')">
+    <meta property="og:image:secure_url" content="@yield('image', '{{BASE}}/seo.png')">
+    <meta property="og:image:type" content="@yield('image_type', 'image/png')">
+    <meta property="og:image:width" content="@yield('image_width', '1200')">
+    <meta property="og:image:height" content="@yield('image_height', '630')">
+    <meta property="og:image:alt" content="@yield('image_alt', 'Pro HPCL social preview image')">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@prohpcl">
+    <meta name="twitter:title" content="@yield('title')">
+    <meta name="twitter:description" content="@yield('description')">
+    <meta name="twitter:image" content="@yield('image', '{{BASE}}/seo.png')">
+    <meta name="twitter:image:alt" content="@yield('image_alt', 'Pro HPCL social preview image')">

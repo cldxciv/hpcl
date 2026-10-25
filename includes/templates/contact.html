@@ -1,0 +1,142 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/contact')
+
+@section('head')
+        <style>
+        .contact-page {
+            padding: 24px 0 48px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1.4fr;
+            gap: 24px;
+        }
+
+        .contact-info-card,
+        .contact-form-card {
+            background: #fff;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
+            padding: 24px;
+        }
+
+        .contact-info-card h1,
+        .contact-form-card h2 {
+            color: #0b50a7;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+            margin: 0 0 14px;
+        }
+
+        .contact-info-card p,
+        .contact-info-card a {
+            color: #334155;
+            font-family: Roboto, sans-serif;
+            font-size: 1rem;
+            line-height: 1.65;
+            text-decoration: none;
+        }
+
+        .contact-info-card a:hover {
+            color: #0b50a7;
+        }
+
+        .contact-list {
+            margin: 16px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .contact-list li {
+            margin-bottom: 10px;
+        }
+
+        .contact-form-card label {
+            font-family: Roboto, sans-serif;
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .contact-form-card .form-control {
+            border: 1px solid rgba(11, 80, 167, 0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: Roboto, sans-serif;
+            color: #0f172a;
+        }
+
+        .contact-form-card .form-control:focus {
+            border-color: #0b50a7;
+            box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.16);
+        }
+
+        .contact-submit-btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 20px;
+            background: #0b50a7;
+            color: #fff;
+            font-family: "Barlow", sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            transition: background-color 0.2s ease;
+        }
+
+        .contact-submit-btn:hover {
+            background: #0a4189;
+        }
+
+        @media (max-width: 991px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Contact","item":"{{BASE}}/contact"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Contact</li>
+                                                            </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+    <div class="contact-page">
+        <div class="container">
+            <div class="contact-grid">
+                <section class="contact-info-card">
+                    <h1>Contact Us</h1>
+                    <p>
+                        Have a question about Pro HPCL registrations, matches, or sponsorships?
+                        Send us a message and our team will get back to you.
+                    </p>
+                    <ul class="contact-list">
+                        <li><strong>Email:</strong> <a href="mailto:{!! $email !!}">{!! $email !!}</a></li>
+{!! $phone_items !!}
+                        <li><strong>Address:</strong> Shimla, Himachal Pradesh</li>
+                    </ul>
+                </section>
+
+                <section class="contact-form-card">
+                    <h2>Send Message</h2>
+                    <p>For enquiries, email <a href="mailto:{!! $email !!}">{!! $email !!}</a></p>
+                </section>
+            </div>
+        </div>
+    </div>
+@endsection

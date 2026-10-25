@@ -1,0 +1,337 @@
+@extends('layouts.app')
+
+@section('title', '4 Ball 4 Sixes By Anuj Rana | Pro HPCL')
+@section('description', '4 Ball 4 Sixes By Anuj Rana')
+@section('canonical', '{{BASE}}/videos/4-ball-4-sixes-by-anuj-rana')
+@section('body_class', 'home-unified-theme video-watch-page')
+
+@section('head')
+        <style>
+        .video-watch-wrap { padding: 28px 16px 56px; }
+        .video-watch-container { width: min(1140px, 100%); margin: 0 auto; }
+        .video-watch-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 20px; }
+        .video-watch-card { background: #fff; border: 1px solid #dbeafe; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06); }
+        .video-frame-wrap { aspect-ratio: 16 / 9; background: #000; }
+        .video-frame { width: 100%; height: 100%; border: 0; }
+        .video-frame-wrap:fullscreen,
+        .video-frame-wrap:-webkit-full-screen,
+        .video-frame:fullscreen,
+        .video-frame:-webkit-full-screen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            aspect-ratio: auto !important;
+            background: #000;
+        }
+        .video-meta { padding: 16px; }
+        .video-title { margin: 0 0 8px; font-family: 'Barlow', sans-serif; color: #0f172a; font-weight: 700; font-size: clamp(1.1rem, 2vw, 1.35rem); }
+        .video-meta-row { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .video-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #dbeafe;
+            background: #f8fbff;
+            color: #334155;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            line-height: 1;
+            text-decoration: none;
+        }
+        .video-meta-chip svg { width: 14px; height: 14px; color: #0951a8; }
+        .video-meta-chip:hover { color: #0f172a; background: #eef6ff; }
+        .video-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .video-share-wrap { margin-top: 12px; }
+        .video-share-title { margin: 0 0 6px; color: #475569; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .video-share-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .video-share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #1e293b;
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-decoration: none;
+        }
+        .video-share-btn svg { width: 14px; height: 14px; }
+        .video-share-btn:hover { background: #f8fafc; color: #0f172a; }
+        .video-description {
+            margin: 12px 0 0;
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        .video-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .video-tag-section { margin-top: 12px; }
+        .video-tag-section-title { margin: 0 0 6px; color: #475569; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .video-tag { display: inline-flex; align-items: center; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; border-radius: 999px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; text-decoration: none; }
+        .video-tag:hover { background: #e2e8f0; color: #0f172a; }
+        .video-btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 999px; padding: 9px 14px; font-weight: 700; font-size: 0.82rem; }
+        .video-btn-primary { background: #0951a8; color: #fff; }
+        .video-btn-primary:hover { color: #fff; background: #0c4487; }
+        .video-btn-light { border: 1px solid #cbd5e1; color: #1e293b; background: #fff; }
+        .video-btn-light:hover { color: #1e293b; background: #f8fafc; }
+        .video-related { background: #fff; border: 1px solid #dbeafe; border-radius: 14px; padding: 14px; box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06); }
+        .video-related-title { margin: 0 0 10px; color: #0f172a; font-weight: 700; font-size: 1rem; }
+        .video-related-list { display: grid; gap: 10px; }
+        .video-related-item { display: grid; grid-template-columns: 120px 1fr; gap: 10px; text-decoration: none; color: inherit; }
+        .video-related-item img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: #0f172a; }
+        .video-related-item-title { margin: 0; color: #0f172a; font-size: 0.88rem; line-height: 1.35; font-weight: 700; }
+        .video-related-item-date { margin: 4px 0 0; color: #64748b; font-size: 0.78rem; }
+        @media (max-width: 980px) { .video-watch-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) {
+            .video-watch-wrap { padding: 18px 12px 40px; }
+            .video-watch-card {
+                border-radius: 12px;
+            }
+            .video-frame-wrap {
+                aspect-ratio: 16 / 9;
+                max-height: none;
+            }
+            .video-meta { padding: 12px; }
+            .video-meta-row { gap: 6px; }
+            .video-meta-chip { font-size: 0.72rem; }
+            .video-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .video-share-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .video-btn {
+                width: 100%;
+                min-height: 40px;
+            }
+            .video-related {
+                padding: 12px;
+            }
+            .video-related-item {
+                grid-template-columns: 104px 1fr;
+                gap: 8px;
+            }
+            .video-related-item-title {
+                font-size: 0.82rem;
+            }
+        }
+    </style>
+            <script type="application/ld+json">
+        {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": "4 Ball 4 Sixes By Anuj Rana",
+    "description": "4 Ball 4 Sixes By Anuj Rana",
+    "thumbnailUrl": [
+        "https://i.ytimg.com/vi/maIuVtIL3xI/maxresdefault.jpg"
+    ],
+    "uploadDate": "2025-05-02T19:48:30+05:30",
+    "url": "{{BASE}}/videos/4-ball-4-sixes-by-anuj-rana",
+    "mainEntityOfPage": "{{BASE}}/videos/4-ball-4-sixes-by-anuj-rana",
+    "embedUrl": "https://www.youtube.com/embed/maIuVtIL3xI",
+    "contentUrl": "https://www.youtube.com/watch?v=maIuVtIL3xI",
+    "keywords": null,
+    "potentialAction": {
+        "@type": "WatchAction",
+        "target": [
+            "{{BASE}}/videos/4-ball-4-sixes-by-anuj-rana",
+            "https://www.youtube.com/watch?v=maIuVtIL3xI"
+        ]
+    },
+    "interactionStatistic": {
+        "@type": "InteractionCounter",
+        "interactionType": {
+            "@type": "WatchAction"
+        },
+        "userInteractionCount": 346
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Pro HPCL"
+    }
+}
+    </script>
+@endsection
+
+@section('content')
+                <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="video-watch-wrap">
+            <div class="video-watch-container">
+                <nav aria-label="breadcrumb" class="my-1">
+                    <ol class="breadcrumb team-breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{BASE}}/videos">Videos</a></li>
+                        <li class="breadcrumb-item active fw-semibold" aria-current="page">4 Ball 4 Sixes By Anuj Rana</li>
+                    </ol>
+                </nav>
+
+                <div class="video-watch-grid">
+                    <article class="video-watch-card">
+                        <div class="video-frame-wrap">
+                            <iframe class="video-frame" src="https://www.youtube.com/embed/maIuVtIL3xI?autoplay=1&amp;rel=0&amp;modestbranding=1&amp;fs=1&amp;playsinline=0" title="4 Ball 4 Sixes By Anuj Rana" loading="eager" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+                        </div>
+                        <div class="video-meta">
+                            <h1 class="video-title">4 Ball 4 Sixes By Anuj Rana</h1>
+                            <div class="video-meta-row">
+                                <span class="video-meta-chip">
+                                    <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Z"></path></svg>
+                                    02 May 2025
+                                </span>
+                                <span class="video-meta-chip">
+                                    <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Z"></path></svg>
+                                    346
+                                </span>
+                                                            </div>
+                            <p class="video-description">4 Ball 4 Sixes By Anuj Rana</p>
+                                                        <div class="video-actions">
+                                <a class="video-btn video-btn-primary" href="https://www.youtube.com/watch?v=maIuVtIL3xI" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+                                <a class="video-btn video-btn-light" href="{{BASE}}/videos">All Videos</a>
+                                <a class="video-btn video-btn-light" href="https://www.youtube.com/@prohpcl" target="_blank" rel="noopener noreferrer">Open Channel</a>
+                            </div>
+                            <div class="video-share-wrap">
+                                <p class="video-share-title">Share this video</p>
+                                <div class="video-share-grid">
+                                    <a class="video-share-btn" href="https://wa.me/?text=4+Ball+4+Sixes+By+Anuj+Rana+http%3A%2F%2Fcore-export.test%2Fvideos%2F4-ball-4-sixes-by-anuj-rana" target="_blank" rel="noopener noreferrer">
+                                        <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.7 14.93L2 22l5.2-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.06-1.11l-.29-.17-3.09.77.83-3.02-.19-.31A8 8 0 1 1 12 20Z"></path></svg>
+                                        WhatsApp
+                                    </a>
+                                    <a class="video-share-btn" href="https://twitter.com/intent/tweet?url=http%3A%2F%2Fcore-export.test%2Fvideos%2F4-ball-4-sixes-by-anuj-rana&amp;text=4+Ball+4+Sixes+By+Anuj+Rana" target="_blank" rel="noopener noreferrer">
+                                        <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-6.77 7.73L23 22h-6.1l-4.78-6.27L6.63 22H3.5l7.24-8.28L1 2h6.25l4.32 5.7L18.9 2Z"></path></svg>
+                                        X
+                                    </a>
+                                    <a class="video-share-btn" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fcore-export.test%2Fvideos%2F4-ball-4-sixes-by-anuj-rana" target="_blank" rel="noopener noreferrer">
+                                        <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.87.25-1.46 1.5-1.46h1.6V5a20 20 0 0 0-2.3-.12c-2.3 0-3.8 1.38-3.8 3.95V11H8v3h2.4v8h3.1Z"></path></svg>
+                                        Facebook
+                                    </a>
+                                    <a class="video-share-btn" href="https://t.me/share/url?url=http%3A%2F%2Fcore-export.test%2Fvideos%2F4-ball-4-sixes-by-anuj-rana&amp;text=4+Ball+4+Sixes+By+Anuj+Rana" target="_blank" rel="noopener noreferrer">
+                                        <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m21.94 4.66-3.17 14.95c-.24 1.05-.87 1.31-1.77.82l-4.9-3.6-2.37 2.28c-.26.26-.48.48-.99.48l.35-5 9.1-8.22c.4-.35-.08-.55-.61-.2L6.33 13.9 1.5 12.4c-1.05-.33-1.06-1.05.22-1.56l18.84-7.27c.87-.32 1.64.2 1.38 1.09Z"></path></svg>
+                                        Telegram
+                                    </a>
+                                    <a href="#" class="video-share-btn" data-copy-video-link="{{BASE}}/videos/4-ball-4-sixes-by-anuj-rana">
+                                        <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 3a2 2 0 0 0-2 2v10h2V5h10V3H8Zm3 4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-8Z"></path></svg>
+                                        <span data-copy-label>Copy Link</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <aside class="video-related">
+                        <h2 class="video-related-title">Related Videos</h2>
+                        <div class="video-related-list">
+                                                            <a class="video-related-item" href="{{BASE}}/videos/inside-shimla-cricket-ground-pro-hpcl-season-4-venue-tour-ground-report">
+                                    <img src="https://i.ytimg.com/vi/JrP_fX2alCI/maxresdefault.jpg" alt="Inside Shimla Cricket Ground | Pro HPCL Season 4 Venue Tour &amp; Ground Report" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">Inside Shimla Cricket Ground | Pro HPCL Season 4 Venue Tour &amp; Ground Report</p>
+                                        <p class="video-related-item-date">26 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/energetic-interview-with-mr-sahib-singh-owner-of-shimla-royals-pro-hpcl-season-4">
+                                    <img src="https://i.ytimg.com/vi/NaZUbSrYUEE/maxresdefault.jpg" alt="Energetic Interview with Mr. Sahib Singh | Owner of Shimla Royals | Pro HPCL Season 4" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">Energetic Interview with Mr. Sahib Singh | Owner of Shimla Royals | Pro HPCL Season 4</p>
+                                        <p class="video-related-item-date">16 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/hpcl-season-4-franchise-meet-2026-prohpcl-himachalcricket">
+                                    <img src="https://i.ytimg.com/vi/NZWH_pGcPc0/maxresdefault.jpg" alt="&#127951; HPCL Season 4 | Franchise Meet 2026  #prohpcl #himachalcricket" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">&#127951; HPCL Season 4 | Franchise Meet 2026  #prohpcl #himachalcricket</p>
+                                        <p class="video-related-item-date">16 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/exclusive-interview-with-janu-handa-co-owner-of-mj-stars-hpcl-season-4-prohpcl">
+                                    <img src="https://i.ytimg.com/vi/5tkM42MGlpE/maxresdefault.jpg" alt="&#127908; Exclusive Interview with Janu Handa Co-Owner of MJ Stars &#11088; | HPCL Season 4 #prohpcl" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">&#127908; Exclusive Interview with Janu Handa Co-Owner of MJ Stars &#11088; | HPCL Season 4 #prohpcl</p>
+                                        <p class="video-related-item-date">16 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/aspire-iit-shimla-no1-coaching-institute-in-himachal-pradesh-prohpcl">
+                                    <img src="https://i.ytimg.com/vi/1GZT-FQ7V3k/maxresdefault.jpg" alt="ASPIRE IIT SHIMLA | No.1 Coaching Institute in Himachal Pradesh &#128591;&#127996;&#127951; #prohpcl" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">ASPIRE IIT SHIMLA | No.1 Coaching Institute in Himachal Pradesh &#128591;&#127996;&#127951; #prohpcl</p>
+                                        <p class="video-related-item-date">10 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/pro-hpcl-season-3-highlights-rahul-sen-shanathara-para-45-rana-para-rana-aauta-jmr-royals">
+                                    <img src="https://i.ytimg.com/vi/Z2s5PS6SkGM/maxresdefault.jpg" alt="PRO HPCL SEASON 3 HIGHLIGHTS | Rahul Sen &#2358;&#2366;&#2344;&#2342;&#2366;&#2352; &#2346;&#2366;&#2352;&#2368; 45 &#2352;&#2344; &#2346;&#2352; &#2352;&#2344; &#2310;&#2313;&#2335; | JMR Royals" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">PRO HPCL SEASON 3 HIGHLIGHTS | Rahul Sen &#2358;&#2366;&#2344;&#2342;&#2366;&#2352; &#2346;&#2366;&#2352;&#2368; 45 &#2352;&#2344; &#2346;&#2352; &#2352;&#2344; &#2310;&#2313;&#2335; | JMR Royals</p>
+                                        <p class="video-related-item-date">09 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/ac-bhardwaj-now-one-of-our-franchise-owner-in-season-4">
+                                    <img src="https://i.ytimg.com/vi/rsE81H2dGAQ/maxresdefault.jpg" alt="AC Bhardwaj now one of our Franchise Owner in Season 4" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">AC Bhardwaj now one of our Franchise Owner in Season 4</p>
+                                        <p class="video-related-item-date">05 Mar 2026</p>
+                                    </div>
+                                </a>
+                                                            <a class="video-related-item" href="{{BASE}}/videos/pro-hpcl-season-4-registration-forms-opening-soon">
+                                    <img src="https://i.ytimg.com/vi/EIySpFSgdAU/maxresdefault.jpg" alt="Pro HPCL Season 4 Registration Forms Opening Soon" loading="lazy">
+                                    <div>
+                                        <p class="video-related-item-title">Pro HPCL Season 4 Registration Forms Opening Soon</p>
+                                        <p class="video-related-item-date">26 Feb 2026</p>
+                                    </div>
+                                </a>
+                                                    </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyBtn = document.querySelector('[data-copy-video-link]');
+            if (!copyBtn) {
+                return;
+            }
+
+            copyBtn.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const url = copyBtn.getAttribute('data-copy-video-link') || '';
+                if (!url) {
+                    return;
+                }
+
+                const originalText = copyBtn.querySelector('[data-copy-label]')?.textContent || 'Copy Link';
+
+                try {
+                    await navigator.clipboard.writeText(url);
+                    if (copyBtn.querySelector('[data-copy-label]')) {
+                        copyBtn.querySelector('[data-copy-label]').textContent = 'Copied';
+                    }
+                } catch (e) {
+                    window.prompt('Copy this link', url);
+                }
+
+                setTimeout(() => {
+                    if (copyBtn.querySelector('[data-copy-label]')) {
+                        copyBtn.querySelector('[data-copy-label]').textContent = originalText;
+                    }
+                }, 1800);
+            });
+        });
+    </script>
+@endsection

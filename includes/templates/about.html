@@ -1,0 +1,681 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/about')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+        <style>
+        .about-page {
+            padding: 28px 0 48px;
+        }
+        .about-history {
+            margin-top: 42px;
+        }
+        .about-history__title {
+            margin: 0 0 10px;
+            font-family: "Bebas Neue", sans-serif;
+            font-size: clamp(2rem, 3vw, 2.8rem);
+            letter-spacing: 0.02em;
+            color: #0b50a7;
+        }
+        .about-history__intro {
+            margin: 0 0 22px;
+            color: #334155;
+            font: 500 1rem/1.7 Roboto, sans-serif;
+            max-width: 88ch;
+        }
+        .history-card {
+            background: #ffffff;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 16px;
+            box-shadow: 0 12px 26px rgba(2, 6, 23, 0.08);
+            padding: 18px;
+            height: 100%;
+        }
+        .history-card h3 {
+            margin: 0 0 10px;
+            font: 700 1.02rem/1.2 Roboto, sans-serif;
+            color: #0f172a;
+        }
+        .history-table-wrap {
+            overflow-x: auto;
+        }
+        .history-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            font-family: Roboto, sans-serif;
+            font-size: 0.92rem;
+        }
+        .history-table th,
+        .history-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 8px;
+            text-align: left;
+            vertical-align: top;
+            color: #1e293b;
+        }
+        .history-table th {
+            font-weight: 700;
+            color: #0b50a7;
+            background: #f8fafc;
+        }
+        .history-timeline {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 12px;
+        }
+        .history-timeline li {
+            position: relative;
+            padding: 10px 12px 10px 16px;
+            border-left: 3px solid #0b50a7;
+            background: #f8fafc;
+            border-radius: 8px;
+            color: #334155;
+            font: 400 0.95rem/1.6 Roboto, sans-serif;
+        }
+        .history-timeline strong {
+            color: #0f172a;
+        }
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .history-stat {
+            background: linear-gradient(135deg, #0b50a7, #0a3d80);
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+        }
+        .history-stat__label {
+            margin: 0;
+            opacity: 0.9;
+            font: 700 0.78rem/1.2 Roboto, sans-serif;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .history-stat__value {
+            margin: 6px 0 0;
+            font: 700 1.3rem/1 "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+        }
+        body.home-unified-theme .about-page .history-stat .history-stat__label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        body.home-unified-theme .about-page .history-stat .history-stat__value {
+            color: #ffffff;
+        }
+        .history-note {
+            margin: 12px 0 0;
+            color: #475569;
+            font: 400 0.9rem/1.6 Roboto, sans-serif;
+        }
+        .history-infra-list {
+            margin: 10px 0 0;
+            padding-left: 18px;
+            color: #334155;
+            font: 400 0.95rem/1.7 Roboto, sans-serif;
+        }
+        .history-infra-list strong {
+            color: #0f172a;
+        }
+
+        .about-card {
+            position: relative;
+            border-radius: 16px;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            box-shadow: 0 12px 28px rgba(2, 6, 23, 0.08);
+            overflow: hidden;
+            transition: transform 240ms ease, box-shadow 240ms ease, filter 240ms ease;
+            background: #ffffff;
+        }
+        .about-card--media {
+            background: #ffffff;
+        }
+        .about-card--copy {
+            background: #ffffff;
+        }
+
+        .about-lead-image {
+            width: 100%;
+            height: 100%;
+            min-height: 260px;
+            object-fit: cover;
+            transition: transform 300ms ease;
+        }
+
+        .about-copy {
+            padding: 24px;
+        }
+
+        .about-copy h1,
+        .about-founders h2 {
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+            color: #0b50a7;
+        }
+
+        .about-copy p {
+            color: #334155;
+            line-height: 1.7;
+            font-family: Roboto, sans-serif;
+        }
+
+        .founder-card {
+            background: linear-gradient(180deg, #3fcad0 0%, #0f76ad 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(2, 6, 23, 0.16);
+            overflow: hidden;
+            height: 100%;
+            transition: transform 240ms ease, box-shadow 240ms ease, filter 240ms ease;
+        }
+        .founder-card--teal { background: linear-gradient(180deg, #3fcad0 0%, #0f76ad 100%); }
+        .founder-card--orange { background: linear-gradient(180deg, #f4d95f 0%, #f23735 100%); }
+        .founder-card--red { background: linear-gradient(135deg, #ff2e68 0%, #f20c2e 100%); }
+        .founder-card--purple { background: linear-gradient(136deg, #7c1f92 0%, #4a196f 100%); }
+
+        .founder-card img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            object-position: center;
+            background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+            transition: transform 280ms ease;
+        }
+
+        .founder-card-body {
+            padding: 18px;
+            background: linear-gradient(180deg, rgba(7, 18, 40, 0.1) 0%, rgba(7, 18, 40, 0.55) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .founder-card h3 {
+            margin: 0 0 8px;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-family: "Bebas Neue", sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1;
+        }
+
+        .founder-card p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: Roboto, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        body.home-unified-theme .about-page .founder-card h3 {
+            color: #ffffff;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+        }
+        body.home-unified-theme .about-page .founder-card p {
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
+        }
+
+        .about-card:hover,
+        .founder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 28px rgba(2, 6, 23, 0.14);
+            filter: saturate(1.01);
+        }
+
+        .about-card:hover .about-lead-image,
+        .founder-card:hover img {
+            transform: scale(1.03);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .about-card,
+            .founder-card,
+            .about-lead-image,
+            .founder-card img {
+                transition: none !important;
+                transform: none !important;
+            }
+        }
+        @media (max-width: 991px) {
+            .history-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"About","item":"{{BASE}}/about"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">About</li>
+                                                            </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+                                <div class="about-page">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="about-card about-card--media h-100">
+                        <img class="about-lead-image" src="{{BASE}}/assets/imgs/about-us.jpg" alt="Pro HPCL">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-card about-card--copy h-100">
+                        <div class="about-copy">
+                            <h1 class="mb-3">About us</h1>
+                            <p class="mb-3">
+                                Pro HPCL is the ultimate cricketing extravaganza in Himachal Pradesh, dedicated to providing
+                                a
+                                professional platform for local talent. With its focus on authenticity and excellence, Pro
+                                HPCL
+                                stands out as one of the few leagues in the region to play with a white leather ball.
+                            </p>
+                            <p class="mb-0">
+                                We are Welfare Sports Association, as an organization, wish to provide a good cricketing
+                                platform wherein our local youth can participate and showcase their talent and move a step
+                                forward and play professional cricket and bring laurels to the State.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-founders">
+                <h2 class="mb-3">Meet Our Founders</h2>
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="founder-card founder-card--teal">
+                            <img src="{{BASE}}/assets/imgs/abhay-thakur.png" alt="Abhay Thakur">
+                            <div class="founder-card-body">
+                                <h3>Abhay Thakur</h3>
+                                <p>
+                                    Co-founder - Pro HPCL
+                                    <br>
+                                    Co-founder - Woodays, Kufri &amp; The White Haven BnB, Shimla
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="founder-card founder-card--orange">
+                            <img src="{{BASE}}/assets/imgs/ajay-thakur.png" alt="Ajay Thakur">
+                            <div class="founder-card-body">
+                                <h3>Ajay Thakur</h3>
+                                <p>
+                                    Co-founder - Pro HPCL
+                                    <br>
+                                    Director - Sai Eternal Foundation
+                                    <br>
+                                    Co-founder - Sai Shakti Solutions LLP
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="founder-card founder-card--red">
+                            <img src="{{BASE}}/assets/imgs/veenu-diwan.png" alt="Veenu Diwan">
+                            <div class="founder-card-body">
+                                <h3>Veenu Diwan</h3>
+                                <p>
+                                    Co-founder - Pro HPCL
+                                    <br>
+                                    Founder - DA Sports Factory &amp; DA Fitness Gyms
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="founder-card founder-card--purple">
+                            <img src="{{BASE}}/assets/imgs/sumit-sehgal.png" alt="Sumit Sehgal">
+                            <div class="founder-card-body">
+                                <h3>Sumit Sehgal</h3>
+                                <p>
+                                    Co-founder - Pro HPCL
+                                    <br>
+                                    Founder - Red Chilly Restaurants Dhalli &amp; Mashobra
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="about-history">
+                <h2 class="about-history__title">History &amp; Timeline</h2>
+                <p class="about-history__intro">
+                    Pro Himachal Premium Cricket League (Pro HPCL) is Himachal Pradesh's premier franchise-based T20 tournament.
+                    Built as a digital-first white-leather-ball league with an IPL-style format, it has evolved rapidly and is
+                    expanding season by season with growing participation and performance metrics.
+                </p>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="history-card">
+                            <h3>Tournament History &amp; Seasonal Evolution</h3>
+                            <div class="history-table-wrap">
+                                <table class="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Season</th>
+                                            <th>Year</th>
+                                            <th>Winner</th>
+                                            <th>Runner-up</th>
+                                            <th>Winner Prize</th>
+                                            <th>Prize Money (Winner)</th>
+                                            <th>Key Milestone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                                                                <tr>
+                                                <td>1</td>
+                                                <td>2022</td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/1/jindal-warriors">Jindal Warriors</a>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/1/rising-star-baldeyan">Rising Star Baldeyan</a>
+                                                                                                    </td>
+                                                <td>5.5 Lac</td>
+                                                <td>&#8377;5.55 Lakh</td>
+                                                <td>N/A</td>
+                                            </tr>
+                                                                                                                                <tr>
+                                                <td>2</td>
+                                                <td>2023</td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/2/yorkshire-mandyals">Yorkshire Mandyals</a>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/2/mandi-marvels">Mandi Marvels</a>
+                                                                                                    </td>
+                                                <td>7 Lac</td>
+                                                <td>&#8377;7.00 Lakh</td>
+                                                <td>N/A</td>
+                                            </tr>
+                                                                                                                                <tr>
+                                                <td>3</td>
+                                                <td>2025</td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/3/cyberbells-tech-titans-kotkhai">CYBERBELLS TECH TITANS KOTKHAI</a>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/teams/season/3/wine-association">Wine Association</a>
+                                                                                                    </td>
+                                                <td>N/A</td>
+                                                <td>N/A</td>
+                                                <td>Wine Association &amp; Cyberbells Tech Titans (Joint)</td>
+                                            </tr>
+                                                                                                                                <tr>
+                                                <td>4</td>
+                                                <td>2026</td>
+                                                <td>
+                                                                                                            TBD
+                                                                                                    </td>
+                                                <td>
+                                                                                                            TBD
+                                                                                                    </td>
+                                                <td>1400000</td>
+                                                <td>&#8377;14.00 Lakh</td>
+                                                <td>N/A</td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="history-card">
+                            <h3>Timeline of Development</h3>
+                            <ul class="history-timeline">
+                                <li><strong>April 24, 2022:</strong> Pro HPCL was officially inaugurated in Bharari, Shimla, by Urban Development Minister Suresh Bhardwaj.</li>
+                                <li><strong>Season 1 (2022):</strong> <b>Winner:</b> Jindal Warriors &bull; <b>Runner-up:</b> Rising Stars Baldeha &bull; <b>Winner Prize:</b> &#8377;5.55 Lakh.</li>
+                                <li><strong>Season 2 (2023):</strong> <b>Winner:</b> Yorkshire Mandyal &bull; <b>Runner-up:</b> Mandi Marvels &bull; <b>Winner Prize:</b> &#8377;7 Lakh. Yorkshire Mandyal secured a historic final win by defending 113 runs (April 28, 2023).</li>
+                                <li><strong>Season 3 (2025):</strong> <b>Winner:</b> Wine Association &amp; Cyberbells Tech Titans (Joint) &bull; <b>Runner-up:</b> N/A &bull; <b>Winner Prize:</b> &#8377;9 Lakh. The season featured 20 teams, 47 matches, and 12,000+ runs.</li>
+                                <li><strong>Season 4 (2026):</strong> <b>Winner:</b> TBD &bull; <b>Runner-up:</b> TBD &bull; <b>Winner Prize:</b> &#8377;14 Lakh. Trials and registrations opened in January 2026 with stronger competition and new franchise entries.</li>
+                                <li><strong>December 2025:</strong> Founders Veenu Diwan, Abhay Thakur (Lucky), and Ajay Thakur (Kranti) launched Shimla's first full-sized professional cricket ground near Mehli.</li>
+                                <li><strong>February 21, 2026:</strong> Season registrations remained active as the league prepared for a bigger and better return.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="history-card">
+                            <h3>Detailed Seasonal Statistics</h3>
+                            <div class="history-table-wrap">
+                                <table class="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Season</th>
+                                            <th>Teams</th>
+                                            <th>Matches</th>
+                                            <th>Runs</th>
+                                            <th>Wickets</th>
+                                            <th>Fours</th>
+                                            <th>Sixes</th>
+                                            <th>50s</th>
+                                            <th>100s</th>
+                                            <th>Highest Score</th>
+                                            <th>Best Bowling</th>
+                                            <th>Top Run Scorer</th>
+                                            <th>Top Wicket Taker</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                    <tr>
+                                                <td>Season 1</td>
+                                                <td>16</td>
+                                                <td>11</td>
+                                                <td>7,710</td>
+                                                <td>333</td>
+                                                <td>630</td>
+                                                <td>593</td>
+                                                <td>31</td>
+                                                <td>2</td>
+                                                <td>
+                                                    114
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/jatin-pradhan-raja">Jatin Pradhan (raja)</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                    4
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/abhishant-lashty">Abhishant Lashty</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/jatin-pradhan-raja">Jatin Pradhan (raja)</a>
+                                                                                                                                                                <span class="text-nowrap">(315)</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/puneet-verma">Puneet Verma</a>
+                                                                                                                                                                <span class="text-nowrap">(10)</span>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td>Season 2</td>
+                                                <td>19</td>
+                                                <td>31</td>
+                                                <td>8,519</td>
+                                                <td>435</td>
+                                                <td>838</td>
+                                                <td>312</td>
+                                                <td>27</td>
+                                                <td>0</td>
+                                                <td>
+                                                    88
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/sandeep-bhattacharya">Sandeep Bhattacharya</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                    5
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/ankit-chaudhary">Ankit Chaudhary</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/sandeep-bhattacharya">Sandeep Bhattacharya</a>
+                                                                                                                                                                <span class="text-nowrap">(249)</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/rohit-thakur">Rohit Thakur</a>
+                                                                                                                                                                <span class="text-nowrap">(12)</span>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td>Season 3</td>
+                                                <td>20</td>
+                                                <td>47</td>
+                                                <td>11,588</td>
+                                                <td>520</td>
+                                                <td>1,138</td>
+                                                <td>545</td>
+                                                <td>48</td>
+                                                <td>2</td>
+                                                <td>
+                                                    120
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/aalokit">Aalokit</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                    6
+                                                                                                            <span class="text-nowrap">(
+                                                                                                                            <a href="{{BASE}}/player/ankit-thakur-2">Ankit Thakur</a>
+                                                                                                                    )</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/anuj-rana-2">Anuj Rana</a>
+                                                                                                                                                                <span class="text-nowrap">(263)</span>
+                                                                                                    </td>
+                                                <td>
+                                                                                                            <a href="{{BASE}}/player/ankit-thakur-2">Ankit Thakur</a>
+                                                                                                                                                                <span class="text-nowrap">(11)</span>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td>Season 4</td>
+                                                <td>20</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>
+                                                    N/A
+                                                                                                    </td>
+                                                <td>
+                                                    N/A
+                                                                                                    </td>
+                                                <td>
+                                                                                                            N/A
+                                                                                                                                                        </td>
+                                                <td>
+                                                                                                            N/A
+                                                                                                                                                        </td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                            <p class="history-note">Includes batting, bowling, and leaderboard indicators for each season from live records.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="history-card">
+                            <h3>Current Infrastructure: The Mehli Ground</h3>
+                            <p class="history-note mb-1">
+                                A major milestone was achieved in December 2025 with the completion of a private, full-sized professional
+                                cricket arena in Padhechi village (near Mehli, Shimla).
+                            </p>
+                            <ul class="history-infra-list">
+                                <li><strong>Dimensions:</strong> 120 x 91 meters field.</li>
+                                <li><strong>Features:</strong> American turf grass and state-of-the-art night lighting for day-night matches.</li>
+                                <li><strong>Goal:</strong> To become Pro HPCL's permanent home and eventually host a cricket academy.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="history-card">
+                            <h3>League Snapshot</h3>
+                            <div class="history-table-wrap">
+                                <table class="history-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>Total Seasons</th>
+                                            <td>3</td>
+                                            <th>Total Teams</th>
+                                            <td>37</td>
+                                            <th>Total Players</th>
+                                            <td>900</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Matches</th>
+                                            <td>89</td>
+                                            <th>Total Innings</th>
+                                            <td>1,429</td>
+                                            <th>Total Runs</th>
+                                            <td>27,817</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Wickets</th>
+                                            <td>1,288</td>
+                                            <th>Total Fours</th>
+                                            <td>2,606</td>
+                                            <th>Total Sixes</th>
+                                            <td>1,450</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Boundaries</th>
+                                            <td>4,056</td>
+                                            <th>Total 50s</th>
+                                            <td>106</td>
+                                            <th>Total 100s</th>
+                                            <td>4</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Catches</th>
+                                            <td>652</td>
+                                            <th>Total Stumpings</th>
+                                            <td>57</td>
+                                            <th>Total MVP</th>
+                                            <td>5,399</td>
+                                        </tr>
+                                        <tr>
+                                            <th>League Strike Rate</th>
+                                            <td>140.01</td>
+                                            <th>League Economy</th>
+                                            <td>8.88</td>
+                                            <th>Balls per Wicket</th>
+                                            <td>15.25</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="history-note">Comprehensive league-wide stats from all available seasons in the database.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+@endsection

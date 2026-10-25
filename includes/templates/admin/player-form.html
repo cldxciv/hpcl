@@ -1,0 +1,69 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/players">&larr; All players</a></p>
+        <div class="admin-heading admin-heading--actions">
+            <h1>{!! $title !!}</h1>
+            {!! $view !!}
+        </div>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="255" required{!! $name_invalid !!}>
+{!! $name_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="slug">Slug</label>
+                <input id="slug" name="slug" type="text" value="{!! $slug !!}" maxlength="255" pattern="[a-z0-9]+(-[a-z0-9]+)*" spellcheck="false" autocapitalize="off"{!! $slug_invalid !!}>
+                <p class="admin-hint">{!! $slug_hint !!}</p>
+{!! $slug_error !!}
+            </div>
+
+            <div class="admin-fields-2">
+{!! $fields !!}
+                <div class="admin-field">
+                    <label for="age">Age <span class="admin-optional">optional</span></label>
+                    <input id="age" name="age" type="text" inputmode="numeric" value="{!! $age !!}" maxlength="2"{!! $age_invalid !!}>
+{!! $age_error !!}
+                </div>
+            </div>
+            <p class="admin-hint">Role and styles suggest the values other players use, such as All-Rounder, RHB or Right-arm medium; pick one to keep them consistent.</p>
+
+            <div class="admin-field">
+                <label for="photo">Photo <span class="admin-optional">optional</span></label>
+{!! $photo_current !!}
+                <input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp"{!! $photo_invalid !!}>
+                <p class="admin-hint">PNG, JPEG or WebP, up to 2 MB. A portrait photo works best.</p>
+{!! $photo_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="achievements">Achievements <span class="admin-optional">optional</span></label>
+                <textarea id="achievements" name="achievements" rows="5" maxlength="10000"{!! $achievements_invalid !!}>{!! $achievements !!}</textarea>
+                <p class="admin-hint">Shown on the player’s page. Plain text; each line is shown on its own line.</p>
+{!! $achievements_error !!}
+            </div>
+
+            <div class="admin-field">
+                <p class="admin-field-label">Squads</p>
+{!! $squads !!}
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/players">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

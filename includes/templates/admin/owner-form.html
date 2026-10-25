@@ -1,0 +1,43 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <p class="admin-back"><a href="{{BASE}}/admin/owners">&larr; All owners</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="255" required{!! $name_invalid !!}>
+{!! $name_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="photo">Photo <span class="admin-optional">optional</span></label>
+{!! $photo_current !!}
+                <input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp"{!! $photo_invalid !!}>
+                <p class="admin-hint">PNG, JPEG or WebP, up to 2 MB. Without a photo, the team page shows the team’s logo.</p>
+{!! $photo_error !!}
+            </div>
+
+            <fieldset class="admin-field">
+                <legend>Owns</legend>
+                <p class="admin-hint">The teams this owner is shown on, per season. Display order sorts the owners of a team (lowest first). Set a row to “None” to remove it; save to get more empty rows.</p>
+{!! $teams !!}
+{!! $teams_error !!}
+            </fieldset>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/owners">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

@@ -1,0 +1,130 @@
+@extends('layouts.page')
+
+@section('title', 'Join the Pro HPCL Membership Programme')
+@section('description', 'Apply for Pro HPCL membership: choose a tier — Silver, Gold, Diamond or Platinum — and grow your business with promotion, networking and ground discounts.')
+@section('canonical', '{{BASE}}/membership/join')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <style>
+        .mshipjoin-page { padding: 28px 0 56px; }
+        .mshipjoin-card {
+            max-width: 780px; margin: 0 auto; background: #fff; border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 16px; box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08); padding: 28px;
+        }
+        .mshipjoin-card h1 { color: #0b50a7; font-family: "Bebas Neue", sans-serif; letter-spacing: 0.02em; margin: 0 0 8px; }
+        .mshipjoin-card > p, .mshipjoin-hint { color: #475569; font-family: Roboto, sans-serif; line-height: 1.6; }
+        .mshipjoin-hint { font-size: 0.85rem; margin: 10px 0 0; }
+        .mshipjoin-card label, .mshipjoin-card legend { font-family: Roboto, sans-serif; color: #0f172a; font-weight: 700; margin-bottom: 6px; }
+        .mshipjoin-card legend { font-size: 1rem; }
+        .mshipjoin-card .form-control { border: 1px solid rgba(11, 80, 167, 0.2); border-radius: 10px; padding: 10px 12px; font-family: Roboto, sans-serif; color: #0f172a; }
+        .mshipjoin-card .form-control:focus { border-color: #0b50a7; box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.16); }
+        .mshipjoin-card .form-control.is-invalid { border-color: #dc3545; }
+        .mshipjoin-tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .mshipjoin-tier { margin: 0; cursor: pointer; }
+        .mshipjoin-tier input { position: absolute; opacity: 0; }
+        .mshipjoin-tier__card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 12px 6px; border: 2px solid rgba(11, 80, 167, 0.2); border-radius: 12px; transition: border-color 0.2s, background 0.2s; height: 100%; }
+        .mshipjoin-tier__name { font-family: "Bebas Neue", sans-serif; font-size: 1.25rem; color: #0b50a7; letter-spacing: 0.02em; }
+        .mshipjoin-tier__price { font-family: Barlow, sans-serif; font-weight: 800; color: #0f172a; font-size: 1.05rem; }
+        .mshipjoin-tier__price small { font-weight: 500; color: #64748b; }
+        .mshipjoin-tier__disc { font-size: 0.68rem; color: #0b7a3b; font-weight: 700; }
+        .mshipjoin-tier input:checked + .mshipjoin-tier__card { border-color: #0b50a7; background: rgba(11, 80, 167, 0.06); }
+        .mshipjoin-tier input:focus-visible + .mshipjoin-tier__card { box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.25); }
+        .mshipjoin-tiers.is-invalid .mshipjoin-tier__card { border-color: #dc3545; }
+        .mshipjoin-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+        .mshipjoin-submit { margin-top: 6px; background: #0b50a7; color: #fff; border: none; border-radius: 10px; padding: 12px 26px; font-family: Barlow, sans-serif; font-weight: 700; letter-spacing: 0.02em; cursor: pointer; }
+        .mshipjoin-submit:hover { background: #083c80; }
+        @media (max-width: 640px) { .mshipjoin-tiers { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+@endsection
+
+@section('content')
+    <div class="mshipjoin-page">
+        <div class="container">
+            <section class="mshipjoin-card" id="mshipjoin-thanks" role="status"{!! $thanks_hidden !!}>
+                <h1>Welcome to the Pro HPCL family</h1>
+                <p>{!! $sent_message !!}</p>
+                <p data-payment-receipt hidden>Payment received. Payment ID: <strong></strong>. Keep it for your records.</p>
+                <a class="mshipjoin-submit d-inline-block text-decoration-none" href="{{BASE}}/membership">Back to membership</a>
+            </section>
+
+            <section class="mshipjoin-card" id="mshipjoin-form-card"{!! $form_hidden !!}>
+                <h1>Become a Pro HPCL Member</h1>
+                <p>Choose your tier and tell us about your business. Our team will help you get set up and make the most of your membership.</p>
+                <form method="post" action="{{BASE}}/membership/join" data-ajax-form data-loading-text="Submitting…" data-success-show="#mshipjoin-thanks" data-success-hide="#mshipjoin-form-card"{!! $payment_attr !!}>
+                    <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+
+                    <fieldset class="mb-3">
+                        <legend>Membership tier</legend>
+                        <div class="mshipjoin-tiers{!! $tier_invalid !!}" data-field-group="tier">
+{!! $tiers !!}
+                        </div>
+{!! $tier_error !!}
+                    </fieldset>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="business_name">Business / brand name</label>
+                            <input id="business_name" name="business_name" type="text" class="form-control{!! $business_name_invalid !!}" value="{!! $business_name !!}" minlength="{!! $business_min !!}" maxlength="{!! $business_max !!}" required
+                                data-msg-required="Enter your business or brand name." aria-describedby="business_name-error"{!! $business_name_aria !!}>
+{!! $business_name_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="contact_name">Contact person</label>
+                            <input id="contact_name" name="contact_name" type="text" class="form-control{!! $contact_name_invalid !!}" value="{!! $contact_name !!}" minlength="{!! $contact_min !!}" maxlength="{!! $contact_max !!}" autocomplete="name" required
+                                data-validate="person-name" data-msg-required="Enter the contact person’s name." aria-describedby="contact_name-error"{!! $contact_name_aria !!}>
+{!! $contact_name_error !!}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email !!}" maxlength="254" autocomplete="email" required
+                                data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
+{!! $email_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone">WhatsApp / mobile number</label>
+                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
+                                data-validate="phone-in" data-msg-required="Enter your mobile number." data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error"{!! $phone_aria !!}>
+{!! $phone_error !!}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="website">Website or social link <span class="text-muted">(optional)</span></label>
+                            <input id="website" name="website" type="text" class="form-control{!! $website_invalid !!}" value="{!! $website !!}" maxlength="255" placeholder="yourbusiness.com" aria-describedby="website-error"{!! $website_aria !!}>
+{!! $website_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="city">City / town <span class="text-muted">(optional)</span></label>
+                            <input id="city" name="city" type="text" class="form-control{!! $city_invalid !!}" value="{!! $city !!}" maxlength="120" placeholder="Shimla" aria-describedby="city-error"{!! $city_aria !!}>
+{!! $city_error !!}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message">About your business &amp; what you want from membership</label>
+                        <textarea id="message" name="message" rows="4" class="form-control{!! $message_invalid !!}" minlength="{!! $message_min !!}" maxlength="{!! $message_max !!}" required
+                            data-msg-required="Tell us a little about your business and goals." aria-describedby="message-error"{!! $message_aria !!}>{!! $message !!}</textarea>
+{!! $message_error !!}
+                    </div>
+
+                    <div class="mshipjoin-trap" aria-hidden="true">
+                        <label for="company_url">Leave this field empty</label>
+                        <input id="company_url" name="company_url" type="text" tabindex="-1" autocomplete="off">
+                    </div>
+{!! $payment_note !!}
+                    <button type="submit" class="mshipjoin-submit">{!! $submit_label !!}</button>
+                    <button type="button" class="mshipjoin-submit" data-pay-again hidden>Pay now</button>
+                </form>
+            </section>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+{!! $payment_scripts !!}
+@endsection

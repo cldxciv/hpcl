@@ -1,0 +1,763 @@
+@extends('layouts.page')
+
+@section('title', 'Player Search | Pro HPCL')
+@section('description', 'Search Pro HPCL players by name, season, team, and playing role.')
+@section('canonical', '{{BASE}}/players/search')
+
+@section('head')
+        <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f4ee;
+            --surface: #ffffff;
+            --ink: #1d2a3a;
+            --muted: #5a6777;
+            --line: #d9d3c7;
+            --brand: #0f766e;
+            --brand-dark: #115e59;
+            --chip: #efe9dd;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 15% 10%, #e2f2ed 0, transparent 28%),
+                radial-gradient(circle at 90% 0%, #f6ead2 0, transparent 24%),
+                var(--bg);
+        }
+        .shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 40px; }
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px;
+        }
+        .topbar a {
+            text-decoration: none; color: var(--ink); border: 1px solid var(--line);
+            border-radius: 999px; padding: 8px 14px; font-size: 14px; background: #fff;
+        }
+        .hero {
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: linear-gradient(130deg, #ffffff 0%, #f2efe8 100%);
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+        .hero h1 { margin: 0 0 8px; font-size: 34px; letter-spacing: -0.5px; }
+        .hero p { margin: 0; color: var(--muted); }
+        .filter-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1.7fr 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        input, select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            font: inherit;
+            color: var(--ink);
+            background: #fff;
+        }
+        .btn {
+            align-self: end;
+            border: 0;
+            border-radius: 12px;
+            background: var(--brand);
+            color: #fff;
+            padding: 12px 16px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+        .btn:hover { background: var(--brand-dark); }
+        .meta { display: flex; justify-content: space-between; align-items: center; margin: 16px 0; }
+        .meta strong { font-size: 20px; }
+        .count { background: var(--chip); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-body { padding: 14px; }
+        .player {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 10px;
+            align-items: start;
+        }
+        .player img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid #eaeaea; }
+        .player h3 { margin: 2px 0 2px; font-size: 18px; }
+        .player p { margin: 0; color: var(--muted); font-size: 14px; }
+        .player .team-line {
+            margin-top: 3px;
+            font-size: 12px;
+            color: #0f766e;
+            line-height: 1.35;
+        }
+        .stats {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .stat {
+            border-radius: 10px;
+            background: #f8f8f5;
+            padding: 8px;
+            text-align: center;
+        }
+        .stat b { display: block; font-size: 18px; }
+        .stat span { font-size: 12px; color: var(--muted); }
+        .card a {
+            text-decoration: none;
+            padding: 11px 14px;
+            border-top: 1px solid var(--line);
+            color: var(--brand-dark);
+            font-weight: 600;
+        }
+        .empty {
+            border: 1px dashed var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            background: #fff;
+            color: var(--muted);
+        }
+        .pager {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+        .pager a, .pager span {
+            text-decoration: none;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 12px;
+            background: #fff;
+            font-size: 14px;
+        }
+        @media (max-width: 960px) {
+            .filter-card { grid-template-columns: 1fr 1fr; }
+            .btn { width: 100%; }
+            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 28px; }
+            .filter-card { grid-template-columns: 1fr; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Players","item":"{{BASE}}/players"},{"@type":"ListItem","position":3,"name":"Search","item":"{{BASE}}/players/search"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item"><a href="{{BASE}}/players">Players</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Search</li>
+                                                            </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+                            <div class="container">
+                    <div class="public-page-card">
+                            <main class="shell">
+        <div class="topbar">
+            <a href="{{BASE}}">Home</a>
+            <a href="{{BASE}}/stats">Stats</a>
+        </div>
+
+        <section class="hero">
+            <h1>Player Search</h1>
+            <p>Find players across seasons and teams with quick filters.</p>
+        </section>
+
+        <form method="GET" action="{{BASE}}/players/search" class="filter-card">
+            <div class="field">
+                <label>Search</label>
+                <input type="text" name="q" value="" placeholder="Name, city, role">
+            </div>
+            <div class="field">
+                <label>Season</label>
+                <select name="season">
+                    <option value="">All Seasons</option>
+                                            <option value="4">Season 4</option>
+                                            <option value="3">Season 3</option>
+                                            <option value="2">Season 2</option>
+                                            <option value="1">Season 1</option>
+                                    </select>
+            </div>
+            <div class="field">
+                <label>Team</label>
+                <select name="team">
+                    <option value="">All Teams</option>
+                                            <option value="3">ACC Theog</option>
+                                            <option value="36">Acc Thyog</option>
+                                            <option value="9">Aryans XI</option>
+                                            <option value="19">Aspire 11</option>
+                                            <option value="26">Aspire IIT</option>
+                                            <option value="44">Bat Breaker Rampur</option>
+                                            <option value="28">Black Boys</option>
+                                            <option value="42">Boom Shiva Blasters</option>
+                                            <option value="30">Chudeshwar Legends Sirmaur</option>
+                                            <option value="11">Chudeshwar Leopards</option>
+                                            <option value="50">Commando The Rising Star Solan</option>
+                                            <option value="33">Commando Warrior Solan</option>
+                                            <option value="29">CYBERBELLS TECH TITANS KOTKHAI</option>
+                                            <option value="32">DICTATORS BHABA NAGAR</option>
+                                            <option value="24">Gladiators</option>
+                                            <option value="39">HITHAWKS SHIMLA</option>
+                                            <option value="23">HP Police Shimla</option>
+                                            <option value="37">INDIAN SAGA H COPS</option>
+                                            <option value="45">Indian Saga Royals Shimla</option>
+                                            <option value="34">Jindal Warrior</option>
+                                            <option value="6">Jindal Warriors</option>
+                                            <option value="38">JMR ROYALS</option>
+                                            <option value="47">Kanwills Titans</option>
+                                            <option value="13">Karsog XI</option>
+                                            <option value="21">Knight Hawks</option>
+                                            <option value="4">Mahakaal</option>
+                                            <option value="7">Mandi Marvels</option>
+                                            <option value="43">Mountain Army by TGW</option>
+                                            <option value="12">PLB Super King</option>
+                                            <option value="35">Radhe Krishna Warriors</option>
+                                            <option value="5">Rising Star Baldeyan</option>
+                                            <option value="20">Rising Stars Baldeyain</option>
+                                            <option value="22">RMC Kotkhai</option>
+                                            <option value="8">Royal Rivals Sarkaghat</option>
+                                            <option value="41">Shangrila Farms</option>
+                                            <option value="49">Shilonbagh Royals</option>
+                                            <option value="27">Shimla Blasters</option>
+                                            <option value="18">Shimla Gladiators</option>
+                                            <option value="16">Shimla Royals</option>
+                                            <option value="15">Shimla Titans</option>
+                                            <option value="31">Sidhpur Warriors</option>
+                                            <option value="40">Silent Killer Bilaspur</option>
+                                            <option value="14">Theog Tigers</option>
+                                            <option value="25">TU Matiyana</option>
+                                            <option value="46">Valley Victor Jubbal</option>
+                                            <option value="17">Wine Association</option>
+                                            <option value="10">Yorkshire Mandyals</option>
+                                    </select>
+            </div>
+            <button type="submit" class="btn">Apply</button>
+        </form>
+
+        <div class="meta">
+            <strong>Results</strong>
+            <span class="count">1545 players</span>
+        </div>
+
+                    <section class="grid">
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="A K ( Wiese)">
+                                <div>
+                                    <h3>A K ( Wiese)</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Royal Rivals Sarkaghat</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>3</b><span>Matches</span></div>
+                                <div class="stat"><b>18</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/a-k-wiese">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="A kumar">
+                                <div>
+                                    <h3>A kumar</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Gladiators</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>4</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>10</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/a-kumar">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aalokit">
+                                <div>
+                                    <h3>Aalokit</h3>
+                                    <p>Wicket-keeper batter</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Chudeshwar Legends Sirmaur</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>4</b><span>Matches</span></div>
+                                <div class="stat"><b>192</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aalokit">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aalokit">
+                                <div>
+                                    <h3>Aalokit</h3>
+                                    <p>Wicket Keeper</p>
+                                    <p>Paonta Sahib</p>
+                                                                            <p class="team-line">Teams: Chudeshwar Legends Sirmaur</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aalokit-1">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aashish Sharma">
+                                <div>
+                                    <h3>Aashish Sharma</h3>
+                                    <p>Wicket-keeper batter</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Gladiators</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>4</b><span>Matches</span></div>
+                                <div class="stat"><b>3</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aashish-sharma">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aatish Bhalaik">
+                                <div>
+                                    <h3>Aatish Bhalaik</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Shimla Royals</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>3</b><span>Matches</span></div>
+                                <div class="stat"><b>23</b><span>Runs</span></div>
+                                <div class="stat"><b>1</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aatish-bhalaik">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aatish Bhalaik">
+                                <div>
+                                    <h3>Aatish Bhalaik</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Jindal Warriors</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>3</b><span>Matches</span></div>
+                                <div class="stat"><b>88</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aatish-bhalaik-1">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Aatish Bhalaik">
+                                <div>
+                                    <h3>Aatish Bhalaik</h3>
+                                    <p>Wicket Keeper</p>
+                                    <p>Shimla</p>
+                                                                            <p class="team-line">Teams: Mountain Army by TGW</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/aatish-bhalaik-2">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abdul razak">
+                                <div>
+                                    <h3>Abdul razak</h3>
+                                    <p>Bowler</p>
+                                    <p>Nalargarh, Peersthan</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>0</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abdul-razak">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhay Sharma">
+                                <div>
+                                    <h3>Abhay Sharma</h3>
+                                    <p>Batsman</p>
+                                    <p>Paonta sahib</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>0</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhay-sharma">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhay Thakur">
+                                <div>
+                                    <h3>Abhay Thakur</h3>
+                                    <p>Top-order batter</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Shimla Titans</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>5</b><span>Matches</span></div>
+                                <div class="stat"><b>45</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhay-thakur-1">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhay Thakur">
+                                <div>
+                                    <h3>Abhay Thakur</h3>
+                                    <p>Batsman</p>
+                                    <p>Shimla</p>
+                                                                            <p class="team-line">Teams: Shimla Titans</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhay-thakur-3">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhay Thakur">
+                                <div>
+                                    <h3>Abhay Thakur</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Chudeshwar Leopards</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>3</b><span>Matches</span></div>
+                                <div class="stat"><b>20</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhay-thakur">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhay Thakur">
+                                <div>
+                                    <h3>Abhay Thakur</h3>
+                                    <p>Top-order batter</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Shimla Titans</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>5</b><span>Matches</span></div>
+                                <div class="stat"><b>64</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhay-thakur-2">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhi">
+                                <div>
+                                    <h3>Abhi</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Sidhpur Warriors</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>4</b><span>Matches</span></div>
+                                <div class="stat"><b>171</b><span>Runs</span></div>
+                                <div class="stat"><b>3</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhi">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhi Sharma">
+                                <div>
+                                    <h3>Abhi Sharma</h3>
+                                    <p>All-Rounder</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: DICTATORS BHABA NAGAR</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>1</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>1</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhi-sharma">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhinav">
+                                <div>
+                                    <h3>Abhinav</h3>
+                                    <p>All-Rounder</p>
+                                    <p>Karsog</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>0</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhinav">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="abhinay rana">
+                                <div>
+                                    <h3>abhinay rana</h3>
+                                    <p>Bowler</p>
+                                    <p>Mandi</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>0</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhinay-rana">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhishant Lashty">
+                                <div>
+                                    <h3>Abhishant Lashty</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Mandi Marvels</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>5</b><span>Matches</span></div>
+                                <div class="stat"><b>14</b><span>Runs</span></div>
+                                <div class="stat"><b>6</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishant-lashty">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhishant lashty">
+                                <div>
+                                    <h3>Abhishant lashty</h3>
+                                    <p>All-Rounder</p>
+                                    <p>Rampur bushahr</p>
+                                                                            <p class="team-line">Teams: Bat Breaker Rampur</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishant-lashty-3">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhishant Lashty">
+                                <div>
+                                    <h3>Abhishant Lashty</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Mandi Marvels</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>6</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>5</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishant-lashty-1">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhishant Lashty">
+                                <div>
+                                    <h3>Abhishant Lashty</h3>
+                                    <p>Player</p>
+                                    <p>City not available</p>
+                                                                            <p class="team-line">Teams: Black Boys</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>4</b><span>Matches</span></div>
+                                <div class="stat"><b>26</b><span>Runs</span></div>
+                                <div class="stat"><b>5</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishant-lashty-2">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="ABHISHEK">
+                                <div>
+                                    <h3>ABHISHEK</h3>
+                                    <p>All-Rounder</p>
+                                    <p>palmpur</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>0</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishek-1">View Profile</a>
+                    </article>
+                                    <article class="card">
+                        <div class="card-body">
+                            <div class="player">
+                                <img src="{{BASE}}/assets/media/player-fallback.svg" alt="Abhishek">
+                                <div>
+                                    <h3>Abhishek</h3>
+                                    <p>Wicket Keeper</p>
+                                    <p>Bilaspur</p>
+                                                                            <p class="team-line">Teams: Silent Killer Bilaspur</p>
+                                                                    </div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat"><b>1</b><span>Seasons</span></div>
+                                <div class="stat"><b>0</b><span>Matches</span></div>
+                                <div class="stat"><b>0</b><span>Runs</span></div>
+                                <div class="stat"><b>0</b><span>Wickets</span></div>
+                            </div>
+                        </div>
+                        <a href="{{BASE}}/player/abhishek-2">View Profile</a>
+                    </article>
+                            </section>
+
+            <nav class="pager">
+                                    <span>Previous</span>
+                                <span>Page 1 of 65</span>
+                                    <a href="{{BASE}}/players/search?page=2">Next</a>
+                            </nav>
+            </main>
+                    </div>
+                </div>
+@endsection

@@ -1,0 +1,17 @@
+Options -Indexes
+DirectoryIndex index.php
+RewriteEngine On
+
+# Private folders and files, and hidden files such as .env (except .well-known, used for SSL
+# certificates), get the site's 404 page, so their existence is not revealed.
+RewriteRule ^(?:pages|includes|database|bin|private)(?:/|$) index.php [L]
+RewriteRule ^(?:routes\.json|README\.md|router\.php)$ index.php [L]
+RewriteCond %{REQUEST_URI} !/\.well-known/
+RewriteRule (?:^|/)\. index.php [L]
+# Uploaded files are only served as files: scripts in storage/ get the 404 page, never run.
+RewriteRule ^storage/.*\.(?:php\d?|phtml|phar|pht)$ index.php [L,NC]
+
+# Existing files are served directly; every other URL, including folders, goes to index.php.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+RewriteRule ^ index.php [L,QSA]

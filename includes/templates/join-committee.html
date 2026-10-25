@@ -1,0 +1,309 @@
+@extends('layouts.page')
+
+@section('title', 'Become a Committee Member | Pro HPCL')
+@section('description', 'Apply to join the Pro HPCL committee: choose a membership plan and tell us why you want to be part of Himachal Premium Cricket League.')
+@section('canonical', '{{BASE}}/join-committee')
+
+@section('head')
+    <style>
+        .committee-page {
+            padding: 24px 0 48px;
+        }
+
+        .committee-card {
+            max-width: 760px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
+            padding: 28px;
+        }
+
+        .committee-card h1,
+        .committee-card h2 {
+            color: #0b50a7;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+            margin: 0 0 10px;
+        }
+
+        .committee-card > p,
+        .committee-hint {
+            color: #475569;
+            font-family: Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        .committee-hint {
+            font-size: 0.875rem;
+            margin: 6px 0 0;
+        }
+
+        .committee-card label,
+        .committee-card legend {
+            font-family: Roboto, sans-serif;
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .committee-card legend {
+            font-size: 1rem;
+        }
+
+        .committee-card .form-control {
+            border: 1px solid rgba(11, 80, 167, 0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: Roboto, sans-serif;
+            color: #0f172a;
+        }
+
+        .committee-card .form-control:focus {
+            border-color: #0b50a7;
+            box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.16);
+        }
+
+        .committee-card .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .committee-plans {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .committee-plan {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .committee-plan input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .committee-plan__card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 8px;
+            border: 2px solid rgba(11, 80, 167, 0.2);
+            border-radius: 12px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .committee-plan__amount {
+            color: #0b50a7;
+            font-family: "Barlow", sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .committee-plan__label {
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        .committee-plan input:checked + .committee-plan__card {
+            border-color: #0b50a7;
+            background: rgba(11, 80, 167, 0.06);
+        }
+
+        .committee-plan input:focus-visible + .committee-plan__card {
+            box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.25);
+        }
+
+        .committee-plans.is-invalid .committee-plan__card {
+            border-color: #dc3545;
+        }
+
+        .form-file-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .form-file-preview__image {
+            display: block;
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            background: #f1f5f9;
+            border: 1px solid rgba(11, 80, 167, 0.2);
+            border-radius: 10px;
+        }
+
+        .form-file-preview__icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 68px;
+            color: #b91c1c;
+            font-family: "Barlow", sans-serif;
+            font-weight: 800;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+        }
+
+        .form-file-preview__caption {
+            color: #475569;
+            font-size: 0.8rem;
+            overflow-wrap: anywhere;
+        }
+
+        .committee-payment-note {
+            padding: 12px 14px;
+            background: rgba(11, 80, 167, 0.06);
+            border-radius: 10px;
+        }
+
+        .committee-counter {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .committee-card .invalid-feedback:not(:empty) {
+            display: block;
+        }
+
+        .committee-trap {
+            position: absolute;
+            left: -10000px;
+        }
+
+        .committee-submit-btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 24px;
+            background: #0b50a7;
+            color: #fff;
+            font-family: "Barlow", sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            transition: background-color 0.2s ease;
+        }
+
+        .committee-submit-btn:hover {
+            background: #0a4189;
+        }
+
+        @media (max-width: 575px) {
+            .committee-card {
+                padding: 20px 16px;
+            }
+
+            .committee-plans {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Become a Committee Member","item":"{{BASE}}/join-committee"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                    <li class="breadcrumb-item active fw-semibold" aria-current="page">Become a Committee Member</li>
+                </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+    <div class="committee-page">
+        <div class="container">
+            <section class="committee-card" id="committee-thanks" role="status"{!! $thanks_hidden !!}>
+                <h1>Thank you for applying</h1>
+                <p>{!! $sent_message !!} Our team will review your application and get in touch by phone or email.</p>
+                <p data-payment-receipt hidden>Payment received. Payment ID: <strong></strong>. Keep it for your records.</p>
+                <a class="committee-submit-btn d-inline-block text-decoration-none" href="{{BASE}}">Back to the home page</a>
+            </section>
+
+            <section class="committee-card" id="committee-form-card"{!! $form_hidden !!}>
+                <h1>Become a Committee Member</h1>
+                <p>Join the Pro HPCL committee and help shape Himachal's premier cricket league. Fill in your details, choose a plan and tell us why you'd like to be a member. All fields are required.</p>
+                <form method="post" action="{{BASE}}/join-committee" enctype="multipart/form-data" data-ajax-form data-loading-text="Submitting…" data-success-show="#committee-thanks" data-success-hide="#committee-form-card"{!! $payment_attr !!}>
+                    <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <div class="mb-3">
+                        <label for="name">Full name</label>
+                        <input id="name" name="name" type="text" class="form-control{!! $name_invalid !!}" value="{!! $name !!}" minlength="{!! $name_min !!}" maxlength="{!! $name_max !!}" autocomplete="name" required
+                            data-validate="person-name" data-msg-required="Enter your full name." data-msg-minlength="Your name must be at least {!! $name_min !!} characters long." data-msg-validate="Use only letters, spaces, dots, hyphens and apostrophes in your name." aria-describedby="name-error"{!! $name_aria !!}>
+{!! $name_error !!}
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email !!}" maxlength="254" autocomplete="email" required
+                                data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
+{!! $email_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone">Mobile number</label>
+                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
+                                data-validate="phone-in" data-msg-required="Enter your mobile number." data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error"{!! $phone_aria !!}>
+{!! $phone_error !!}
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="aadhaar_front">Aadhaar card (front)</label>
+                            <input id="aadhaar_front" name="aadhaar_front" type="file" class="form-control{!! $aadhaar_front_invalid !!}" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required data-preview
+                                data-max-size="{!! $max_bytes !!}" data-msg-required="Choose a photo or scan of the front of your Aadhaar card." data-msg-accept="Upload a JPEG, PNG or WebP photo, or a PDF." data-msg-max-size="The file must be {!! $max_label !!} or smaller. Take a smaller photo or reduce its size." aria-describedby="aadhaar_front-error"{!! $aadhaar_front_aria !!}>
+{!! $aadhaar_front_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="aadhaar_back">Aadhaar card (back)</label>
+                            <input id="aadhaar_back" name="aadhaar_back" type="file" class="form-control{!! $aadhaar_back_invalid !!}" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required data-preview
+                                data-max-size="{!! $max_bytes !!}" data-not-same-as="aadhaar_front" data-msg-required="Choose a photo or scan of the back of your Aadhaar card." data-msg-accept="Upload a JPEG, PNG or WebP photo, or a PDF." data-msg-max-size="The file must be {!! $max_label !!} or smaller. Take a smaller photo or reduce its size." data-msg-not-same-as="You chose the same file as the front. Upload a photo of the back of the card." aria-describedby="aadhaar_back-error"{!! $aadhaar_back_aria !!}>
+{!! $aadhaar_back_error !!}
+                        </div>
+                    </div>
+                    <p class="committee-hint mb-3">JPEG, PNG, WebP or PDF, up to {!! $max_label !!} each. Make sure the card is clear and readable. Your Aadhaar card is used only to verify your identity and is never shown on the website.</p>
+                    <fieldset class="mb-3">
+                        <legend>Membership plan</legend>
+                        <div class="committee-plans{!! $plan_invalid !!}" data-field-group="plan">
+{!! $plans !!}
+                        </div>
+{!! $plan_error !!}
+                    </fieldset>
+                    <div class="mb-3">
+                        <label for="message">Why do you want to become a member?</label>
+                        <textarea id="message" name="message" rows="5" class="form-control{!! $message_invalid !!}" minlength="{!! $message_min !!}" maxlength="{!! $message_max !!}" required data-char-count
+                            data-msg-required="Tell us why you want to become a member." aria-describedby="message-error message-count"{!! $message_aria !!}>{!! $message !!}</textarea>
+                        <div class="committee-counter" id="message-count" aria-live="polite"></div>
+{!! $message_error !!}
+                    </div>
+                    <div class="committee-trap" aria-hidden="true">
+                        <label for="website">Leave this field empty</label>
+                        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+                    </div>
+                    <div class="progress mb-3" data-form-progress role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+{!! $payment_note !!}
+                    <button type="submit" class="committee-submit-btn">{!! $submit_label !!}</button>
+                    <button type="button" class="committee-submit-btn" data-pay-again hidden>Pay now</button>
+                </form>
+            </section>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+{!! $payment_scripts !!}
+@endsection

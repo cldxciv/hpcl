@@ -1,0 +1,63 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <p class="admin-back"><a href="{{BASE}}/admin/teams">&larr; All teams</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="255" required{!! $name_invalid !!}>
+{!! $name_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="short_name">Short name <span class="admin-optional">optional</span></label>
+                <input id="short_name" name="short_name" type="text" value="{!! $short_name !!}" maxlength="255"{!! $short_name_invalid !!}>
+{!! $short_name_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="slug">Slug</label>
+                <input id="slug" name="slug" type="text" value="{!! $slug !!}" maxlength="255" pattern="[a-z0-9]+(-[a-z0-9]+)*" spellcheck="false" autocapitalize="off"{!! $slug_invalid !!}>
+                <p class="admin-hint">{!! $slug_hint !!}</p>
+{!! $slug_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="logo">Logo <span class="admin-optional">optional</span></label>
+{!! $logo_current !!}
+                <input id="logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp"{!! $logo_invalid !!}>
+                <p class="admin-hint">PNG, JPEG or WebP, up to 2 MB. A square image with a transparent background looks best.</p>
+{!! $logo_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="description">Description <span class="admin-optional">optional</span></label>
+                <textarea id="description" name="description" rows="6" maxlength="10000"{!! $description_invalid !!}>{!! $description !!}</textarea>
+                <p class="admin-hint">Shown on the team’s page. Plain text.</p>
+{!! $description_error !!}
+            </div>
+
+            <fieldset class="admin-field">
+                <legend>Seasons</legend>
+                <p class="admin-hint">The team is listed on the Teams page of each season it plays in. A season with squad players, stats or owners for this team can’t be unticked. Save a new season before managing its squad.</p>
+{!! $seasons !!}
+{!! $seasons_error !!}
+            </fieldset>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/teams">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

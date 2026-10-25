@@ -1,0 +1,26 @@
+@extends('layouts.admin')
+
+@section('title', 'Committee applications')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div><h1>Committee applications</h1><p>{!! $summary !!}</p></div>
+            <a class="admin-button-secondary" href="{{BASE}}/join-committee" target="_blank" rel="noopener">View the form</a>
+        </div>
+{!! $payment !!}
+{!! $tabs !!}
+        <form class="admin-search" method="get" action="{{BASE}}/admin/committee" role="search">
+            <input type="hidden" name="status" value="{!! $status !!}">
+            <label class="admin-visually-hidden" for="q">Search applications</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Search by name, email or phone">
+            <button type="submit" class="admin-button-secondary">Search</button>
+        </form>
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

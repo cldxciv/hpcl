@@ -1,0 +1,48 @@
+@extends('layouts.admin')
+
+@section('title', 'Integrations')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+{!! $test_result !!}
+        <div class="admin-heading">
+            <h1>Integrations</h1>
+            <p>The services the website connects to. Only you, the root user, can see this page. Passwords and secret keys are stored encrypted and never shown again.</p>
+        </div>
+{!! $app_key_warning !!}
+{!! $summary !!}
+        <form class="admin-settings" method="post" action="{{BASE}}/admin/integrations">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+{!! $sections !!}
+            <div class="admin-savebar">
+                <a class="admin-button-secondary" href="{{BASE}}/admin/integrations">Discard changes</a>
+                <button type="submit">Save integrations</button>
+            </div>
+        </form>
+        <section class="admin-settings-section" aria-labelledby="integrations-test">
+            <div class="admin-settings-section__intro">
+                <h2 id="integrations-test">Test the connections</h2>
+                <p>Uses the saved settings: save your changes first.</p>
+            </div>
+            <div class="admin-panel admin-form">
+                <form class="admin-field" method="post" action="{{BASE}}/admin/integrations/test-email">
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                    <label for="test-to">Send a test email to</label>
+                    <div class="admin-input-group">
+                        <input id="test-to" name="to" type="email" value="{!! $test_email !!}" maxlength="255" required>
+                        <button type="submit" class="admin-button-secondary">Send test email</button>
+                    </div>
+                </form>
+                <form class="admin-field" method="post" action="{{BASE}}/admin/integrations/check-razorpay">
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                    <p class="admin-field-label">Razorpay keys</p>
+                    <p class="admin-hint">Asks Razorpay whether the saved {!! $razorpay_mode !!} keys are valid. No payment is made.</p>
+                    <div><button type="submit" class="admin-button-secondary">Verify Razorpay keys</button></div>
+                </form>
+            </div>
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

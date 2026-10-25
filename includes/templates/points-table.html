@@ -1,0 +1,1198 @@
+@extends('layouts.app')
+
+@section('title', 'Season 1 Points Table | Pro HPCL')
+@section('description', 'Track the points table and recent results for Season 1 in Pro HPCL.')
+@section('canonical', '{{BASE}}/point-tables/season/1')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .points-shell {
+                max-width: 1180px;
+                margin: 0 auto;
+                padding: 32px 16px 72px;
+            }
+            .points-panel {
+                background: #fff;
+                border-radius: 26px;
+                padding: 24px;
+                box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            }
+            .points-table-wrap {
+                overflow-x: auto;
+            }
+            .points-table {
+                width: 100%;
+                min-width: 760px;
+            }
+            .points-table th {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #64748b;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+                padding: 14px 10px;
+            }
+            .points-table td {
+                padding: 16px 10px;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+                vertical-align: middle;
+            }
+            .points-position {
+                width: 42px;
+                height: 42px;
+                border-radius: 14px;
+                display: grid;
+                place-items: center;
+                background: linear-gradient(135deg, #072b5a, #1483c2);
+                color: #fff;
+                font-weight: 800;
+            }
+            .points-team {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-width: 220px;
+            }
+            .points-team-logo {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+                background: #f8fafc;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                display: grid;
+                place-items: center;
+            }
+            .points-team-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .points-tabs {
+                display: inline-flex;
+                gap: 4px;
+                padding: 4px;
+                border-radius: 12px;
+                background: #f1f5f9;
+            }
+            .points-tab-btn {
+                border: 0;
+                border-radius: 10px;
+                padding: 8px 14px;
+                font-size: 0.88rem;
+                font-weight: 700;
+                color: #475569;
+                background: transparent;
+            }
+            .points-tab-btn.is-active {
+                background: #ffffff;
+                color: #0f172a;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+            }
+            .ko-card {
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 16px;
+                padding: 14px;
+                background: linear-gradient(150deg, #ffffff, #f8fbff);
+                box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+            }
+            .ko-card--final {
+                border-color: rgba(217, 119, 6, 0.45);
+                background: linear-gradient(145deg, #fffdf6, #fef3c7);
+                box-shadow: 0 14px 30px rgba(217, 119, 6, 0.22);
+            }
+            .ko-fixture {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                gap: 10px;
+            }
+            .ko-team {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+            }
+            .ko-team--right {
+                justify-content: flex-end;
+                text-align: right;
+            }
+            .ko-logo {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid rgba(15, 23, 42, 0.15);
+                background: #fff;
+                flex-shrink: 0;
+            }
+            .ko-name {
+                font-weight: 800;
+                color: #0f172a;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .ko-short {
+                font-size: 0.75rem;
+                color: #64748b;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+            .ko-vs {
+                border: 1px solid rgba(15, 23, 42, 0.2);
+                border-radius: 999px;
+                padding: 4px 10px;
+                font-size: 0.72rem;
+                font-weight: 900;
+                letter-spacing: 0.1em;
+                color: #334155;
+                background: #fff;
+            }
+            .ko-vs--final {
+                border-color: rgba(217, 119, 6, 0.45);
+                color: #92400e;
+                background: #fffbeb;
+            }
+            .ko-meta {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid rgba(15, 23, 42, 0.1);
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .ko-time {
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #64748b;
+            }
+            .ko-result {
+                font-size: 0.86rem;
+                font-weight: 700;
+                color: #334155;
+            }
+        </style>
+                    <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"SportsEvent","name":"Season 1 Points Table","sport":"Cricket","url":"{{BASE}}/point-tables/season/1","description":"Official standings for Season 1 in Pro HPCL.","startDate":"2022-04-25","organizer":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","url":"{{BASE}}"},"competitor":[{"@type":"SportsTeam","name":"Jindal Warriors","sport":"Cricket","url":"{{BASE}}/teams/season/1/jindal-warriors","logo":"{{BASE}}/storage/uploads/teams/OUPVkDshZAxkly2HlJwvAIsyCu2U9cpyCwxwSPr2.png"},{"@type":"SportsTeam","name":"Mahakaal","sport":"Cricket","url":"{{BASE}}/teams/season/1/mahakaal","logo":null},{"@type":"SportsTeam","name":"Shimla Gladiators","sport":"Cricket","url":"{{BASE}}/teams/season/1/shimla-gladiators","logo":null},{"@type":"SportsTeam","name":"Yorkshire Mandyals","sport":"Cricket","url":"{{BASE}}/teams/season/1/yorkshire-mandyals","logo":null},{"@type":"SportsTeam","name":"Rising Star Baldeyan","sport":"Cricket","url":"{{BASE}}/teams/season/1/rising-star-baldeyan","logo":"{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png"},{"@type":"SportsTeam","name":"PLB Super King","sport":"Cricket","url":"{{BASE}}/teams/season/1/plb-super-king","logo":null},{"@type":"SportsTeam","name":"Royal Rivals Sarkaghat","sport":"Cricket","url":"{{BASE}}/teams/season/1/royal-rivals-sarkaghat","logo":null},{"@type":"SportsTeam","name":"Chudeshwar Leopards","sport":"Cricket","url":"{{BASE}}/teams/season/1/chudeshwar-leopards","logo":null},{"@type":"SportsTeam","name":"Wine Association","sport":"Cricket","url":"{{BASE}}/teams/season/1/wine-association","logo":"{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png"},{"@type":"SportsTeam","name":"Shimla Titans","sport":"Cricket","url":"{{BASE}}/teams/season/1/shimla-titans","logo":"{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png"},{"@type":"SportsTeam","name":"ACC Theog","sport":"Cricket","url":"{{BASE}}/teams/season/1/acc-theog","logo":"{{BASE}}/storage/uploads/teams/IJOV3QvtsKGVUwRo4rETXvD0bb6ngySvtX57m9oy.png"},{"@type":"SportsTeam","name":"Theog Tigers","sport":"Cricket","url":"{{BASE}}/teams/season/1/theog-tigers","logo":null},{"@type":"SportsTeam","name":"Aryans XI","sport":"Cricket","url":"{{BASE}}/teams/season/1/aryans-xi","logo":null},{"@type":"SportsTeam","name":"Karsog XI","sport":"Cricket","url":"{{BASE}}/teams/season/1/karsog-xi","logo":null},{"@type":"SportsTeam","name":"Mandi Marvels","sport":"Cricket","url":"{{BASE}}/teams/season/1/mandi-marvels","logo":"{{BASE}}/storage/uploads/teams/Ar5G7zxtLosZkkAM9EYesbc8icgMqYh5zyBTK2zR.png"},{"@type":"SportsTeam","name":"Shimla Royals","sport":"Cricket","url":"{{BASE}}/teams/season/1/shimla-royals","logo":"{{BASE}}/storage/uploads/teams/XEj7wXq6Jn3w4AtdxLuMzrsuxq48kEJtmPBijBEh.png"}]}
+        </script>
+@endsection
+
+@section('content')
+                    
+    <section class="points-shell">
+        <nav aria-label="breadcrumb" class="my-1">
+            <ol class="breadcrumb team-breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{BASE}}/point-tables">Point Tables</a></li>
+                <li class="breadcrumb-item active fw-semibold" aria-current="page">Season 1</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4">
+            <div>
+                <h1 class="mb-1">Season 1 Points Table</h1>
+                <p class="text-muted mb-0">Computed from completed and abandoned matches.</p>
+            </div>
+        </div>
+
+        <div class="points-panel" id="public-standings-tabs">
+            <div class="mb-3 points-tabs">
+                <button type="button" class="points-tab-btn is-active" data-points-tab-trigger data-tab="overall">Overall</button>
+                <button type="button" class="points-tab-btn" data-points-tab-trigger data-tab="pool">Pool-wise</button>
+            </div>
+
+            <div data-points-tab-panel="overall">
+                <div class="points-table-wrap">
+                    <table class="points-table">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Team</th>
+                                <th>Played</th>
+                                <th>Won</th>
+                                <th>Lost</th>
+                                <th>Tied</th>
+                                <th>NR</th>
+                                <th>Points</th>
+                                <th>NRR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                                            <tr style="background:rgba(16,185,129,.08); box-shadow: inset 4px 0 0 #059669;">
+                                    <td>
+                                        <div class="points-position" style="background:linear-gradient(135deg,#059669,#10b981);">1</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Rising Star Baldeyan" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/rising-star-baldeyan" class="text-decoration-none">
+                                                        Rising Star Baldeyan
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">5</td>
+                                    <td>1.687</td>
+                                </tr>
+                                                            <tr style="background:rgba(16,185,129,.08); box-shadow: inset 4px 0 0 #059669;">
+                                    <td>
+                                        <div class="points-position" style="background:linear-gradient(135deg,#059669,#10b981);">2</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="Wine Association" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/wine-association" class="text-decoration-none">
+                                                        Wine Association
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">4</td>
+                                    <td>-0.356</td>
+                                </tr>
+                                                            <tr style="background:rgba(16,185,129,.08); box-shadow: inset 4px 0 0 #059669;">
+                                    <td>
+                                        <div class="points-position" style="background:linear-gradient(135deg,#059669,#10b981);">3</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png" alt="PLB Super King" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/plb-super-king" class="text-decoration-none">
+                                                        PLB Super King
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">3</td>
+                                    <td>-1.117</td>
+                                </tr>
+                                                            <tr style="background:rgba(16,185,129,.08); box-shadow: inset 4px 0 0 #059669;">
+                                    <td>
+                                        <div class="points-position" style="background:linear-gradient(135deg,#059669,#10b981);">4</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Shimla Titans" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/shimla-titans" class="text-decoration-none">
+                                                        Shimla Titans
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">2</td>
+                                    <td>1.667</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">5</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png" alt="Royal Rivals Sarkaghat" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/royal-rivals-sarkaghat" class="text-decoration-none">
+                                                        Royal Rivals Sarkaghat
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">2</td>
+                                    <td>1.047</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">6</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="ACC Theog" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/acc-theog" class="text-decoration-none">
+                                                        ACC Theog
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">2</td>
+                                    <td>0.361</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">7</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/IJOV3QvtsKGVUwRo4rETXvD0bb6ngySvtX57m9oy.png" alt="Theog Tigers" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/theog-tigers" class="text-decoration-none">
+                                                        Theog Tigers
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">2</td>
+                                    <td>-0.954</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">8</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Chudeshwar Leopards" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/chudeshwar-leopards" class="text-decoration-none">
+                                                        Chudeshwar Leopards
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">2</td>
+                                    <td>-1.463</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">9</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Aryans XI" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/aryans-xi" class="text-decoration-none">
+                                                        Aryans XI
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">10</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Jindal Warriors" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/jindal-warriors" class="text-decoration-none">
+                                                        Jindal Warriors
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">11</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/OUPVkDshZAxkly2HlJwvAIsyCu2U9cpyCwxwSPr2.png" alt="Karsog XI" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/karsog-xi" class="text-decoration-none">
+                                                        Karsog XI
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">12</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Mahakaal" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/mahakaal" class="text-decoration-none">
+                                                        Mahakaal
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">13</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Mandi Marvels" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/mandi-marvels" class="text-decoration-none">
+                                                        Mandi Marvels
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">14</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/Ar5G7zxtLosZkkAM9EYesbc8icgMqYh5zyBTK2zR.png" alt="Shimla Gladiators" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/shimla-gladiators" class="text-decoration-none">
+                                                        Shimla Gladiators
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">15</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Shimla Royals" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/shimla-royals" class="text-decoration-none">
+                                                        Shimla Royals
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                            <tr style="">
+                                    <td>
+                                        <div class="points-position" style="">16</div>
+                                    </td>
+                                    <td>
+                                                                                <div class="points-team">
+                                            <div class="points-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/XEj7wXq6Jn3w4AtdxLuMzrsuxq48kEJtmPBijBEh.png" alt="Yorkshire Mandyals" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <a href="{{BASE}}/teams/season/1/yorkshire-mandyals" class="text-decoration-none">
+                                                        Yorkshire Mandyals
+                                                    </a>
+                                                </div>
+                                                                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="fw-bold">0</td>
+                                    <td>0.000</td>
+                                </tr>
+                                                    </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-none" data-points-tab-panel="pool">
+                <div class="d-grid" style="gap: 18px;">
+                                            <div>
+                            <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                                Pool A
+                            </h3>
+                            <div class="points-table-wrap">
+                                <table class="points-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pos</th>
+                                            <th>Team</th>
+                                            <th>Played</th>
+                                            <th>Won</th>
+                                            <th>Lost</th>
+                                            <th>Tied</th>
+                                            <th>NR</th>
+                                            <th>Points</th>
+                                            <th>NRR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                    <tr>
+                                                <td><div class="points-position">1</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Jindal Warriors" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/jindal-warriors" class="text-decoration-none">
+                                                                    Jindal Warriors
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">2</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/OUPVkDshZAxkly2HlJwvAIsyCu2U9cpyCwxwSPr2.png" alt="Mahakaal" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/mahakaal" class="text-decoration-none">
+                                                                    Mahakaal
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">3</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Shimla Gladiators" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/shimla-gladiators" class="text-decoration-none">
+                                                                    Shimla Gladiators
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">4</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Yorkshire Mandyals" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/yorkshire-mandyals" class="text-decoration-none">
+                                                                    Yorkshire Mandyals
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                            <div>
+                            <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                                Pool B
+                            </h3>
+                            <div class="points-table-wrap">
+                                <table class="points-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pos</th>
+                                            <th>Team</th>
+                                            <th>Played</th>
+                                            <th>Won</th>
+                                            <th>Lost</th>
+                                            <th>Tied</th>
+                                            <th>NR</th>
+                                            <th>Points</th>
+                                            <th>NRR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                    <tr>
+                                                <td><div class="points-position">1</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Rising Star Baldeyan" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/rising-star-baldeyan" class="text-decoration-none">
+                                                                    Rising Star Baldeyan
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>0</td>
+                                                <td>1</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">5</td>
+                                                <td>1.687</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">2</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="PLB Super King" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/plb-super-king" class="text-decoration-none">
+                                                                    PLB Super King
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>1</td>
+                                                <td>1</td>
+                                                <td>1</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">3</td>
+                                                <td>-1.117</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">3</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Royal Rivals Sarkaghat" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/royal-rivals-sarkaghat" class="text-decoration-none">
+                                                                    Royal Rivals Sarkaghat
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">2</td>
+                                                <td>1.047</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">4</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Chudeshwar Leopards" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/chudeshwar-leopards" class="text-decoration-none">
+                                                                    Chudeshwar Leopards
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">2</td>
+                                                <td>-1.463</td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                            <div>
+                            <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                                Pool C
+                            </h3>
+                            <div class="points-table-wrap">
+                                <table class="points-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pos</th>
+                                            <th>Team</th>
+                                            <th>Played</th>
+                                            <th>Won</th>
+                                            <th>Lost</th>
+                                            <th>Tied</th>
+                                            <th>NR</th>
+                                            <th>Points</th>
+                                            <th>NRR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                    <tr>
+                                                <td><div class="points-position">1</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Wine Association" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/wine-association" class="text-decoration-none">
+                                                                    Wine Association
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>1</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">4</td>
+                                                <td>-0.356</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">2</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png" alt="Shimla Titans" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/shimla-titans" class="text-decoration-none">
+                                                                    Shimla Titans
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>2</td>
+                                                <td>1</td>
+                                                <td>1</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">2</td>
+                                                <td>1.667</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">3</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png" alt="ACC Theog" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/acc-theog" class="text-decoration-none">
+                                                                    ACC Theog
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>2</td>
+                                                <td>1</td>
+                                                <td>1</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">2</td>
+                                                <td>0.361</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">4</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/IJOV3QvtsKGVUwRo4rETXvD0bb6ngySvtX57m9oy.png" alt="Theog Tigers" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/theog-tigers" class="text-decoration-none">
+                                                                    Theog Tigers
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>3</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">2</td>
+                                                <td>-0.954</td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                            <div>
+                            <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                                Pool D
+                            </h3>
+                            <div class="points-table-wrap">
+                                <table class="points-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pos</th>
+                                            <th>Team</th>
+                                            <th>Played</th>
+                                            <th>Won</th>
+                                            <th>Lost</th>
+                                            <th>Tied</th>
+                                            <th>NR</th>
+                                            <th>Points</th>
+                                            <th>NRR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                    <tr>
+                                                <td><div class="points-position">1</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Aryans XI" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/aryans-xi" class="text-decoration-none">
+                                                                    Aryans XI
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">2</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Karsog XI" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/karsog-xi" class="text-decoration-none">
+                                                                    Karsog XI
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">3</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/logo.png" alt="Mandi Marvels" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/mandi-marvels" class="text-decoration-none">
+                                                                    Mandi Marvels
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                                    <tr>
+                                                <td><div class="points-position">4</div></td>
+                                                <td>
+                                                                                                        <div class="points-team">
+                                                        <div class="points-team-logo">
+                                                            <img src="{{BASE}}/storage/uploads/teams/Ar5G7zxtLosZkkAM9EYesbc8icgMqYh5zyBTK2zR.png" alt="Shimla Royals" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <a href="{{BASE}}/teams/season/1/shimla-royals" class="text-decoration-none">
+                                                                    Shimla Royals
+                                                                </a>
+                                                            </div>
+                                                                                                                    </div>
+                                                    </div>
+                                                </td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td class="fw-bold">0</td>
+                                                <td>0.000</td>
+                                            </tr>
+                                                                            </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                    </div>
+            </div>
+        </div>
+
+        <div class="points-panel mt-4">
+            <h2 class="mb-3" style="font-size:1.25rem; font-weight:800;">Knockout Stage</h2>
+                        <div class="d-grid" style="gap: 18px;">
+                                    <div>
+                        <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                            Quarter Final
+                        </h3>
+                        <div class="d-grid" style="gap: 10px;">
+                                                            <div class="rounded-3 border p-3 text-muted small" style="border:1px dashed rgba(100,116,139,.45);">
+                                    No quarter final matches yet.
+                                </div>
+                                                    </div>
+                    </div>
+                                    <div>
+                        <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                            Semi Final
+                        </h3>
+                        <div class="d-grid" style="gap: 10px;">
+                                                            <div class="rounded-3 border p-3 text-muted small" style="border:1px dashed rgba(100,116,139,.45);">
+                                    No semi final matches yet.
+                                </div>
+                                                    </div>
+                    </div>
+                                    <div>
+                        <h3 class="mb-2" style="font-size:1rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#334155;">
+                            Final
+                        </h3>
+                        <div class="d-grid" style="gap: 10px;">
+                                                            <div class="rounded-3 border p-3 text-muted small" style="border:1px dashed rgba(100,116,139,.45);">
+                                    No final matches yet.
+                                </div>
+                                                    </div>
+                    </div>
+                            </div>
+        </div>
+
+    </section>
+@endsection
+
+@section('scripts')
+            <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const root = document.getElementById('public-standings-tabs');
+                if (!root) return;
+
+                const buttons = Array.from(root.querySelectorAll('[data-points-tab-trigger]'));
+                const panels = Array.from(root.querySelectorAll('[data-points-tab-panel]'));
+
+                const activate = (tab) => {
+                    buttons.forEach((button) => {
+                        button.classList.toggle('is-active', button.dataset.tab === tab);
+                    });
+
+                    panels.forEach((panel) => {
+                        const active = panel.dataset.pointsTabPanel === tab;
+                        panel.classList.toggle('d-none', !active);
+                    });
+                };
+
+                buttons.forEach((button) => {
+                    button.addEventListener('click', () => activate(button.dataset.tab));
+                });
+            });
+        </script>
+@endsection

@@ -1,0 +1,15 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <section class="admin-panel admin-confirm">
+            <h1>{!! $title !!}</h1>
+            <p>{!! $message !!}</p>
+            <p class="admin-form-actions">{!! $action !!}</p>
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

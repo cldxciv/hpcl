@@ -1,0 +1,191 @@
+@extends('layouts.app')
+
+@section('title', 'Pro HPCL &ndash; Himachal Premium Cricket League | Himachal\'s Biggest Cricket League')
+@section('description', 'Welcome to Himachal\'s biggest cricket league. Pro HPCL (Himachal Premium Cricket League) is where players get their chance to shine. Explore teams, players, season statistics and videos.')
+@section('canonical', 'https://prohpcl.com')
+@section('og_url', '{{BASE}}')
+
+@section('head')
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"}]}
+    </script>
+            <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SportsOrganization", "name": "Pro HPCL", "alternateName": "Himachal Premium Cricket League", "sport": "Cricket", "url": "{{BASE}}/", "logo": "{{BASE}}/seo.png", "sameAs": ["https://www.instagram.com/prohpcl/", "https://www.youtube.com/@prohpcl"]}</script>
+@endsection
+
+@section('content')
+    <div id="homeHeroCarousel" class="carousel slide hero-carousel{!! $carousel_class !!}" {!! $carousel_attributes !!}>
+        {!! $carousel_indicators !!}
+        <div class="carousel-inner">{!! $slides !!}</div>
+        {!! $carousel_controls !!}
+    </div>
+
+    <section class="retained-players" aria-label="Retained players">
+        <div class="retained-players__inner">
+            <div class="retained-players__head">
+                <h2 class="retained-players__title">
+                    Retained Players
+                                            <span class="retained-players__season">{!! $retained_season !!}</span>
+                                    </h2>
+                <div class="retained-players__nav">
+                    <button type="button" class="retained-players__btn" data-retained-prev aria-label="Previous players">&lsaquo;</button>
+                    <button type="button" class="retained-players__btn" data-retained-next aria-label="Next players">&rsaquo;</button>
+                </div>
+            </div>
+
+            <div class="retained-players__track" id="retainedPlayersTrack" tabindex="0">
+{!! $retained_players !!}
+                            </div>
+        </div>
+    </section>
+
+            <section class="teams-section" aria-label="Teams">
+    <div class="teams-section__inner">
+        
+        <h2 class="teams-section__title">
+            Teams
+                            <span style="font-size: 14px">{!! $teams_season !!}</span>
+                    </h2>
+
+                    <div class="teams-section__grid">
+{!! $teams !!}
+                            </div>
+            </div>
+    <div class="teams-section__bottom-decor" aria-hidden="true"></div>
+</section>
+    <section class="top-performers-v2">
+    <div class="top-performers-v2__inner">
+        <h2 class="top-performers-v2__title">Top Performers <span style="font-size: 14px">{!! $highlights_season !!}</span></h2>
+
+        <div class="top-performers-v2__grid">
+{!! $top_performers !!}
+        </div>
+    </div>
+    <img class="top-performers-v2__wave" src="{{BASE}}/assets/imgs/element.png" alt="">
+</section>
+    <section class="stats-section" aria-label="Tournament stats">
+        <div class="stats-shell">
+            <h2 class="stats-section-title">Stats <span style="font-size: 14px">{!! $highlights_season !!}</span></h2>
+            <span class="stats-circle stats-circle--left-big" aria-hidden="true"></span>
+            <span class="stats-circle stats-circle--left-small" aria-hidden="true"></span>
+            <span class="stats-circle stats-circle--right-big" aria-hidden="true"></span>
+            <span class="stats-circle stats-circle--right-small" aria-hidden="true"></span>
+
+            <div class="stats-layout">
+                <div class="stats-grid" role="list">
+{!! $stats !!}
+                </div>
+
+                <aside class="stats-highlights" aria-label="Special records">
+{!! $stat_highlights !!}
+                </aside>
+            </div>
+        </div>
+    </section>
+    <section class="latest-news home-videos-section" aria-label="Latest videos">
+        <div class="latest-news__dots-pattern latest-news__dots-pattern--top" aria-hidden="true"></div>
+        <div class="latest-news__inner">
+            <div class="latest-news__header">
+                <div class="latest-news__header-left">
+                    <h2 class="latest-news__heading">Latest Videos</h2>
+                </div>
+                <div class="latest-news__controls">
+                    <a class="latest-news__more" href="{{BASE}}/videos">See all videos</a>
+                </div>
+            </div>
+
+            <div class="latest-news__grid">
+{!! $videos !!}
+                            </div>
+        </div>
+        <div class="latest-news__dots-pattern latest-news__dots-pattern--bottom" aria-hidden="true"></div>
+    </section>
+@endsection
+
+@section('scripts')
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const el = document.getElementById('homeHeroCarousel');
+            if (!el || !window.bootstrap || !window.bootstrap.Carousel) {
+                return;
+            }
+
+            const carousel = window.bootstrap.Carousel.getOrCreateInstance(el, {
+                interval: 3000,
+                ride: 'carousel',
+                touch: true,
+                pause: 'hover',
+                wrap: true
+            });
+
+            el.addEventListener('mouseenter', function () {
+                carousel.pause();
+            });
+
+            el.addEventListener('mouseleave', function () {
+                carousel.cycle();
+            });
+        });
+    </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const track = document.getElementById('retainedPlayersTrack');
+                if (!track) {
+                    return;
+                }
+
+                const section = track.closest('.retained-players');
+                const step = () => {
+                    const slide = track.querySelector('.retained-players__slide');
+                    return slide ? slide.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth;
+                };
+                const atEnd = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+
+                const next = () => {
+                    if (atEnd()) {
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        track.scrollBy({ left: step(), behavior: 'smooth' });
+                    }
+                };
+                const prev = () => {
+                    if (track.scrollLeft <= 4) {
+                        track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+                    } else {
+                        track.scrollBy({ left: -step(), behavior: 'smooth' });
+                    }
+                };
+
+                section.querySelector('[data-retained-next]').addEventListener('click', next);
+                section.querySelector('[data-retained-prev]').addEventListener('click', prev);
+
+                if (track.scrollWidth <= track.clientWidth) {
+                    section.querySelector('.retained-players__nav').hidden = true;
+                    return;
+                }
+
+                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (reduceMotion) {
+                    return;
+                }
+
+                let timer = null;
+                const start = () => {
+                    stop();
+                    timer = setInterval(next, 3500);
+                };
+                const stop = () => {
+                    if (timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                };
+
+                section.addEventListener('mouseenter', stop);
+                section.addEventListener('mouseleave', start);
+                section.addEventListener('focusin', stop);
+                section.addEventListener('focusout', start);
+                track.addEventListener('touchstart', stop, { passive: true });
+                start();
+            });
+        </script>
+@endsection

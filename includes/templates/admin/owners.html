@@ -1,0 +1,28 @@
+@extends('layouts.admin')
+
+@section('title', 'Owners')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Owners</h1>
+                <p>{!! $summary !!}</p>
+            </div>
+            <a class="admin-button" href="{{BASE}}/admin/owners/new">Add owner</a>
+        </div>
+
+        <form class="admin-search" method="get" action="{{BASE}}/admin/owners" role="search">
+            <label class="admin-visually-hidden" for="q">Search owners</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Search by name">
+            <button type="submit" class="admin-button-secondary">Search</button>
+        </form>
+
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

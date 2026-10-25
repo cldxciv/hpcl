@@ -1,0 +1,17 @@
+@extends('layouts.admin')
+
+@section('title', 'Trash')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Trash</h1>
+            <p>Teams, players and owners deleted in the admin. They are hidden from the website and the admin until you restore them. Deleting permanently can’t be undone.</p>
+        </div>
+{!! $tabs !!}
+{!! $sections !!}
+    </main>
+@include('partials.admin-footer')
+@endsection

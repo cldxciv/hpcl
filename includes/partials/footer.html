@@ -1,0 +1,65 @@
+<footer>
+    <section class="footer-sponsors-shell">
+        <div class="footer-inner">
+            <div class="sponsors-header">
+                <h2 class="sponsors-title">Our Sponsors</h2>
+                <p class="sponsors-subtitle">Partners powering the Pro HPCL journey.</p>
+            </div>
+
+            <div class="sponsors-primary-grid">
+{!! $sponsors !!}
+            </div>
+
+            <div class="sponsors-associate-shell">
+                <p class="sponsors-associate-title">Associate Sponsors</p>
+                <div class="sponsors-associate-grid">
+{!! $associate_sponsors !!}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-links-shell" style="--footer-links-bg: url('{{BASE}}/assets/imgs/footer-bg.png');">
+        <div class="footer-inner footer-links-wrap">
+            <div class="footer-brand-block">
+                <a href="{{BASE}}" class="footer-brand-link" aria-label="Go to home">
+                    <img src="{{BASE}}/logo.png" alt="HPCL logo" class="footer-brand-logo">
+                </a>
+                <p class="footer-address">
+{!! $address !!}
+                </p>
+                <div class="footer-contact-inline">
+                    <a href="mailto:{!! $email !!}">{!! $email !!}</a>
+                    <div class="footer-contact-inline__phones">
+{!! $phones !!}
+                    </div>
+                </div>
+                <div class="footer-social-links">
+{!! $social_links !!}
+                </div>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="{{BASE}}">Home</a>
+                <a href="{{BASE}}/about">About Us</a>
+                <a href="{{BASE}}/contact">Contact</a>
+                <a href="{{BASE}}/videos">Videos</a>
+                <a href="{{BASE}}/blogs">Blog</a>
+{!! $shop_link !!}
+                <a href="{{BASE}}/stats">Stats</a>
+                <a href="{{BASE}}/teams">Teams</a>
+            </div>
+            <div>
+                <h4>Policies</h4>
+                <a href="{{BASE}}/privacy_policy">Privacy Policy</a>
+                <a href="{{BASE}}/terms">Terms Of Use</a>
+                <a href="{{BASE}}/refund_policy">Refund Policy</a>
+            </div>
+            <div class="footer-important-links">
+                <h4>Important Links</h4>
+{!! $important_links !!}
+            </div>
+        </div>
+    </section>
+</footer>
+@include('partials.footer-bottom')

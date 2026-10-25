@@ -1,0 +1,61 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <p class="admin-back"><a href="{{BASE}}/admin/users">&larr; All users</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="name">Name</label>
+                    <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="255" required{!! $name_invalid !!}>
+{!! $name_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" value="{!! $email !!}" maxlength="255" required{!! $email_invalid !!}>
+                    <p class="admin-hint">Used to sign in.</p>
+{!! $email_error !!}
+                </div>
+            </div>
+
+            <fieldset class="admin-field">
+                <legend>Role</legend>
+{!! $role_field !!}
+{!! $role_error !!}
+            </fieldset>
+
+            <div class="admin-field">
+                <p class="admin-field-label">Status</p>
+{!! $status_field !!}
+            </div>
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="password">{!! $password_label !!}</label>
+                    <input id="password" name="password" type="password" minlength="6" maxlength="8" autocomplete="new-password"{!! $password_required !!}{!! $password_invalid !!}>
+                    <p class="admin-hint">{!! $password_hint !!}</p>
+{!! $password_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="password_confirm">Repeat the password</label>
+                    <input id="password_confirm" name="password_confirm" type="password" minlength="6" maxlength="8" autocomplete="new-password"{!! $password_confirm_invalid !!}>
+{!! $password_confirm_error !!}
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/users">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

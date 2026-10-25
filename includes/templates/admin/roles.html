@@ -1,0 +1,22 @@
+@extends('layouts.admin')
+
+@section('title', 'Roles')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Users and roles</h1>
+                <p>A role decides which parts of the admin its users can open. Everyone can see the dashboard.</p>
+            </div>
+            <a class="admin-button" href="{{BASE}}/admin/roles/new">Add role</a>
+        </div>
+{!! $tabs !!}
+        <section class="admin-panel">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

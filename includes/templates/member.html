@@ -1,0 +1,67 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{!! $canonical !!}')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <style>
+        .member-profile { max-width: 860px; margin: 0 auto; padding: 32px 16px 56px; }
+        .member-profile__head { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .member-profile__logo-wrap { width: 108px; height: 108px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid rgba(2, 6, 23, 0.08); border-radius: 16px; flex: none; }
+        .member-profile__logo { max-width: 92px; max-height: 92px; object-fit: contain; }
+        .member-profile .member-mono { width: 88px; height: 88px; border-radius: 14px; }
+        .member-profile__name { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 4vw, 2.6rem); color: #0b50a7; letter-spacing: 0.02em; margin: 0; }
+        .member-profile__tier { display: inline-block; margin-top: 6px; padding: 4px 14px; border-radius: 999px; font-family: Barlow, sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(11, 80, 167, 0.1); color: #0b50a7; }
+        .member-profile--diamond .member-profile__tier { background: rgba(11, 126, 167, 0.12); color: #0b7ea7; }
+        .member-profile--platinum .member-profile__tier { background: rgba(75, 63, 167, 0.12); color: #4b3fa7; }
+        .member-profile--gold .member-profile__tier { background: rgba(192, 138, 30, 0.14); color: #c08a1e; }
+        .member-profile__tagline { font-family: Roboto, sans-serif; color: #475569; font-size: 1.05rem; margin: 8px 0 0; }
+        .member-section { margin-top: 30px; }
+        .member-section h2 { font-family: Barlow, sans-serif; color: #0f172a; font-size: 1.1rem; margin: 0 0 10px; }
+        .member-section p { font-family: Roboto, sans-serif; color: #475569; line-height: 1.7; margin: 0 0 10px; }
+        .member-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .member-link { display: inline-block; padding: 9px 18px; border-radius: 999px; background: #0b50a7; color: #fff; text-decoration: none; font-family: Barlow, sans-serif; font-weight: 600; font-size: 0.88rem; }
+        .member-link:hover { background: #083c80; color: #fff; }
+        .member-contact { list-style: none; padding: 0; margin: 0; font-family: Roboto, sans-serif; color: #334155; line-height: 1.9; }
+        .member-cta-band { margin-top: 40px; text-align: center; background: #f6f8fc; border: 1px solid rgba(11, 80, 167, 0.12); border-radius: 16px; padding: 26px; }
+        .member-cta-band p { font-family: Roboto, sans-serif; color: #475569; margin: 0 0 14px; }
+        .member-cta-band a { display: inline-block; padding: 11px 26px; background: #ff7a18; color: #fff; text-decoration: none; border-radius: 999px; font-family: Barlow, sans-serif; font-weight: 700; }
+        .member-back { display: inline-block; margin-bottom: 14px; color: #0b50a7; text-decoration: none; font-family: Roboto, sans-serif; font-size: 0.9rem; }
+    </style>
+@endsection
+
+@section('content')
+    <div class="member-profile member-profile--{!! $tier_key !!}">
+        <a class="member-back" href="{{BASE}}/members">&larr; All members</a>
+        <div class="member-profile__head">
+            <div class="member-profile__logo-wrap">{!! $logo !!}</div>
+            <div>
+                <h1 class="member-profile__name">{!! $name !!}</h1>
+                <span class="member-profile__tier">{!! $tier_name !!} Member</span>
+                <p class="member-profile__tagline">{!! $tagline !!}</p>
+            </div>
+        </div>
+
+        <div class="member-section"{!! $about_hidden !!}>
+            <h2>About</h2>
+{!! $about !!}
+        </div>
+
+        <div class="member-section"{!! $links_hidden !!}>
+            <h2>Links</h2>
+            <div class="member-links">{!! $links !!}</div>
+        </div>
+
+        <div class="member-section"{!! $contact_hidden !!}>
+            <h2>Contact</h2>
+            <ul class="member-contact">{!! $contact !!}</ul>
+        </div>
+
+        <div class="member-cta-band">
+            <p>Want your business featured on the official Pro HPCL website too?</p>
+            <a href="{{BASE}}/membership">Explore membership</a>
+        </div>
+    </div>
+@endsection

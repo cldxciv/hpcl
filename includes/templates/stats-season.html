@@ -1,0 +1,292 @@
+@extends('layouts.app')
+
+@section('title', 'Stats - {!! $season !!} | Pro HPCL')
+@section('description', 'Explore {!! $season !!} stats in Pro HPCL, including leaderboards for runs, wickets, strike rate, and bowling performance.')
+@section('canonical', '{{BASE}}/stats/season/{!! $route_key !!}')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .stats-hero {
+                background: linear-gradient(135deg, rgba(9, 81, 167, 0.12), rgba(252, 109, 57, 0.12));
+                border-radius: 20px;
+                padding: 28px;
+                border: 1px solid rgba(9, 81, 167, 0.15);
+                box-shadow: 0 18px 40px rgba(9, 81, 167, 0.12);
+            }
+
+            .stats-section {
+                background: #edf2f8;
+                border-radius: 20px;
+                border: 1px solid rgba(9, 81, 167, 0.08);
+                padding: 24px;
+                box-shadow: 0 16px 32px rgba(9, 81, 167, 0.08);
+            }
+
+            .stats-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .leader-card {
+                position: relative;
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(135deg, #0b3f84, #0b6db4 55%, #0e87c8);
+                color: #fff;
+                min-height: 140px;
+                box-shadow: 0 20px 40px rgba(9, 81, 167, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                transition: transform 200ms ease, box-shadow 200ms ease;
+            }
+
+            .leader-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 26px 46px rgba(9, 81, 167, 0.32);
+            }
+
+            .leader-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    radial-gradient(120px 120px at 90% 20%, rgba(252, 109, 57, 0.3), transparent 60%),
+                    radial-gradient(140px 140px at 20% 20%, rgba(255, 255, 255, 0.12), transparent 60%);
+                pointer-events: none;
+            }
+
+            .leader-card-body {
+                position: relative;
+                z-index: 1;
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 16px;
+                align-items: center;
+                padding: 18px 20px;
+            }
+
+            .leader-player {
+                width: 110px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 14px;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 10px 22px rgba(2, 6, 23, 0.35);
+                background: #0b2b5a;
+            }
+
+            .leader-label {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 10px;
+                border-radius: 999px;
+                background: rgba(15, 23, 42, 0.4);
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            .leader-name {
+                font-size: 16px;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+                margin: 8px 0 2px;
+                color: #fff;
+            }
+
+            .leader-meta {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.8);
+            }
+
+            .leader-stat {
+                text-align: right;
+            }
+
+            .leader-stat .label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                opacity: 0.9;
+            }
+
+            .leader-stat .value {
+                font-size: 28px;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+            }
+
+            .leader-rank {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                font-size: 12px;
+                font-weight: 800;
+            }
+
+            .leader-table-card {
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(135deg, #0b3f84, #0b6db4 55%, #0e87c8);
+                color: #fff;
+                min-height: 140px;
+                box-shadow: 0 20px 40px rgba(9, 81, 167, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                position: relative;
+            }
+
+            .leader-table-card .leader-card-body {
+                grid-template-columns: 110px 1fr;
+                padding: 16px 18px;
+            }
+
+            .leader-table-card .leader-stat .value {
+                font-size: 26px;
+            }
+
+            .leader-link {
+                color: #fff;
+                text-decoration: none;
+            }
+
+            .leader-link:hover {
+                color: #fff;
+                text-decoration: underline;
+            }
+
+            .filter-bar {
+                background: linear-gradient(135deg, rgba(9, 81, 167, 0.95), rgba(9, 81, 167, 0.75));
+                border-radius: 14px;
+                padding: 14px;
+                box-shadow: 0 14px 30px rgba(9, 81, 167, 0.22);
+            }
+
+            .filter-control {
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 10px 12px;
+                font-weight: 600;
+            }
+
+            .filter-control:focus {
+                box-shadow: 0 0 0 0.2rem rgba(252, 109, 57, 0.35);
+                border-color: rgba(252, 109, 57, 0.6);
+            }
+        </style>
+                            <script type="application/ld+json">
+            {!! $schema !!}
+        </script>
+@endsection
+
+@section('content')
+                    
+    
+    <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="section-padding">
+            <div class="container">
+                <nav aria-label="breadcrumb" class="my-1">
+                    <ol class="breadcrumb team-breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{BASE}}/stats">Stats</a></li>
+                        <li class="breadcrumb-item active fw-semibold" aria-current="page">{!! $season !!}</li>
+                    </ol>
+                </nav>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="stats-hero">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div>
+                                    <h2 class="section-title mb-2">Stats - {!! $season !!}</h2>
+                                    <p class="mb-0 text-muted">Player statistics for {!! $season !!}.</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{BASE}}/stats" class="btn btn-outline-primary btn-sm">All
+                                        Stats</a>
+                                    <a href="{{BASE}}/teams/season/{!! $route_key !!}" class="btn btn-primary btn-sm">Teams</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stats-results">
+
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+            <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const results = document.getElementById('stats-results');
+                let debounceTimer = null;
+
+                const getForm = () => document.querySelector('.filter-bar');
+
+                const runAjax = (override = {}) => {
+                    const form = getForm();
+                    if (!form) {
+                        return;
+                    }
+                    const formData = new FormData(form);
+                    Object.entries(override).forEach(([key, value]) => formData.set(key, value));
+                    const params = new URLSearchParams(formData);
+
+                    if (results) {
+                        results.style.opacity = '0.6';
+                    }
+
+                    fetch(`${form.getAttribute('action')}?${params.toString()}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            if (results && data.html) {
+                                results.innerHTML = data.html;
+                            }
+                        })
+                        .finally(() => {
+                            if (results) {
+                                results.style.opacity = '1';
+                            }
+                        });
+                };
+
+                document.addEventListener('change', (event) => {
+                    if (event.target && event.target.classList.contains('js-filter-select')) {
+                        runAjax();
+                    }
+                });
+
+                document.addEventListener('input', (event) => {
+                    if (event.target && event.target.getAttribute('name') === 'q') {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => runAjax(), 350);
+                    }
+                });
+            });
+        </script>
+@endsection

@@ -1,0 +1,35 @@
+@extends('layouts.admin')
+
+@section('title', 'Dashboard')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Dashboard</h1>
+            <p>Signed in as {!! $admin_name !!} ({!! $admin_email !!}) · {!! $admin_role !!}. <a href="{{BASE}}/" target="_blank" rel="noopener">View site</a></p>
+        </div>
+
+        <section class="admin-section" aria-label="Site totals">
+            <div class="admin-tiles">
+{!! $tiles !!}
+            </div>
+        </section>
+
+        <section class="admin-panel admin-section">
+{!! $season !!}
+        </section>
+
+        <section class="admin-panel admin-section">
+            <h2>Seasons</h2>
+{!! $seasons !!}
+        </section>
+
+        <section class="admin-panel admin-section">
+            <h2>Sign-in activity</h2>
+{!! $activity !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

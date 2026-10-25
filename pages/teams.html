@@ -1,0 +1,398 @@
+@extends('layouts.app')
+
+@section('title', 'Teams by Season | Pro HPCL')
+@section('description', 'Browse Pro HPCL teams by season and explore team profiles, owners, players, and squad details.')
+@section('canonical', '{{BASE}}/teams')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+    .team-hero {
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(135deg, rgba(11, 80, 167, 0.5) 0%, rgba(9, 43, 92, 0.48) 55%, rgba(6, 26, 58, 0.55) 100%),
+            url('{{BASE}}/assets/imgs/team-bg.jpg') center/cover no-repeat;
+    }
+    body.home-unified-theme .team-hero {
+        background:
+            linear-gradient(135deg, rgba(11, 80, 167, 0.5) 0%, rgba(9, 43, 92, 0.48) 55%, rgba(6, 26, 58, 0.55) 100%),
+            url('{{BASE}}/assets/imgs/team-bg.jpg') center/cover no-repeat !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+    .team-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(60% 80% at 10% 10%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%),
+            radial-gradient(50% 70% at 90% 10%, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 55%);
+        pointer-events: none;
+    }
+    .team-hero .team-logo {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        border: 6px solid rgba(255, 255, 255, 0.7);
+    }
+    .team-hero-panel,
+    .owners-panel {
+        position: relative;
+        z-index: 1;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        padding: clamp(10px, 1.4vw, 16px) 0;
+        backdrop-filter: none;
+        height: 100%;
+    }
+    .team-breadcrumb {
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+    .team-breadcrumb .breadcrumb-item,
+    .team-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.74);
+    }
+    .team-breadcrumb .breadcrumb-item a {
+        color: rgba(255, 255, 255, 0.92);
+        text-decoration: none;
+    }
+    .team-breadcrumb .breadcrumb-item a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+    .team-breadcrumb .breadcrumb-item.active {
+        color: #ffffff;
+    }
+    .team-title {
+        letter-spacing: 0.3px;
+        color: #ffffff;
+        text-transform: none;
+        font-size: clamp(1.55rem, 2.2vw, 2.35rem);
+        line-height: 1.2;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    }
+    .team-owners {
+        color: #ffffff;
+        letter-spacing: 0.05em;
+        margin-bottom: 0;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    }
+    .owners-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+    @media (min-width: 992px) {
+        .owners-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+    .owner-card {
+        position: relative;
+        background: transparent;
+        border: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+    .owner-card img {
+        width: 100%;
+        height: 170px;
+        object-fit: contain;
+        object-position: center top;
+        background: transparent;
+        display: block;
+        transition: transform 260ms ease, filter 260ms ease;
+    }
+    .team-hero-description {
+        margin: 10px 0 0;
+        font-size: 1rem;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.95);
+        max-width: 62ch;
+    }
+    body.home-unified-theme .team-hero .team-hero-description {
+        color: rgba(255, 255, 255, 0.95);
+    }
+    .team-hero-meta {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.88);
+        font-weight: 500;
+    }
+    body.home-unified-theme .team-hero .team-hero-meta {
+        color: rgba(255, 255, 255, 0.88);
+    }
+    .owner-name {
+        margin: 0;
+        padding: 18px 12px 10px;
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+        color: #ffffff;
+        text-transform: uppercase;
+        font-weight: 700;
+        line-height: 1.25;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        background: linear-gradient(180deg, rgba(4, 16, 36, 0) 0%, rgba(4, 16, 36, 0.92) 72%);
+        transition: background 220ms ease, letter-spacing 220ms ease;
+    }
+    .owner-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 26px rgba(2, 10, 24, 0.3);
+    }
+    .owner-card:hover img {
+        transform: scale(1.03);
+        filter: saturate(1.06) contrast(1.03);
+    }
+    .owner-card:hover .owner-name {
+        background: linear-gradient(180deg, rgba(4, 16, 36, 0) 0%, rgba(4, 16, 36, 0.98) 68%);
+        letter-spacing: 0.06em;
+    }
+    .team-description {
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+    .section-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+    }
+    .team-page-shell {
+        width: min(1440px, 100%);
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 0 clamp(14px, 2.2vw, 28px);
+    }
+    .team-page-shell--narrow {
+        max-width: 980px;
+    }
+    .team-player-performer {
+        min-height: 230px;
+        overflow: visible;
+        transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .team-player-performer:hover {
+        transform: translateY(-5px);
+    }
+    .team-player-performer .tpv2-card__player {
+        width: 146px;
+        height: 202px;
+        top: -26px;
+        left: 8px;
+        object-position: left top;
+    }
+    .team-player-performer .tpv2-card__meta {
+        right: 12px;
+        top: 14px;
+        bottom: 12px;
+        width: min(60%, 240px);
+        justify-content: flex-start;
+        gap: 6px;
+    }
+    .team-player-performer .tpv2-card__name {
+        font-size: clamp(28px, 2.2vw, 38px);
+        line-height: 0.95;
+        text-align: right;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .team-player-performer .tpv2-card__metric-label {
+        margin-top: 0;
+        font-size: 13px;
+        line-height: 1.1;
+        text-align: right;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    .team-player-details {
+        margin-top: 2px;
+        display: grid;
+        gap: 4px;
+        justify-items: end;
+    }
+    .team-player-details span {
+        font-family: var(--font-family-Font-2, Roboto), sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        color: #ffffff;
+        background: rgba(15, 23, 42, 0.28);
+        padding: 3px 8px;
+        border-radius: 999px;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .team-player-link {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    .team-player-link:hover { color: #ffffff; text-decoration: underline; }
+    .badge-season {
+        background: rgba(11, 80, 167, 0.12);
+        color: #0b50a7;
+        border: 1px solid rgba(11, 80, 167, 0.2);
+        font-weight: 600;
+    }
+    .team-hero .badge.badge-season {
+        background-color: #fd6f3b !important;
+        color: #ffffff !important;
+        border: 1px solid #fd6f3b !important;
+        box-shadow: 0 4px 10px rgba(253, 111, 59, 0.35);
+    }
+    @media (max-width: 991px) {
+        .team-hero {
+            border-radius: 0 0 24px 24px;
+        }
+        .team-player-performer {
+            min-height: 210px;
+        }
+        .team-player-performer .tpv2-card__player {
+            width: 126px;
+            height: 178px;
+            top: -18px;
+        }
+        .team-player-performer .tpv2-card__meta {
+            width: min(62%, 210px);
+        }
+        .team-player-performer .tpv2-card__name {
+            font-size: clamp(24px, 6.5vw, 34px);
+        }
+        .team-player-details span {
+            font-size: 10px;
+        }
+        .owners-grid {
+            gap: 10px;
+        }
+        .owner-name {
+            font-size: 0.82rem;
+            padding: 16px 10px 9px;
+        }
+    }
+    @media (max-width: 575px) {
+        .team-hero-panel,
+        .owners-panel {
+            border-radius: 14px;
+            padding: 12px;
+        }
+        .team-hero .team-logo {
+            border-width: 4px;
+            max-width: 120px;
+            margin: 0 auto;
+            display: block;
+        }
+        .team-identity-row {
+            align-items: flex-start;
+            row-gap: 12px;
+        }
+        .team-identity-row > .col-4,
+        .team-identity-row > .col-8 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        .team-title {
+            font-size: 1.95rem;
+            line-height: 1.1;
+        }
+        .team-hero-description {
+            font-size: 0.94rem;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+        .team-breadcrumb {
+            font-size: 0.82rem;
+            margin-bottom: 8px;
+        }
+        .team-owners {
+            font-size: 1.2rem;
+            letter-spacing: 0.04em;
+        }
+    }
+    @media (max-width: 480px) {
+        .team-page-shell {
+            padding: 0 12px;
+        }
+    }
+</style>
+                    <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"CollectionPage","name":"Pro HPCL Teams","description":"Teams by season in Pro HPCL cricket league.","url":"{{BASE}}/teams","about":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","sport":"Cricket","url":"{{BASE}}"},"mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"name":"Season 1","url":"{{BASE}}/teams/season/1"},{"@type":"ListItem","position":2,"name":"Season 2","url":"{{BASE}}/teams/season/2"},{"@type":"ListItem","position":3,"name":"Season 3","url":"{{BASE}}/teams/season/3"},{"@type":"ListItem","position":4,"name":"Season 4","url":"{{BASE}}/teams/season/4"}]}}
+        </script>
+@endsection
+
+@section('content')
+                        <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="teams-section" aria-label="Teams by Season">
+            <div class="teams-section__inner">
+                <nav aria-label="breadcrumb" class="my-1">
+                    <ol class="breadcrumb team-breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                        <li class="breadcrumb-item active fw-semibold" aria-current="page">Teams</li>
+                    </ol>
+                </nav>
+                <h2 class="teams-section__title">Our Teams</h2>
+
+                <div class="teams-section__grid">
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/1" aria-label="Season 1">
+                            <article class="teams-section__card teams-section__card--red">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo teams-section__logo--season" src="{{BASE}}/storage/uploads/seasons/tRE56Y0irg3U4BDVmxnM2ZxaDGHT6kn55gEK1hQF.jpg" alt="Season 1" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                </div>
+                                <h3 class="teams-section__name">Season 1</h3>
+                                <p class="text-white-50 mb-0 small">16 teams</p>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/2" aria-label="Season 2">
+                            <article class="teams-section__card teams-section__card--gold">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo teams-section__logo--season" src="{{BASE}}/storage/uploads/seasons/2clPh2WZrS7sAll3sMRijRRlpQuRTYG4Bads02GT.jpg" alt="Season 2" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                </div>
+                                <h3 class="teams-section__name">Season 2</h3>
+                                <p class="text-white-50 mb-0 small">19 teams</p>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/3" aria-label="Season 3">
+                            <article class="teams-section__card teams-section__card--purple">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo teams-section__logo--season" src="{{BASE}}/storage/uploads/seasons/gsznwM97k8Y5hOUkOwsx3A9fpFQvBD5sIXe2N4bk.jpg" alt="Season 3" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                </div>
+                                <h3 class="teams-section__name">Season 3</h3>
+                                <p class="text-white-50 mb-0 small">20 teams</p>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4" aria-label="Season 4">
+                            <article class="teams-section__card teams-section__card--blue">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo teams-section__logo--season" src="{{BASE}}/storage/uploads/seasons/sbpdnyBXjwa8E0wrxXCyka7FAM6ygWfi4d8j7faE.jpg" alt="Season 4" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                </div>
+                                <h3 class="teams-section__name">Season 4</h3>
+                                <p class="text-white-50 mb-0 small">20 teams</p>
+                            </article>
+                        </a>
+                                    </div>
+
+                            </div>
+
+            <div class="teams-section__bottom-decor" aria-hidden="true"></div>
+        </section>
+    </div>
+</div>
+@endsection

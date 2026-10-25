@@ -1,0 +1,50 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <p class="admin-back"><a href="{{BASE}}/admin/roles">&larr; All roles</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="name">Name</label>
+                    <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="64" required{!! $name_invalid !!}>
+{!! $name_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="slug">Id</label>
+{!! $slug_field !!}
+                </div>
+            </div>
+
+            <div class="admin-field">
+                <label for="description">Description <span class="admin-optional">optional</span></label>
+                <input id="description" name="description" type="text" value="{!! $description !!}" maxlength="255"{!! $description_invalid !!}>
+                <p class="admin-hint">Shown when choosing a user’s role.</p>
+{!! $description_error !!}
+            </div>
+
+            <fieldset class="admin-field">
+                <legend>Can use</legend>
+                <p class="admin-hint">Everyone can see the dashboard. Users and roles are for the root user only.</p>
+                <div class="admin-choices">
+{!! $permissions !!}
+                </div>
+{!! $users_note !!}
+            </fieldset>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/roles">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

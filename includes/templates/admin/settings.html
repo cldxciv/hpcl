@@ -1,0 +1,25 @@
+@extends('layouts.admin')
+
+@section('title', 'Site settings')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Site settings</h1>
+            <p>Details shown across the public website. Changes appear as soon as you save.</p>
+        </div>
+{!! $summary !!}
+        <form class="admin-settings" method="post" action="{{BASE}}/admin/settings">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+{!! $sections !!}
+{!! $other !!}
+            <div class="admin-savebar">
+                <a class="admin-button-secondary" href="{{BASE}}/admin/settings">Discard changes</a>
+                <button type="submit">Save settings</button>
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

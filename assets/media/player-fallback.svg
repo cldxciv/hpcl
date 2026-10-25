@@ -1,0 +1,28 @@
+<svg width="720" height="960" viewBox="0 0 720 960" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cricket player avatar placeholder">
+  <defs>
+    <linearGradient id="accent" x1="218" y1="828" x2="500" y2="828" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5A14D"/>
+      <stop offset="1" stop-color="#F9743E"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="360" cy="352" r="96" fill="#EAF2FF"/>
+  <path d="M360 474C258.38 474 176 556.38 176 658V714C176 744.93 201.07 770 232 770H488C518.93 770 544 744.93 544 714V658C544 556.38 461.62 474 360 474Z" fill="#EAF2FF"/>
+
+  <rect x="430" y="404" width="34" height="210" rx="16" transform="rotate(-28 430 404)" fill="#F4D7A7"/>
+  <rect x="440" y="396" width="14" height="44" rx="7" transform="rotate(-28 440 396)" fill="#E5B97A"/>
+
+  <circle cx="504" cy="258" r="18" fill="#FC6D39"/>
+  <path d="M492 258H516" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M504 246V270" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+  <g>
+    <rect x="306" y="794" width="16" height="58" rx="8" fill="#D6E2F8"/>
+    <rect x="352" y="794" width="16" height="58" rx="8" fill="#D6E2F8"/>
+    <rect x="398" y="794" width="16" height="58" rx="8" fill="#D6E2F8"/>
+    <rect x="298" y="782" width="124" height="10" rx="5" fill="#D6E2F8"/>
+  </g>
+
+  <rect x="218" y="808" width="282" height="38" rx="19" fill="url(#accent)"/>
+  <text x="359" y="834" text-anchor="middle" fill="#FFFFFF" font-family="Roboto, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.6">CRICKET PLAYER</text>
+</svg>

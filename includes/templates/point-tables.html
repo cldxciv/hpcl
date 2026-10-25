@@ -1,0 +1,110 @@
+@extends('layouts.app')
+
+@section('title', 'Point Tables by Season | Pro HPCL')
+@section('description', 'Browse Pro HPCL season-wise point tables and open the latest standings for each season.')
+@section('canonical', '{{BASE}}/point-tables')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .points-seasons-shell {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 28px 16px 64px;
+            }
+            .points-seasons-title {
+                font-size: clamp(1.7rem, 3vw, 2.4rem);
+                font-weight: 800;
+                margin-bottom: 4px;
+            }
+            .points-seasons-grid {
+                display: grid;
+                gap: 14px;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                margin-top: 18px;
+            }
+            .points-season-card {
+                display: block;
+                text-decoration: none;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 16px;
+                background: linear-gradient(160deg, #ffffff, #f8fbff);
+                padding: 18px;
+                color: #0f172a;
+                transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+            }
+            .points-season-card:hover {
+                transform: translateY(-2px);
+                border-color: rgba(13, 79, 149, 0.35);
+                box-shadow: 0 12px 24px rgba(15, 23, 42, 0.09);
+                text-decoration: none;
+                color: #0f172a;
+            }
+            .points-season-card.is-disabled {
+                opacity: 0.75;
+                pointer-events: none;
+                background: #f8fafc;
+            }
+            .points-season-card__name {
+                font-weight: 800;
+                font-size: 1.05rem;
+                margin: 0 0 4px;
+            }
+            .points-season-card__meta {
+                margin: 0;
+                color: #475569;
+                font-size: 0.92rem;
+            }
+            @media (min-width: 768px) {
+                .points-seasons-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+            @media (min-width: 1024px) {
+                .points-seasons-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+            }
+        </style>
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Point Tables","item":"{{BASE}}/point-tables"}]}
+    </script>
+            <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"CollectionPage","name":"Pro HPCL Point Tables","url":"{{BASE}}/point-tables","about":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","sport":"Cricket","url":"{{BASE}}"},"mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"name":"Season 4 Points Table","url":"{{BASE}}/point-tables/season/4"},{"@type":"ListItem","position":2,"name":"Season 3 Points Table","url":"{{BASE}}/point-tables/season/3"},{"@type":"ListItem","position":3,"name":"Season 2 Points Table","url":"{{BASE}}/point-tables/season/2"},{"@type":"ListItem","position":4,"name":"Season 1 Points Table","url":"{{BASE}}/point-tables/season/1"}]}}
+        </script>
+@endsection
+
+@section('content')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Point Tables</li>
+                                                            </ol>
+            </nav>
+        </div>
+                
+    <section class="points-seasons-shell">
+        <h1 class="points-seasons-title">Point Tables by Season</h1>
+        <p class="text-muted mb-0">Open any season to view standings and recent match results.</p>
+
+        <div class="points-seasons-grid">
+                                                                <div class="points-season-card is-disabled">
+                        <h2 class="points-season-card__name">Season 4</h2>
+                                                    <p class="points-season-card__meta">Points table will appear after first match result.</p>
+                                            </div>
+                                                                                <div class="points-season-card is-disabled">
+                        <h2 class="points-season-card__name">Season 3</h2>
+                                                    <p class="points-season-card__meta">Points table will appear after first match result.</p>
+                                            </div>
+                                                                                <div class="points-season-card is-disabled">
+                        <h2 class="points-season-card__name">Season 2</h2>
+                                                    <p class="points-season-card__meta">Points table will appear after first match result.</p>
+                                            </div>
+                                                                                <a href="{{BASE}}/point-tables/season/1" class="points-season-card">
+                        <h2 class="points-season-card__name">Season 1</h2>
+                        <p class="points-season-card__meta">View points table</p>
+                    </a>
+                                    </div>
+    </section>
+@endsection

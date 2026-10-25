@@ -1,0 +1,201 @@
+@extends('layouts.app')
+
+@section('title', 'Season 4 Teams | Pro HPCL')
+@section('description', 'Explore all teams participating in Season 4 of Pro HPCL.')
+@section('canonical', '{{BASE}}/teams/season/4')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+                            <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"CollectionPage","name":"Season 4 Teams","url":"{{BASE}}/teams/season/4","about":{"@type":"SportsEvent","name":"Season 4","sport":"Cricket","description":"Season 4 season event for Pro HPCL cricket league.","startDate":"2026-05-01","endDate":null,"eventStatus":"https://schema.org/EventInProgress","url":"{{BASE}}/teams/season/4","image":["{{BASE}}/logo.png"],"location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}},"performer":[{"@type":"SportsTeam","name":"Aspire 11","url":"{{BASE}}/teams/season/4/aspire-11"},{"@type":"SportsTeam","name":"Bat Breaker Rampur","url":"{{BASE}}/teams/season/4/bat-breaker-rampur"},{"@type":"SportsTeam","name":"Boom Shiva Blasters","url":"{{BASE}}/teams/season/4/boom-shiva-blasters"},{"@type":"SportsTeam","name":"Chudeshwar Legends Sirmaur","url":"{{BASE}}/teams/season/4/chudeshwar-legends-sirmaur"},{"@type":"SportsTeam","name":"Commando The Rising Star Solan","url":"{{BASE}}/teams/season/4/commando-the-rising-star-solan"},{"@type":"SportsTeam","name":"CYBERBELLS TECH TITANS KOTKHAI","url":"{{BASE}}/teams/season/4/cyberbells-tech-titans-kotkhai"}],"organizer":{"@type":"SportsOrganization","name":"Pro HPCL","url":"{{BASE}}"},"offers":{"@type":"Offer","url":"{{BASE}}/player/registration","priceCurrency":"INR","price":2500,"validFrom":"2026-04-08T10:00:00+05:30","validThrough":"2026-04-10T22:00:00+05:30","availability":"https://schema.org/SoldOut"}},"mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"SportsTeam","name":"Aspire 11","sport":"Cricket","url":"{{BASE}}/teams/season/4/aspire-11","logo":"{{BASE}}/storage/uploads/teams/pgeUD6WJDJ67HwMgOcOuf5yOkZjUuPYIGk7pW22d.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":2,"item":{"@type":"SportsTeam","name":"Bat Breaker Rampur","sport":"Cricket","url":"{{BASE}}/teams/season/4/bat-breaker-rampur","logo":"{{BASE}}/storage/uploads/teams/MLXSpJWQcDwWEryrvkJM4ZqHwLl83KOZGBiCVhjI.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":3,"item":{"@type":"SportsTeam","name":"Boom Shiva Blasters","sport":"Cricket","url":"{{BASE}}/teams/season/4/boom-shiva-blasters","logo":"{{BASE}}/storage/uploads/teams/tvdUVBZDsBKBddAAXoCImvssSQZk6lWVKAyRwYzw.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":4,"item":{"@type":"SportsTeam","name":"Chudeshwar Legends Sirmaur","sport":"Cricket","url":"{{BASE}}/teams/season/4/chudeshwar-legends-sirmaur","logo":"{{BASE}}/storage/uploads/teams/vQHz9XAQnJe15XLz92qVjNrpSdFztYBBnUIPhjV8.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":5,"item":{"@type":"SportsTeam","name":"Commando The Rising Star Solan","sport":"Cricket","url":"{{BASE}}/teams/season/4/commando-the-rising-star-solan","logo":"{{BASE}}/storage/uploads/teams/qrBUGbQPQSXlCKia1JI46XFjrkzr7TYqqVCE8EZG.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":6,"item":{"@type":"SportsTeam","name":"CYBERBELLS TECH TITANS KOTKHAI","sport":"Cricket","url":"{{BASE}}/teams/season/4/cyberbells-tech-titans-kotkhai","logo":"{{BASE}}/storage/uploads/teams/eNKMCYGrg6TGH8ozOxuZQg1WEcHalAkPJv8d5tOJ.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":7,"item":{"@type":"SportsTeam","name":"Indian Saga Royals Shimla","sport":"Cricket","url":"{{BASE}}/teams/season/4/indian-saga-royals-shimla","logo":"{{BASE}}/storage/uploads/teams/HtEfeyPfEsbUC6be0GHD7ggBSv3En2Iqpm5XwZin.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":8,"item":{"@type":"SportsTeam","name":"Kanwills Titans","sport":"Cricket","url":"{{BASE}}/teams/season/4/kanwills-titans","logo":"{{BASE}}/storage/uploads/teams/thuKyjEB3AcbfikeLsie9GEeDfOnoakUttYqFbO1.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":9,"item":{"@type":"SportsTeam","name":"Knight Hawks","sport":"Cricket","url":"{{BASE}}/teams/season/4/knight-hawks","logo":"{{BASE}}/storage/uploads/teams/6mewON0HUjBXXu3vsiJhet3s7Mwn4eDMQAGzXbwU.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":10,"item":{"@type":"SportsTeam","name":"Mandi Marvels","sport":"Cricket","url":"{{BASE}}/teams/season/4/mandi-marvels","logo":"{{BASE}}/storage/uploads/teams/Ar5G7zxtLosZkkAM9EYesbc8icgMqYh5zyBTK2zR.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":11,"item":{"@type":"SportsTeam","name":"Mountain Army by TGW","sport":"Cricket","url":"{{BASE}}/teams/season/4/mountain-army","logo":"{{BASE}}/storage/uploads/teams/sK7Lx86IiyqPkTLsWh7yTlEHClI3kvMEHysOTdIc.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":12,"item":{"@type":"SportsTeam","name":"Rising Star Baldeyan","sport":"Cricket","url":"{{BASE}}/teams/season/4/rising-star-baldeyan","logo":"{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":13,"item":{"@type":"SportsTeam","name":"Shangrila Farms","sport":"Cricket","url":"{{BASE}}/teams/season/4/shangrila-farms","logo":"{{BASE}}/storage/uploads/teams/HvawWMOo3ZEFO3HGI9zekDFdMdOdJWvVI2nTXhEN.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":14,"item":{"@type":"SportsTeam","name":"Shilonbagh Royals","sport":"Cricket","url":"{{BASE}}/teams/season/4/shilonbagh-royals","logo":"{{BASE}}/storage/uploads/teams/v2Q2Sj8CuF9L1PxfsoTjcSSS45FRqQwzVYPEvHs3.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":15,"item":{"@type":"SportsTeam","name":"Shimla Royals","sport":"Cricket","url":"{{BASE}}/teams/season/4/shimla-royals","logo":"{{BASE}}/storage/uploads/teams/XEj7wXq6Jn3w4AtdxLuMzrsuxq48kEJtmPBijBEh.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":16,"item":{"@type":"SportsTeam","name":"Shimla Titans","sport":"Cricket","url":"{{BASE}}/teams/season/4/shimla-titans","logo":"{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":17,"item":{"@type":"SportsTeam","name":"Sidhpur Warriors","sport":"Cricket","url":"{{BASE}}/teams/season/4/sidhpur-warriors","logo":"{{BASE}}/storage/uploads/teams/Ep50sJV9A5OUWlNKJc6MCrqZkx158vz1NalV1NPg.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":18,"item":{"@type":"SportsTeam","name":"Silent Killer Bilaspur","sport":"Cricket","url":"{{BASE}}/teams/season/4/silent-killer-bilaspur","logo":"{{BASE}}/storage/uploads/teams/vWgIKCHk9Xw7mRjNzgT4tHjwfhJEMmW9r6YT7K7X.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":19,"item":{"@type":"SportsTeam","name":"Valley Victor Jubbal","sport":"Cricket","url":"{{BASE}}/teams/season/4/valley-victor-jubbal","logo":"{{BASE}}/storage/uploads/teams/6py1vVbFUpqt19Qf0SCxPgUnhEzhssLZI5GVXQQF.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}},{"@type":"ListItem","position":20,"item":{"@type":"SportsTeam","name":"Wine Association","sport":"Cricket","url":"{{BASE}}/teams/season/4/wine-association","logo":"{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png","location":{"@type":"Place","name":"Pro HPCL, Himachal Pradesh","address":{"@type":"PostalAddress","addressRegion":"Himachal Pradesh","addressCountry":"IN"}}}}]}}
+        </script>
+@endsection
+
+@section('content')
+                    <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="teams-section" aria-label="Season 4 Teams">
+            <div class="teams-section__inner">
+                <nav aria-label="breadcrumb" class="my-1">
+                    <ol class="breadcrumb team-breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{BASE}}/teams">Teams</a></li>
+                        <li class="breadcrumb-item active fw-semibold" aria-current="page">Season 4</li>
+                    </ol>
+                </nav>
+                <h2 class="teams-section__title">Season 4 Teams</h2>
+                <div class="teams-section__grid">
+                                                                <a class="text-decoration-none" href="{{BASE}}/teams/season/4/aspire-11" aria-label="Aspire 11">
+                            <article class="teams-section__card teams-section__card--red">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/pgeUD6WJDJ67HwMgOcOuf5yOkZjUuPYIGk7pW22d.png" alt="Aspire 11">
+                                </div>
+                                <h3 class="teams-section__name">Aspire 11</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/bat-breaker-rampur" aria-label="Bat Breaker Rampur">
+                            <article class="teams-section__card teams-section__card--gold">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/MLXSpJWQcDwWEryrvkJM4ZqHwLl83KOZGBiCVhjI.png" alt="Bat Breaker Rampur">
+                                </div>
+                                <h3 class="teams-section__name">Bat Breaker Rampur</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/boom-shiva-blasters" aria-label="Boom Shiva Blasters">
+                            <article class="teams-section__card teams-section__card--purple">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/tvdUVBZDsBKBddAAXoCImvssSQZk6lWVKAyRwYzw.png" alt="Boom Shiva Blasters">
+                                </div>
+                                <h3 class="teams-section__name">Boom Shiva Blasters</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/chudeshwar-legends-sirmaur" aria-label="Chudeshwar Legends Sirmaur">
+                            <article class="teams-section__card teams-section__card--blue">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/vQHz9XAQnJe15XLz92qVjNrpSdFztYBBnUIPhjV8.png" alt="Chudeshwar Legends Sirmaur">
+                                </div>
+                                <h3 class="teams-section__name">Chudeshwar Legends Sirmaur</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/commando-the-rising-star-solan" aria-label="Commando The Rising Star Solan">
+                            <article class="teams-section__card teams-section__card--pink">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/qrBUGbQPQSXlCKia1JI46XFjrkzr7TYqqVCE8EZG.png" alt="Commando The Rising Star Solan">
+                                </div>
+                                <h3 class="teams-section__name">Commando The Rising Star Solan</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/cyberbells-tech-titans-kotkhai" aria-label="CYBERBELLS TECH TITANS KOTKHAI">
+                            <article class="teams-section__card teams-section__card--teal">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/eNKMCYGrg6TGH8ozOxuZQg1WEcHalAkPJv8d5tOJ.png" alt="CYBERBELLS TECH TITANS KOTKHAI">
+                                </div>
+                                <h3 class="teams-section__name">CYBERBELLS TECH TITANS KOTKHAI</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/indian-saga-royals-shimla" aria-label="Indian Saga Royals Shimla">
+                            <article class="teams-section__card teams-section__card--orange">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/HtEfeyPfEsbUC6be0GHD7ggBSv3En2Iqpm5XwZin.png" alt="Indian Saga Royals Shimla">
+                                </div>
+                                <h3 class="teams-section__name">Indian Saga Royals Shimla</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/kanwills-titans" aria-label="Kanwills Titans">
+                            <article class="teams-section__card teams-section__card--yellow">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/thuKyjEB3AcbfikeLsie9GEeDfOnoakUttYqFbO1.png" alt="Kanwills Titans">
+                                </div>
+                                <h3 class="teams-section__name">Kanwills Titans</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/knight-hawks" aria-label="Knight Hawks">
+                            <article class="teams-section__card teams-section__card--magenta">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/6mewON0HUjBXXu3vsiJhet3s7Mwn4eDMQAGzXbwU.png" alt="Knight Hawks">
+                                </div>
+                                <h3 class="teams-section__name">Knight Hawks</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/mandi-marvels" aria-label="Mandi Marvels">
+                            <article class="teams-section__card teams-section__card--violet">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/Ar5G7zxtLosZkkAM9EYesbc8icgMqYh5zyBTK2zR.png" alt="Mandi Marvels">
+                                </div>
+                                <h3 class="teams-section__name">Mandi Marvels</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/mountain-army" aria-label="Mountain Army by TGW">
+                            <article class="teams-section__card teams-section__card--navy">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/sK7Lx86IiyqPkTLsWh7yTlEHClI3kvMEHysOTdIc.png" alt="Mountain Army by TGW">
+                                </div>
+                                <h3 class="teams-section__name">Mountain Army by TGW</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/rising-star-baldeyan" aria-label="Rising Star Baldeyan">
+                            <article class="teams-section__card teams-section__card--red">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="Rising Star Baldeyan">
+                                </div>
+                                <h3 class="teams-section__name">Rising Star Baldeyan</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/shangrila-farms" aria-label="Shangrila Farms">
+                            <article class="teams-section__card teams-section__card--gold">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/HvawWMOo3ZEFO3HGI9zekDFdMdOdJWvVI2nTXhEN.png" alt="Shangrila Farms">
+                                </div>
+                                <h3 class="teams-section__name">Shangrila Farms</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/shilonbagh-royals" aria-label="Shilonbagh Royals">
+                            <article class="teams-section__card teams-section__card--purple">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/v2Q2Sj8CuF9L1PxfsoTjcSSS45FRqQwzVYPEvHs3.png" alt="Shilonbagh Royals">
+                                </div>
+                                <h3 class="teams-section__name">Shilonbagh Royals</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/shimla-royals" aria-label="Shimla Royals">
+                            <article class="teams-section__card teams-section__card--blue">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/XEj7wXq6Jn3w4AtdxLuMzrsuxq48kEJtmPBijBEh.png" alt="Shimla Royals">
+                                </div>
+                                <h3 class="teams-section__name">Shimla Royals</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/shimla-titans" aria-label="Shimla Titans">
+                            <article class="teams-section__card teams-section__card--pink">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png" alt="Shimla Titans">
+                                </div>
+                                <h3 class="teams-section__name">Shimla Titans</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/sidhpur-warriors" aria-label="Sidhpur Warriors">
+                            <article class="teams-section__card teams-section__card--teal">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/Ep50sJV9A5OUWlNKJc6MCrqZkx158vz1NalV1NPg.png" alt="Sidhpur Warriors">
+                                </div>
+                                <h3 class="teams-section__name">Sidhpur Warriors</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/silent-killer-bilaspur" aria-label="Silent Killer Bilaspur">
+                            <article class="teams-section__card teams-section__card--orange">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/vWgIKCHk9Xw7mRjNzgT4tHjwfhJEMmW9r6YT7K7X.png" alt="Silent Killer Bilaspur">
+                                </div>
+                                <h3 class="teams-section__name">Silent Killer Bilaspur</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/valley-victor-jubbal" aria-label="Valley Victor Jubbal">
+                            <article class="teams-section__card teams-section__card--yellow">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/6py1vVbFUpqt19Qf0SCxPgUnhEzhssLZI5GVXQQF.png" alt="Valley Victor Jubbal">
+                                </div>
+                                <h3 class="teams-section__name">Valley Victor Jubbal</h3>
+                            </article>
+                        </a>
+                                            <a class="text-decoration-none" href="{{BASE}}/teams/season/4/wine-association" aria-label="Wine Association">
+                            <article class="teams-section__card teams-section__card--magenta">
+                                <div class="teams-section__logo-wrap">
+                                    <img class="teams-section__logo" src="{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png" alt="Wine Association">
+                                </div>
+                                <h3 class="teams-section__name">Wine Association</h3>
+                            </article>
+                        </a>
+                                    </div>
+            </div>
+            <div class="teams-section__bottom-decor" aria-hidden="true"></div>
+        </section>
+    </div>
+</div>
+@endsection

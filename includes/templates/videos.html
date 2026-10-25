@@ -1,0 +1,715 @@
+@extends('layouts.app')
+
+@section('title', 'Videos | Pro HPCL')
+@section('description', 'Watch official Pro HPCL match highlights, player features, and season videos from our YouTube channel.')
+@section('canonical', '{{BASE}}/videos')
+@section('body_class', 'home-unified-theme videos-page')
+
+@section('head')
+        <style>
+        .videos-page-wrap {
+            background: transparent;
+            padding: 28px 16px 56px;
+        }
+
+        .videos-page-container {
+            width: min(1220px, 100%);
+            margin: 0 auto;
+        }
+
+        .videos-page-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .videos-page-title {
+            margin: 0;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(34px, 5vw, 56px);
+            line-height: 1;
+            letter-spacing: 0.02em;
+            color: #0b2f6d;
+        }
+
+        .videos-page-subtitle {
+            margin: 8px 0 0;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+
+        .videos-page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: #0951a8;
+            color: #fff;
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: background 0.15s ease-in-out;
+        }
+
+        .videos-page-link:hover {
+            background: #0c4487;
+            color: #fff;
+        }
+
+        .videos-category-filters {
+            margin: 0 0 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .videos-category-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            padding: 8px 12px;
+        }
+
+        .videos-category-chip:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .videos-category-chip.is-active {
+            background: #0b2f6d;
+            border-color: #0b2f6d;
+            color: #fff;
+        }
+
+        .videos-grid {
+            display: grid;
+            gap: 22px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        }
+
+        .video-card {
+            background: #fff;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+        }
+
+        .video-thumb-link {
+            display: block;
+        }
+
+        .video-thumb-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 0;
+            display: block;
+            background: #0f172a;
+            object-fit: cover;
+        }
+
+        .video-card-body {
+            padding: 14px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .video-card-title {
+            margin: 0;
+            font-family: 'Barlow', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #0f172a;
+        }
+
+        .video-card-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .video-card-title a:hover {
+            text-decoration: underline;
+        }
+
+        .video-card-date {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .video-card-views {
+            margin: 0;
+            color: #475569;
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
+
+        .video-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .video-card-meta .video-card-date,
+        .video-card-meta .video-card-views {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .video-card-meta-icon {
+            width: 14px;
+            height: 14px;
+            flex: 0 0 14px;
+        }
+
+        .video-card-watch {
+            width: fit-content;
+            font-size: 0.82rem;
+            color: #0951a8;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .video-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .video-card-tag-section {
+            margin-top: 8px;
+        }
+        .video-card-tag-section-title {
+            margin: 0 0 5px;
+            color: #64748b;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .video-card-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            text-decoration: none;
+        }
+        .video-card-tag:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .videos-empty {
+            background: #fff;
+            border: 1px dashed #93c5fd;
+            border-radius: 14px;
+            padding: 22px;
+            color: #334155;
+        }
+
+        .videos-pagination {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .videos-pagination .pagination {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 640px) {
+            .videos-page-wrap {
+                padding: 20px 12px 44px;
+            }
+
+            .videos-page-head {
+                align-items: start;
+                flex-direction: column;
+                margin-bottom: 16px;
+                gap: 10px;
+            }
+
+            .videos-page-subtitle {
+                font-size: 0.88rem;
+            }
+
+            .videos-page-link {
+                width: 100%;
+            }
+
+            .videos-category-filters {
+                margin-bottom: 14px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 2px;
+                scrollbar-width: thin;
+            }
+
+            .videos-category-chip {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .video-card-body {
+                padding: 12px;
+                gap: 7px;
+            }
+
+            .video-card-title {
+                font-size: 0.95rem;
+                line-height: 1.3;
+            }
+
+            .video-card-meta {
+                gap: 8px;
+            }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Videos","item":"{{BASE}}/videos"}]}
+    </script>
+@endsection
+
+@section('content')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Videos</li>
+                                                            </ol>
+            </nav>
+        </div>
+            <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="videos-page-wrap">
+            <div class="videos-page-container">
+                <div class="videos-page-head">
+                    <div>
+                        <h1 class="videos-page-title">Latest YouTube Videos</h1>
+                        <p class="videos-page-subtitle">All available uploads from the official Pro HPCL YouTube channel.</p>
+                    </div>
+                    <a class="videos-page-link" href="https://www.youtube.com/@prohpcl" target="_blank" rel="noopener noreferrer">
+                        Open Channel
+                    </a>
+                </div>
+
+                
+                
+                                    <div class="videos-grid">
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/aspire-iit-shimla-no1-coaching-institute-in-himachal-pradesh-prohpcl" aria-label="ASPIRE IIT SHIMLA | No.1 Coaching Institute in Himachal Pradesh &#128591;&#127996;&#127951; #prohpcl">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/1GZT-FQ7V3k/maxresdefault.jpg" alt="ASPIRE IIT SHIMLA | No.1 Coaching Institute in Himachal Pradesh &#128591;&#127996;&#127951; #prohpcl" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/aspire-iit-shimla-no1-coaching-institute-in-himachal-pradesh-prohpcl">
+                                            ASPIRE IIT SHIMLA | No.1 Coaching Institute in Himachal Pradesh &#128591;&#127996;&#127951; #prohpcl
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>10 Mar 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>1.2K</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/pro-hpcl-season-3-highlights-rahul-sen-shanathara-para-45-rana-para-rana-aauta-jmr-royals" aria-label="PRO HPCL SEASON 3 HIGHLIGHTS | Rahul Sen &#2358;&#2366;&#2344;&#2342;&#2366;&#2352; &#2346;&#2366;&#2352;&#2368; 45 &#2352;&#2344; &#2346;&#2352; &#2352;&#2344; &#2310;&#2313;&#2335; | JMR Royals">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/Z2s5PS6SkGM/maxresdefault.jpg" alt="PRO HPCL SEASON 3 HIGHLIGHTS | Rahul Sen &#2358;&#2366;&#2344;&#2342;&#2366;&#2352; &#2346;&#2366;&#2352;&#2368; 45 &#2352;&#2344; &#2346;&#2352; &#2352;&#2344; &#2310;&#2313;&#2335; | JMR Royals" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/pro-hpcl-season-3-highlights-rahul-sen-shanathara-para-45-rana-para-rana-aauta-jmr-royals">
+                                            PRO HPCL SEASON 3 HIGHLIGHTS | Rahul Sen &#2358;&#2366;&#2344;&#2342;&#2366;&#2352; &#2346;&#2366;&#2352;&#2368; 45 &#2352;&#2344; &#2346;&#2352; &#2352;&#2344; &#2310;&#2313;&#2335; | JMR Royals
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>09 Mar 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>89</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/ac-bhardwaj-now-one-of-our-franchise-owner-in-season-4" aria-label="AC Bhardwaj now one of our Franchise Owner in Season 4">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/rsE81H2dGAQ/maxresdefault.jpg" alt="AC Bhardwaj now one of our Franchise Owner in Season 4" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/ac-bhardwaj-now-one-of-our-franchise-owner-in-season-4">
+                                            AC Bhardwaj now one of our Franchise Owner in Season 4
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>05 Mar 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>408</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/pro-hpcl-season-4-registration-forms-opening-soon" aria-label="Pro HPCL Season 4 Registration Forms Opening Soon">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/EIySpFSgdAU/maxresdefault.jpg" alt="Pro HPCL Season 4 Registration Forms Opening Soon" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/pro-hpcl-season-4-registration-forms-opening-soon">
+                                            Pro HPCL Season 4 Registration Forms Opening Soon
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>26 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>1.6K</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/a-players-journey-to-pro-hpcl-rajeev-thakur-at-season-3-trials" aria-label="A Player&rsquo;s Journey to Pro HPCL | Rajeev Thakur at Season 3 Trials">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/S4DRNH6b424/maxresdefault.jpg" alt="A Player&rsquo;s Journey to Pro HPCL | Rajeev Thakur at Season 3 Trials" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/a-players-journey-to-pro-hpcl-rajeev-thakur-at-season-3-trials">
+                                            A Player&rsquo;s Journey to Pro HPCL | Rajeev Thakur at Season 3 Trials
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>24 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>159</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/gill-stumped-by-hit-hawks-clean-wicket-by-deepak-saini-pro-hpcl-season-3-highlight" aria-label="Gill Stumped by Hit Hawks, Clean Wicket by Deepak Saini | Pro HPCL Season 3 Highlight">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/RBcWrX8RGCU/maxresdefault.jpg" alt="Gill Stumped by Hit Hawks, Clean Wicket by Deepak Saini | Pro HPCL Season 3 Highlight" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/gill-stumped-by-hit-hawks-clean-wicket-by-deepak-saini-pro-hpcl-season-3-highlight">
+                                            Gill Stumped by Hit Hawks, Clean Wicket by Deepak Saini | Pro HPCL Season 3 Highlight
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>16 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>52</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/right-through-the-gate-middle-stump-shattered" aria-label="Right through the gate, Middle stump shattered">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/5_XRtRAx_88/hqdefault.jpg" alt="Right through the gate, Middle stump shattered" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/right-through-the-gate-middle-stump-shattered">
+                                            Right through the gate, Middle stump shattered
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>13 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>46</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/team-building-begins-here-season-3-auction-recap" aria-label="Team Building Begins Here | Season 3 Auction Recap">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/OzQUetsk1HI/maxresdefault.jpg" alt="Team Building Begins Here | Season 3 Auction Recap" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/team-building-begins-here-season-3-auction-recap">
+                                            Team Building Begins Here | Season 3 Auction Recap
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>12 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>302</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/4-stunning-catches-in-one-game-indian-saga-himalayan-cops-pro-hpcl-season-3" aria-label="4 Stunning Catches in One Game | Indian Saga Himalayan Cops | Pro HPCL Season 3">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/0m2EiKLVMqg/maxresdefault.jpg" alt="4 Stunning Catches in One Game | Indian Saga Himalayan Cops | Pro HPCL Season 3" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/4-stunning-catches-in-one-game-indian-saga-himalayan-cops-pro-hpcl-season-3">
+                                            4 Stunning Catches in One Game | Indian Saga Himalayan Cops | Pro HPCL Season 3
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>11 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>49</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/rahul-thakur-scouting-batting-talent-rohru-knight-hawks-pro-hpcl-season-3-trials" aria-label="Rahul Thakur Scouting Batting Talent | Rohru Knight Hawks | Pro HPCL Season 3 Trials">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/lns-RzJFr8k/maxresdefault.jpg" alt="Rahul Thakur Scouting Batting Talent | Rohru Knight Hawks | Pro HPCL Season 3 Trials" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/rahul-thakur-scouting-batting-talent-rohru-knight-hawks-pro-hpcl-season-3-trials">
+                                            Rahul Thakur Scouting Batting Talent | Rohru Knight Hawks | Pro HPCL Season 3 Trials
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>11 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>710</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/playing-in-pro-hpcl-is-worth-of-an-experience" aria-label="Playing in Pro HPCL is worth of an experience">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/WzzzII7sbMo/maxresdefault.jpg" alt="Playing in Pro HPCL is worth of an experience" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/playing-in-pro-hpcl-is-worth-of-an-experience">
+                                            Playing in Pro HPCL is worth of an experience
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>09 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>1.8K</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                                                                <article class="video-card">
+                                <a class="video-thumb-link" href="{{BASE}}/videos/from-season-1-to-the-semi-finals-consistency-speaks-rising-stars-baldeyan" aria-label="From Season 1 to the Semi-Finals &mdash; consistency speaks Rising Stars Baldeyan">
+                                    <img class="video-thumb-image" src="https://i.ytimg.com/vi/GJUEgrrLDCA/maxresdefault.jpg" alt="From Season 1 to the Semi-Finals &mdash; consistency speaks Rising Stars Baldeyan" loading="lazy">
+                                </a>
+                                <div class="video-card-body">
+                                    <h2 class="video-card-title">
+                                        <a href="{{BASE}}/videos/from-season-1-to-the-semi-finals-consistency-speaks-rising-stars-baldeyan">
+                                            From Season 1 to the Semi-Finals &mdash; consistency speaks Rising Stars Baldeyan
+                                        </a>
+                                    </h2>
+                                    <div class="video-card-meta">
+                                                                                    <p class="video-card-date">
+                                                <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                    <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Zm-5 3a1 1 0 0 0-1 1v2h-2a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"></path>
+                                                </svg>
+                                                <span>07 Feb 2026</span>
+                                            </p>
+                                                                                <p class="video-card-views">
+                                            <svg class="video-card-meta-icon" viewbox="0 0 24 24" aria-hidden="true">
+                                                <path fill="currentColor" d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"></path>
+                                            </svg>
+                                            <span>54</span>
+                                        </p>
+                                    </div>
+                                                                                                        </div>
+                            </article>
+                                            </div>
+
+                                            <div class="videos-pagination">
+                            <nav class="d-flex justify-items-center justify-content-between">
+        <div class="d-flex justify-content-between flex-fill d-sm-none">
+            <ul class="pagination">
+                
+                                    <li class="page-item disabled" aria-disabled="true">
+                        <span class="page-link">&laquo; Previous</span>
+                    </li>
+                
+                
+                                    <li class="page-item">
+                        <a class="page-link" href="{{BASE}}/videos?page=2" rel="next">Next &raquo;</a>
+                    </li>
+                            </ul>
+        </div>
+
+        <div class="d-none flex-sm-fill d-sm-flex align-items-sm-center justify-content-sm-between">
+            <div>
+                <p class="small text-muted">
+                    Showing
+                    <span class="fw-semibold">1</span>
+                    to
+                    <span class="fw-semibold">12</span>
+                    of
+                    <span class="fw-semibold">274</span>
+                    results
+                </p>
+            </div>
+
+            <div>
+                <ul class="pagination">
+                    
+                                            <li class="page-item disabled" aria-disabled="true" aria-label="&laquo; Previous">
+                            <span class="page-link" aria-hidden="true">&lsaquo;</span>
+                        </li>
+                    
+                    
+                                            
+                        
+                        
+                                                                                                                        <li class="page-item active" aria-current="page"><span class="page-link">1</span></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=2">2</a></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=3">3</a></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=4">4</a></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=5">5</a></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=6">6</a></li>
+                                                                                                                                
+                                                    <li class="page-item disabled" aria-disabled="true"><span class="page-link">...</span></li>
+                        
+                        
+                                                                    
+                        
+                        
+                                                                                                                        <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=22">22</a></li>
+                                                                                                                                <li class="page-item"><a class="page-link" href="{{BASE}}/videos?page=23">23</a></li>
+                                                                                                        
+                    
+                                            <li class="page-item">
+                            <a class="page-link" href="{{BASE}}/videos?page=2" rel="next" aria-label="Next &raquo;">&rsaquo;</a>
+                        </li>
+                                    </ul>
+            </div>
+        </div>
+    </nav>
+
+                        </div>
+                                                </div>
+        </section>
+    </div>
+</div>
+@endsection

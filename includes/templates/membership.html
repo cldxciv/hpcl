@@ -1,0 +1,183 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/membership')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+        <style>
+        .mship-page { padding: 0 0 56px; }
+        .mship-hero {
+            background: linear-gradient(135deg, #0b50a7 0%, #0a3f85 60%, #072c5e 100%);
+            color: #fff;
+            padding: 56px 0 120px;
+            text-align: center;
+        }
+        .mship-hero h1 {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            letter-spacing: 0.02em;
+            margin: 0 0 12px;
+        }
+        .mship-hero p { max-width: 720px; margin: 0 auto; font-family: Roboto, sans-serif; opacity: 0.92; line-height: 1.6; }
+        .mship-hero .mship-hero__cta {
+            display: inline-block; margin-top: 22px; padding: 12px 30px;
+            background: #ff7a18; color: #fff; font-weight: 700; font-family: Barlow, sans-serif;
+            border-radius: 999px; text-decoration: none; letter-spacing: 0.02em;
+            box-shadow: 0 10px 24px rgba(255, 122, 24, 0.35); transition: transform 0.15s ease;
+        }
+        .mship-hero .mship-hero__cta:hover { transform: translateY(-2px); }
+
+        .mship-cards {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+            max-width: 1180px; margin: -84px auto 0; padding: 0 16px; align-items: stretch;
+        }
+        .mship-card {
+            position: relative; display: flex; flex-direction: column;
+            background: #fff; border: 1px solid rgba(11, 80, 167, 0.12); border-radius: 16px;
+            padding: 24px 20px; box-shadow: 0 14px 34px rgba(2, 6, 23, 0.10);
+        }
+        .mship-card--featured { border: 2px solid #ff7a18; box-shadow: 0 18px 44px rgba(255, 122, 24, 0.22); }
+        .mship-card__badge {
+            position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+            background: #ff7a18; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 5px 14px; border-radius: 999px; font-family: Barlow, sans-serif;
+        }
+        .mship-card__head { text-align: center; border-bottom: 1px solid rgba(2, 6, 23, 0.08); padding-bottom: 16px; }
+        .mship-card__name {
+            font-family: "Bebas Neue", sans-serif; font-size: 1.9rem; letter-spacing: 0.03em; margin: 2px 0 2px;
+        }
+        .mship-card--silver   .mship-card__name { color: #64748b; }
+        .mship-card--gold      .mship-card__name { color: #c08a1e; }
+        .mship-card--diamond  .mship-card__name { color: #0b7ea7; }
+        .mship-card--platinum .mship-card__name { color: #4b3fa7; }
+        .mship-card__tagline { font-family: Roboto, sans-serif; color: #64748b; font-size: 0.82rem; margin: 0 0 10px; min-height: 2.4em; }
+        .mship-card__price {
+            font-family: Barlow, sans-serif; font-weight: 800; font-size: 2rem; color: #0f172a; margin: 0;
+        }
+        .mship-card__price span { font-size: 0.9rem; font-weight: 500; color: #64748b; }
+        .mship-card__discount {
+            margin: 8px 0 0; display: inline-block; font-family: Barlow, sans-serif; font-weight: 700;
+            font-size: 0.8rem; color: #0b7a3b; background: rgba(16, 185, 129, 0.12); padding: 4px 12px; border-radius: 999px;
+        }
+        .mship-card__benefits {
+            list-style: none; padding: 16px 0 0; margin: 0 0 18px; flex: 1;
+            font-family: Roboto, sans-serif; color: #334155; font-size: 0.86rem; line-height: 1.5;
+        }
+        .mship-card__benefits li { position: relative; padding: 6px 0 6px 24px; }
+        .mship-card__benefits li::before {
+            content: ""; position: absolute; left: 0; top: 10px; width: 14px; height: 14px;
+            background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230b7a3b'%3E%3Cpath d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E");
+        }
+        .mship-card__cta {
+            display: block; text-align: center; padding: 11px 16px; border-radius: 10px; text-decoration: none;
+            font-family: Barlow, sans-serif; font-weight: 700; letter-spacing: 0.02em;
+            background: #0b50a7; color: #fff; transition: background 0.15s ease;
+        }
+        .mship-card__cta:hover { background: #083c80; }
+        .mship-card--featured .mship-card__cta { background: #ff7a18; }
+        .mship-card--featured .mship-card__cta:hover { background: #e8690c; }
+
+        .mship-section { max-width: 1120px; margin: 56px auto 0; padding: 0 16px; }
+        .mship-section > h2 {
+            font-family: "Bebas Neue", sans-serif; color: #0b50a7; font-size: 2rem; letter-spacing: 0.02em;
+            text-align: center; margin: 0 0 6px;
+        }
+        .mship-section > p.mship-lead { text-align: center; color: #64748b; font-family: Roboto, sans-serif; max-width: 760px; margin: 0 auto 26px; line-height: 1.6; }
+
+        .mship-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid rgba(2, 6, 23, 0.08); }
+        .mship-table { width: 100%; border-collapse: collapse; min-width: 720px; font-family: Roboto, sans-serif; background: #fff; }
+        .mship-table th, .mship-table td { padding: 12px 14px; text-align: center; border-bottom: 1px solid rgba(2, 6, 23, 0.06); font-size: 0.86rem; }
+        .mship-table thead th { background: #0b50a7; color: #fff; font-family: Barlow, sans-serif; letter-spacing: 0.02em; }
+        .mship-table thead th:first-child { text-align: left; border-top-left-radius: 14px; }
+        .mship-table tbody th { text-align: left; color: #0f172a; font-weight: 700; background: rgba(11, 80, 167, 0.04); }
+        .mship-table tbody tr:nth-child(even) td { background: rgba(2, 6, 23, 0.015); }
+        .mship-table__empty { color: #cbd5e1; }
+
+        .mship-notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .mship-note { background: #fff; border: 1px solid rgba(2, 6, 23, 0.08); border-radius: 12px; padding: 18px; }
+        .mship-note h3 { font-family: Barlow, sans-serif; color: #0b50a7; font-size: 1rem; margin: 0 0 6px; }
+        .mship-note p { font-family: Roboto, sans-serif; color: #475569; font-size: 0.85rem; line-height: 1.55; margin: 0; }
+
+        .mship-story { max-width: 820px; }
+        .mship-story h3 { font-family: Barlow, sans-serif; color: #0f172a; font-size: 1.15rem; margin: 24px 0 8px; }
+        .mship-story p { font-family: Roboto, sans-serif; color: #475569; line-height: 1.7; margin: 0 0 12px; }
+        .mship-story .mship-slogan { font-weight: 700; color: #0b50a7; }
+
+        .mship-cta-band {
+            max-width: 1120px; margin: 48px auto 0; padding: 36px 24px; text-align: center;
+            background: linear-gradient(135deg, #0b50a7, #072c5e); border-radius: 18px; color: #fff;
+        }
+        .mship-cta-band h2 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; margin: 0 0 8px; }
+        .mship-cta-band p { font-family: Roboto, sans-serif; opacity: 0.9; margin: 0 auto 18px; max-width: 620px; }
+        .mship-cta-band a {
+            display: inline-block; padding: 12px 30px; background: #ff7a18; color: #fff; font-weight: 700;
+            font-family: Barlow, sans-serif; border-radius: 999px; text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .mship-cards { grid-template-columns: repeat(2, 1fr); margin-top: -72px; }
+            .mship-notes { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 576px) {
+            .mship-cards { grid-template-columns: 1fr; }
+            .mship-notes { grid-template-columns: 1fr; }
+        }
+        </style>
+@endsection
+
+@section('content')
+    <div class="mship-page">
+        <section class="mship-hero">
+            <div class="container">
+                <h1>Pro HPCL Membership Programme</h1>
+                <p>More than a membership — a platform for business growth, local cricket talent, youth opportunity and a drug-free Himachal. Choose a tier and join the Pro HPCL family.</p>
+                <a class="mship-hero__cta" href="{{BASE}}/membership/join">Become a Member</a>
+            </div>
+        </section>
+
+        <section class="mship-cards">
+{!! $tier_cards !!}
+        </section>
+
+        <section class="mship-section">
+            <h2>Compare Membership Tiers</h2>
+            <p class="mship-lead">Each tier builds on the one before it. Quantities shown are annual deliverables, not unlimited promotions.</p>
+            <div class="mship-table-wrap">
+                <table class="mship-table">
+                    <thead>
+                        <tr><th scope="col">Benefit</th>{!! $comparison_heads !!}</tr>
+                    </thead>
+                    <tbody>{!! $comparison_rows !!}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="mship-section">
+            <h2>What Members Should Know</h2>
+            <div class="mship-notes">{!! $member_notes !!}
+            </div>
+        </section>
+
+        <section class="mship-section mship-story">
+            <h2 style="text-align:left;">Why Become a Pro HPCL Member?</h2>
+            <p>Every young cricketer deserves an opportunity to showcase their talent. Across Himachal Pradesh, many players practise with dedication but struggle to find the right platform, recognition and financial opportunities. Pro HPCL is working to change that by promoting a more professional cricket culture and creating opportunities for local talent.</p>
+            <h3>More than cricket: building a better future</h3>
+            <p>Through its franchise-based structure and player-auction model, the league promotes a culture in which players can receive financial recognition for their abilities, gain exposure and work towards earning through cricket.</p>
+            <h3>Your membership supports a bigger mission</h3>
+            <p>Becoming a member means joining a community that believes local talent deserves opportunities. Membership revenue can help support the league's wider activities and development initiatives, subject to the programme's operating costs and budget.</p>
+            <h3>Promoting fitness and a drug-free Himachal</h3>
+            <p>One of Pro HPCL's key social objectives is to encourage young people to stay away from drugs and embrace healthier lifestyles — to practise consistently, focus on fitness, build discipline and work towards long-term goals. <span class="mship-slogan">Say NO to drugs. Say YES to sports, fitness and a brighter future.</span></p>
+            <h3>Grow your business with Pro HPCL</h3>
+            <p>Membership offers practical benefits for business owners and entrepreneurs: a dedicated business profile on the official Pro HPCL website, and — at higher tiers — PR videos, podcast interviews, promotional reels, livestream opportunities and recognition at selected events.</p>
+        </section>
+
+        <div class="mship-cta-band">
+            <h2>Become Part of the Pro HPCL Family</h2>
+            <p>Your membership. Your business. Your contribution to Himachal's future.</p>
+            <a href="{{BASE}}/membership/join">Choose Your Membership</a>
+        </div>
+    </div>
+@endsection

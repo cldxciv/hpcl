@@ -1,0 +1,37 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!} · {!! $season_name !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/teams/{!! $team_id !!}">&larr; Back to the team</a></p>
+        <div class="admin-panel__head">
+            {!! $logo !!}
+            <div>
+                <h1>{!! $title !!}</h1>
+                <p class="admin-heading-meta">{!! $season_name !!} · {!! $count !!} · <a href="{!! $team_link !!}" target="_blank" rel="noopener">Team page</a></p>
+            </div>
+        </div>
+        <nav class="admin-tabs" aria-label="Seasons">{!! $tabs !!}</nav>
+{!! $errors !!}
+
+        <section class="admin-panel admin-section">
+            <h2>Squad</h2>
+{!! $squad !!}
+        </section>
+
+        <section class="admin-panel admin-section">
+            <h2>Add players</h2>
+            <p class="admin-hint">Find a player by name. A player can be in one team per season.{!! $new_player !!}</p>
+            <form class="admin-search admin-section" method="get" action="{!! $search_action !!}" role="search">
+                <label class="admin-visually-hidden" for="q">Player name</label>
+                <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Player name">
+                <button type="submit" class="admin-button-secondary">Find</button>
+            </form>
+{!! $results !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

@@ -1,0 +1,185 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/terms')
+
+@section('head')
+        <style>
+        .terms-page {
+            padding: 24px 0 48px;
+        }
+
+        .terms-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
+            padding: 24px;
+        }
+
+        .terms-card h1 {
+            color: #0b50a7;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+            margin-bottom: 10px;
+        }
+
+        .terms-card p,
+        .terms-card li {
+            color: #334155;
+            font-family: Roboto, sans-serif;
+            line-height: 1.7;
+        }
+
+        .terms-card .section-heading {
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .terms-card ul {
+            padding-left: 1.1rem;
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Terms","item":"{{BASE}}/terms"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Terms</li>
+                                                            </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+                                <div class="terms-page">
+        <div class="container">
+            <div class="terms-card">
+                <h1>Terms &amp; Conditions &ndash; Pro HPCL</h1>
+                <p class="mb-3">
+                    By registering for Pro Himachal Premium Cricket League (Pro HPCL), all players agree to abide
+                    by the following terms and conditions:
+                </p>
+
+                <ul class="mb-0">
+                    <li class="my-2">
+                        <p class="section-heading">1. Eligibility Criteria</p>
+                        <ul>
+                            <li class="my-2">
+                                Only 1 player from outside Himachal is allowed in Pro HPCL Season 4, a gesture to promote
+                                local talent.
+                            </li>
+                            <li class="my-2">
+                                Players must provide valid identification proof (Aadhaar Card, Domicile Certificate, or any
+                                other official document) as proof of residency.
+                            </li>
+                            <li class="my-2">
+                                Any player found violating this rule will be immediately disqualified without any refund.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">2. Registration &amp; Payment</p>
+                        <ul>
+                            <li class="my-2">The registration fee is &#8377;650, which is non-refundable under any
+                                circumstances.</li>
+                            <li class="my-2">Once registered, a player cannot withdraw their participation or request a
+                                refund.</li>
+                            <li class="my-2">Incomplete or incorrect registrations will be rejected without any refund.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">3. Player Selection &amp; Team Allocation</p>
+                        <ul>
+                            <li class="my-2">
+                                Registering for the league does not guarantee selection in a team. Players will go through a
+                                selection process as per the league&rsquo;s format.
+                            </li>
+                            <li class="my-2">
+                                The franchise teams have the right to select players based on their requirements and
+                                performance in trials.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">4. League Rules &amp; Code of Conduct</p>
+                        <ul>
+                            <li class="my-2">All players must adhere to the league&rsquo;s rules and regulations set by the
+                                organizers.</li>
+                            <li class="my-2">
+                                Any form of misconduct, including abusive language, violence, or breach of fair play, will
+                                result in immediate disqualification.
+                            </li>
+                            <li class="my-2">
+                                Players are expected to maintain sportsmanship and discipline throughout the tournament.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">5. Match Participation &amp; Availability</p>
+                        <ul>
+                            <li class="my-2">Players must be available for all scheduled matches as per the league&rsquo;s
+                                fixture.</li>
+                            <li class="my-2">
+                                Failure to appear for matches without prior notice may lead to disqualification from the
+                                league.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">6. Medical &amp; Injury Disclaimer</p>
+                        <ul>
+                            <li class="my-2">Players are responsible for their own health and fitness during the
+                                tournament.</li>
+                            <li class="my-2">
+                                The league organizers are not liable for any injuries or medical conditions that may arise
+                                during matches or training sessions.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">7. Use of Player&rsquo;s Name &amp; Images</p>
+                        <ul>
+                            <li class="my-2">
+                                By registering, players grant Pro HPCL the right to use their names, images, and videos for
+                                promotional purposes, including advertisements, social media, and live telecasts.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        <p class="section-heading">8. Authority &amp; Decision Making</p>
+                        <ul>
+                            <li class="my-2">
+                                The decisions made by the Pro HPCL management and match officials will be final and binding.
+                            </li>
+                            <li class="my-2">
+                                The league reserves the right to amend these terms and conditions at any time without prior
+                                notice.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="my-2">
+                        By completing the registration, the player acknowledges that they have read, understood, and agreed
+                        to abide by these terms and conditions.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+@endsection

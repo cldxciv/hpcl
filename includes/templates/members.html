@@ -1,0 +1,56 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/members')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <style>
+        .members-page { padding: 0 0 56px; }
+        .members-hero { background: linear-gradient(135deg, #0b50a7, #072c5e); color: #fff; text-align: center; padding: 46px 16px 40px; }
+        .members-hero h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 0.02em; margin: 0 0 8px; }
+        .members-hero p { font-family: Roboto, sans-serif; opacity: 0.9; margin: 0; }
+        .members-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1160px; margin: 32px auto 0; padding: 0 16px; }
+        .member-card {
+            display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; text-decoration: none;
+            background: #fff; border: 1px solid rgba(2, 6, 23, 0.08); border-radius: 14px; padding: 22px 16px;
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.06); transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .member-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(2, 6, 23, 0.12); }
+        .member-card--featured { border-color: #ff7a18; }
+        .member-card__logo-wrap { width: 84px; height: 84px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .member-card__logo { max-width: 84px; max-height: 84px; object-fit: contain; }
+        .member-mono { width: 72px; height: 72px; border-radius: 50%; background: #0b50a7; color: #fff; font-family: "Bebas Neue", sans-serif; font-size: 2rem; display: flex; align-items: center; justify-content: center; }
+        .member-card__name { font-family: Barlow, sans-serif; font-weight: 700; color: #0f172a; font-size: 1.05rem; margin: 0; }
+        .member-card__tagline { font-family: Roboto, sans-serif; color: #64748b; font-size: 0.82rem; margin: 0; }
+        .member-card__meta { margin-top: auto; padding-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+        .member-card__tier { font-family: Barlow, sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: #0b50a7; }
+        .member-card--diamond .member-card__tier { color: #0b7ea7; }
+        .member-card--platinum .member-card__tier { color: #4b3fa7; }
+        .member-card--gold .member-card__tier { color: #c08a1e; }
+        .member-card__city { font-family: Roboto, sans-serif; font-size: 0.76rem; color: #94a3b8; }
+        .members-empty { max-width: 560px; margin: 40px auto 0; text-align: center; background: #fff; border: 1px dashed rgba(11, 80, 167, 0.3); border-radius: 16px; padding: 40px 24px; }
+        .members-empty p { font-family: Roboto, sans-serif; color: #475569; margin: 0 0 18px; }
+        .members-empty__cta, .members-join-cta { display: inline-block; padding: 12px 28px; background: #ff7a18; color: #fff; text-decoration: none; border-radius: 999px; font-family: Barlow, sans-serif; font-weight: 700; }
+        .members-foot { text-align: center; margin-top: 40px; }
+        @media (max-width: 900px) { .members-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 520px) { .members-grid { grid-template-columns: 1fr; } }
+    </style>
+@endsection
+
+@section('content')
+    <div class="members-page">
+        <section class="members-hero">
+            <h1>Our Members</h1>
+            <p>{!! $count_label !!}</p>
+        </section>
+        <section class="members-grid">
+{!! $member_cards !!}
+        </section>
+{!! $empty_state !!}
+        <div class="members-foot">
+            <a class="members-join-cta" href="{{BASE}}/membership">See membership plans</a>
+        </div>
+    </div>
+@endsection

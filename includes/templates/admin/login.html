@@ -1,0 +1,19 @@
+@extends('layouts.admin')
+
+@section('title', 'Sign in')
+
+@section('content')
+    <main class="admin-auth">
+        <form class="admin-card" method="post" action="{{BASE}}/admin/login">
+            <img class="admin-logo" src="{{BASE}}/logo.png" alt="Pro HPCL">
+            <h1>Admin sign in</h1>
+{!! $error !!}
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" value="{!! $email !!}" maxlength="255" autocomplete="username" required autofocus>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" minlength="6" maxlength="8" autocomplete="current-password" required>
+            <button type="submit">Sign in</button>
+        </form>
+    </main>
+@endsection

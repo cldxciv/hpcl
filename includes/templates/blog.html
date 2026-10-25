@@ -1,0 +1,567 @@
+@extends('layouts.app')
+
+@section('title', 'Pro HPCL Season 4 &ndash; Himachal Pradesh&amp;#039;s Biggest Cricket League Is Back in 2026 | Pro HPCL Blog')
+@section('description', 'Pro HPCL Season 4 is officially here! 600+ players, 20 franchise teams, &#8377;60 lakh prize pool &amp;amp; a brand-new Shimla ground. Himachal Pradesh cricket&amp;#039;s most exciting season yet. Read everything you need to know.')
+@section('canonical', '{{BASE}}/blogs/pro-hpcl-season-4-himachal-pradeshs-biggest-cricket-league-is-back-and-its-breaking-every-record')
+@section('og_type', 'article')
+@section('image', '{{BASE}}/storage/uploads/blog/5VCfzR2UHmLNGvC8Skhw3KvIyXfElNS1jwbNf6f6.png')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+        <style>
+        .blog-article-page {
+            padding: 30px 16px 60px;
+        }
+
+        .blog-article-shell {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(270px, 320px);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .blog-main-card,
+        .blog-side-card {
+            background: #fff;
+            border: 1px solid #dbeafe;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+        }
+
+        .blog-main-card {
+            overflow: hidden;
+        }
+
+        .blog-main-inner {
+            padding: 18px;
+        }
+
+        .blog-breadcrumb {
+            margin: 0 0 12px;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .blog-breadcrumb a {
+            color: #0951a8;
+            text-decoration: none;
+        }
+
+        .blog-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+        }
+
+        .blog-title {
+            margin: 0;
+            color: #0f172a;
+            font-size: clamp(1.7rem, 2.7vw, 2.5rem);
+            line-height: 1.18;
+            font-weight: 800;
+        }
+
+        .blog-meta-row {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            color: #475569;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .blog-meta-row time {
+            color: inherit;
+        }
+
+        .blog-featured-image {
+            width: 100%;
+            max-height: 460px;
+            object-fit: cover;
+            background: #e2e8f0;
+            border-radius: 12px;
+            margin-top: 14px;
+        }
+
+        .blog-excerpt {
+            margin: 16px 0 0;
+            color: #334155;
+            font-size: 1rem;
+            line-height: 1.75;
+            border-left: 3px solid #bfdbfe;
+            padding-left: 12px;
+        }
+
+        .blog-content {
+            margin-top: 16px;
+            color: #1e293b;
+            font-size: 1rem;
+            line-height: 1.85;
+            word-break: break-word;
+        }
+
+        .blog-embed {
+            margin-top: 16px;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 10px;
+            background: #f8fbff;
+        }
+
+        .blog-embed-open {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0f172a;
+            color: #fff;
+            padding: 0;
+            text-align: left;
+            position: relative;
+        }
+
+        .blog-embed-open:hover .blog-embed-play {
+            transform: scale(1.04);
+            background: #0b3f7d;
+        }
+
+        .blog-embed-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            display: block;
+            opacity: 0.92;
+        }
+
+        .blog-embed-thumb--tall {
+            aspect-ratio: 9 / 16;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+
+        .blog-embed-thumb-fallback {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            display: grid;
+            place-items: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+        }
+
+        .blog-embed-thumb-fallback--tall {
+            aspect-ratio: 9 / 16;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+
+        .blog-embed-play-wrap {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+        }
+
+        .blog-embed-play {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #0951a8;
+            color: #fff;
+            font-size: 1.45rem;
+            font-weight: 700;
+            box-shadow: 0 12px 24px rgba(2, 6, 23, 0.28);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .blog-embed-frame {
+            width: 100%;
+            border: 0;
+            border-radius: 10px;
+            display: block;
+            background: #fff;
+        }
+
+        .blog-embed-instagram {
+            margin: 0 auto !important;
+            max-width: 560px;
+            width: 100%;
+        }
+
+        .blog-embed-fallback {
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .blog-embed-fallback a {
+            color: #0951a8;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .blog-embed-fallback a:hover {
+            text-decoration: underline;
+        }
+
+        .blog-embed-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .blog-embed-modal.is-open {
+            display: flex;
+        }
+
+        .blog-embed-modal__dialog {
+            width: min(980px, 100%);
+            max-height: calc(100vh - 32px);
+            overflow: auto;
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+            position: relative;
+        }
+
+        .blog-embed-modal__close {
+            border: 0;
+            border-radius: 999px;
+            width: 34px;
+            height: 34px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: #e2e8f0;
+            color: #0f172a;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .blog-embed-modal__content {
+            margin-top: 28px;
+            display: grid;
+            place-items: center;
+        }
+
+        .blog-embed-frame--wide {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 80vh;
+        }
+
+        .blog-embed-frame--tall {
+            width: min(420px, 100%);
+            aspect-ratio: 9 / 16;
+            max-height: 82vh;
+        }
+
+        .blog-side-card {
+            padding: 14px;
+            position: sticky;
+            top: 18px;
+        }
+
+        .blog-side-title {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .blog-side-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .blog-side-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .blog-side-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .blog-side-link {
+            display: block;
+            text-decoration: none;
+            color: #0f172a;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
+        .blog-side-link:hover {
+            color: #0951a8;
+        }
+
+        .blog-side-date {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .blog-side-more {
+            margin-top: 14px;
+            display: inline-flex;
+            text-decoration: none;
+            color: #0951a8;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 980px) {
+            .blog-article-shell {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .blog-side-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .blog-embed-modal {
+                padding: 8px;
+            }
+
+            .blog-embed-modal__dialog {
+                width: 100%;
+                max-height: calc(100vh - 16px);
+                border-radius: 10px;
+                padding: 10px;
+            }
+
+            .blog-embed-modal__content {
+                margin-top: 34px;
+            }
+
+            .blog-embed-frame--wide {
+                max-height: calc(100vh - 120px);
+            }
+
+            .blog-embed-frame--tall {
+                width: min(360px, 100%);
+                max-height: calc(100vh - 120px);
+            }
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Blogs","item":"{{BASE}}/blogs"},{"@type":"ListItem","position":3,"name":"Pro Hpcl Season 4 Himachal Pradeshs Biggest Cricket League Is Back And Its Breaking Every Record","item":"{{BASE}}/blogs/pro-hpcl-season-4-himachal-pradeshs-biggest-cricket-league-is-back-and-its-breaking-every-record"}]}
+    </script>
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BlogPosting","headline":"Pro HPCL Season 4: Himachal Pradesh's Biggest Cricket League Is Back &mdash; And It's Breaking Every Record","description":"Pro HPCL Season 4 is officially here! 600+ players, 20 franchise teams, &#8377;60 lakh prize pool & a brand-new Shimla ground. Himachal Pradesh cricket's most exciting season yet. Read everything you need to know.","url":"{{BASE}}/blogs/pro-hpcl-season-4-himachal-pradeshs-biggest-cricket-league-is-back-and-its-breaking-every-record","mainEntityOfPage":{"@type":"WebPage","@id":"{{BASE}}/blogs/pro-hpcl-season-4-himachal-pradeshs-biggest-cricket-league-is-back-and-its-breaking-every-record"},"image":["{{BASE}}/storage/uploads/blog/5VCfzR2UHmLNGvC8Skhw3KvIyXfElNS1jwbNf6f6.png"],"author":{"@type":"Person","name":"Pro HPCL"},"publisher":{"@type":"Organization","name":"Pro HPCL","logo":{"@type":"ImageObject","url":"{{BASE}}/logo.png"}},"datePublished":"2026-03-21T23:53:00+05:30","dateModified":"2026-03-22T02:10:21+05:30"}
+    </script>
+@endsection
+
+@section('content')
+                <div class="teams-linked-page">
+    <div class="teams-linked-page__bg" aria-hidden="true">
+        <div class="rectangle-1400"></div>
+        <img class="group-68" src="{{BASE}}/assets/imgs/dots.png" alt="">
+        <img class="circul-2-1" src="{{BASE}}/assets/imgs/hero/mountain.png" alt="">
+        <img class="element" src="{{BASE}}/assets/imgs/element.png" alt="">
+    </div>
+
+    <div class="teams-linked-page__content">
+        <section class="blog-article-page">
+            <div class="blog-article-shell">
+                <article class="blog-main-card" itemscope itemtype="https://schema.org/BlogPosting">
+                    <div class="blog-main-inner">
+                        <nav aria-label="breadcrumb" class="blog-breadcrumb">
+                            <ol class="breadcrumb team-breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                <li class="breadcrumb-item"><a href="{{BASE}}/blogs">Blog</a></li>
+                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Pro HPCL Season 4: Himachal Pradesh's Biggest Cricket League Is Back &mdash; And It's Breaking Every Record</li>
+                            </ol>
+                        </nav>
+
+                        <span class="blog-kicker">League Story</span>
+                        <h1 class="blog-title" itemprop="headline">Pro HPCL Season 4: Himachal Pradesh's Biggest Cricket League Is Back &mdash; And It's Breaking Every Record</h1>
+
+                        <div class="blog-meta-row">
+                                                            <span>
+                                    Published:
+                                    <time datetime="2026-03-21" itemprop="datePublished">21 Mar 2026</time>
+                                </span>
+                                                        <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                By <span itemprop="name">Pro HPCL</span>
+                            </span>
+                            <span>5 min read</span>
+                        </div>
+
+                                                    <img src="{{BASE}}/storage/uploads/blog/5VCfzR2UHmLNGvC8Skhw3KvIyXfElNS1jwbNf6f6.png" alt="Pro HPCL Season 4: Himachal Pradesh's Biggest Cricket League Is Back &mdash; And It's Breaking Every Record" class="blog-featured-image" itemprop="image">
+                        
+                                                    <p class="blog-excerpt" itemprop="description">The wait is finally over.
+Pro Himachal Premium Cricket League &mdash; the tournament that has become the heartbeat of cricket in Himachal Pradesh &mdash; is back for its fourth and most explosive season yet. Season 4 of Pro HPCL is officially gearing up, and the numbers alone tell you this is going to be something special: over 600 registered players, approximately 20 franchise teams, a record-breaking &#8377;60 lakh prize pool, and for the first time in two seasons, the league is coming home to Shimla &mdash; at a brand-new, purpose-built cricket ground that has already set the entire state buzzing.
+This isn't just another season. This is Pro HPCL levelling up.</p>
+                        
+                        
+                        <div class="blog-content" itemprop="articleBody">
+                                                            <h3><strong>600+ Players, 20 Teams &mdash; The Biggest Player Pool in Pro HPCL History</strong></h3><p>Registration for Pro HPCL Season 4 is nearly complete, and the response from cricketers across Himachal Pradesh has been nothing short of extraordinary. Over 600 players have confirmed their participation, representing every district and region of the state.</p><p>Around 20 franchise <a target="_blank" rel="noopener noreferrer" href="https://prohpcl.com/teams/season/4">teams</a> will take part this season &mdash; each one carrying the pride of their respective region into battle. This is the most geographically diverse edition of Pro HPCL to date, and with competition this fierce, every single match promises to be a contest.</p><p>The message is clear: Himachal Pradesh cricket is growing, and Pro HPCL is leading the charge.</p><h3><strong>Rishi Dhawan Is Playing &mdash; And He's Not the Only Star</strong></h3><p>Among the 600+ confirmed participants for Pro HPCL Season 4 is none other than <a target="_blank" rel="noopener noreferrer" href="https://prohpcl.com/season/4/registered/mTtp2QQIykxQ64tu174jKMq2arrtKMMQq3UTQ0jR5XRf1URj/card">Rishi Dhawan</a> &mdash; Himachal Pradesh's own international cricketer, a man who has represented India at the highest level of limited-overs cricket and remains one of the most respected names in domestic cricket today.</p><p>His presence alone elevates Season 4 to a different level. But Dhawan is just one name in a pool bursting with talent. Hundreds of hungry, skilled cricketers from across Himachal Pradesh are ready to prove themselves &mdash; and with franchise scouts watching every trial and every auction bid, the competition for spots and glory has never been higher.</p><h3><strong>&#8377;60 Lakh Prize Pool: Here's Exactly What's at Stake</strong></h3><p>Pro HPCL Season 4 brings the richest prize structure in the league's history. Here is the full breakdown of what players and teams are competing for:</p><p>Winners &mdash; &#8377;14 Lakh&nbsp;</p><p>Runners-Up &mdash; &#8377;7 Lakh Each&nbsp;</p><p>Semi-Finalist Team &mdash; &#8377;2 Lakh</p><p>Player of the Series &mdash; &#8377;55,000<br>Player Auction Pool &mdash; &#8377;30 Lakh distributed among players</p><p>Total Prize Pool &mdash; Approximately &#8377;60 Lakh</p><p>With &#8377;30 lakh flowing directly to players through the auction process alone, Pro HPCL Season 4 is not just giving cricketers a stage &mdash; it's rewarding their dedication, skill, and hard work in a way that no other league in the state has done before.</p><p>As the founders put it: "Both semi-finalist teams will receive &#8377;2 lakh each. Additionally, the Player of the Series will be awarded up to &#8377;55,000. Around &#8377;30 lakh will be distributed among players through the auction process. Overall, the total prize pool for the season is approximately &#8377;60 lakh."</p><h2>&nbsp;</h2><h3><strong>A Brand-New Cricket Ground in Shimla &mdash; The Perfect Stage for Season 4</strong></h3><p>Pro HPCL has always found exceptional venues for its seasons. Season 1 launched at Bharari in Shimla. Season 2 took the league to Mohali. Season 3 was hosted at the renowned Tau Devi Lal Stadium in Panchkula. Each venue raised the bar.</p><p>Season 4 raises it again.</p><p>This year, Pro HPCL is being hosted at a newly developed cricket ground right here in Shimla &mdash; built recently by three passionate young individuals who believed that Himachal Pradesh deserved world-class cricket infrastructure in its own backyard. The ground has already become one of the most talked-about new facilities in the region, and Pro HPCL Season 4 will serve as its grand debut on the biggest stage.</p><p>This is more than just a venue. It's a symbol of what cricket in Himachal Pradesh is becoming.</p><h3><br>Season 4 Timeline: What Happens Next<br>&nbsp;</h3><p>Here is what to expect in the lead-up to the first ball of Pro HPCL Season 4:</p><h4><strong>Step 1 &mdash; Registrations Close</strong></h4><p>Over 600 players are confirmed. The largest player pool in Pro HPCL history is in place and ready.</p><h4><strong>Step 2 &mdash; Player Trials&nbsp;</strong></h4><p>Registered players will go through trials, giving franchise teams the chance to assess form, fitness, and match-readiness ahead of the auction</p><h4><strong>Step 3 &mdash; The Auction&nbsp;</strong></h4><p>This is where squads are built and futures are decided. Twenty franchise teams will go head-to-head at the auction table, with &#8377;30 lakh on the line for players. Expect big bids, big names, and big moments.</p><h4><strong>Step 4 &mdash; Season 4 Begins</strong></h4><p>The tournament gets underway at the new Shimla ground. Twenty teams. 600+ players. One champion. The action starts soon &mdash; stay tuned.</p><h3>The Pro HPCL Story: From a Bold Idea to Himachal's Biggest League</h3><p>Pro Himachal Premium Cricket League was founded by Ajay Thakur, Abhay Thakur, Vinu Diwan, and Sumit Sehgal &mdash; four individuals united by a single belief: that Himachal Pradesh's cricketers deserve a professional, high-quality platform to showcase their talent.</p><p>Three seasons later, that belief has been validated beyond all expectations.</p><p><strong>Season 1</strong> &mdash; Bharari, Shimla. The founding edition. A dream takes its first steps.&nbsp;</p><p><strong>Season 2</strong> &mdash; Mohali, Punjab. The league expands, taking Himachal cricket to a bigger audience.&nbsp;</p><p><strong>Season 3</strong> &mdash; Tau Devi Lal Stadium, Panchkula. A marquee venue for a tournament that had truly arrived.&nbsp;</p><p><strong>Season 4</strong> &mdash; New Cricket Ground, Shimla. The homecoming. The biggest season yet.</p><p>&nbsp;</p><p><strong>"There is tremendous excitement among players and cricket enthusiasts across Himachal Pradesh for Pro HPCL Season 4, and the league is set to mark the beginning of a new chapter in the region's sporting landscape." &mdash; Founders, Pro HPCL</strong></p><h3><strong>Don't Miss a Moment of Pro HPCL Season 4</strong></h3><p>Pro HPCL Season 4 is shaping up to be a watershed moment &mdash; not just for this league, but for cricket in Himachal Pradesh as a whole. From the trials to the auction to the final over at the new Shimla ground, every moment is going to count.</p><p>Follow Pro HPCL for all the latest updates: squad announcements, auction results, match schedules, live scores, and exclusive content from behind the scenes.</p><h3><strong>Season 4 is almost here. Are you ready?</strong></h3><p>Stay updated &mdash; follow Pro HPCL on all platforms for auction dates, team announcements, and match schedules.<br>#ProHPCL #ProHPCLSeason4 #HimachalCricket #HPCL2026 #CricketHimachalPradesh #ShimlaCricket #RishiDhawan #HimachalPremierLeague</p>
+                                                    </div>
+                    </div>
+                </article>
+
+                <aside class="blog-side-card" aria-label="Recent Posts">
+                    <h2 class="blog-side-title">Recent Posts</h2>
+                    <ul class="blog-side-list">
+                                                    <li class="blog-side-item">
+                                <a class="blog-side-link" href="{{BASE}}/blogs/pro-hpcl-season-4-trials-on-12-april-2026-in-solan-venue-time-details">Pro HPCL Season 4 Trials on 12 April 2026 in Solan | Venue, Time, Details</a>
+                                <span class="blog-side-date">26 Mar 2026</span>
+                            </li>
+                                                    <li class="blog-side-item">
+                                <a class="blog-side-link" href="{{BASE}}/blogs/pro-hpcl-season-4-registrations-closing-soon-only-2-days-left">Pro HPCL Season 4 Registrations Closing Soon &ndash; Only 2 Days Left</a>
+                                <span class="blog-side-date">14 Mar 2026</span>
+                            </li>
+                                            </ul>
+                    <a class="blog-side-more" href="{{BASE}}/blogs">View all posts</a>
+                </aside>
+            </div>
+        </section>
+
+        <div class="blog-embed-modal" id="blog-embed-modal" aria-hidden="true" role="dialog" aria-label="Embedded media modal">
+            <div class="blog-embed-modal__dialog">
+                <button type="button" class="blog-embed-modal__close" data-embed-modal-close aria-label="Close media">x</button>
+                <div class="blog-embed-modal__content" id="blog-embed-modal-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+        <script>
+        (function () {
+            const trigger = document.querySelector('[data-embed-modal-trigger]');
+            const modal = document.getElementById('blog-embed-modal');
+            const modalContent = document.getElementById('blog-embed-modal-content');
+            const closeBtn = modal ? modal.querySelector('[data-embed-modal-close]') : null;
+
+            if (!trigger || !modal || !modalContent || !closeBtn) {
+                return;
+            }
+
+            const openModal = function () {
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeModal = function () {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                modalContent.innerHTML = '';
+                document.body.style.overflow = '';
+            };
+
+            trigger.addEventListener('click', function () {
+                const provider = String(trigger.getAttribute('data-embed-provider') || '');
+                const embedUrl = String(trigger.getAttribute('data-embed-url') || '');
+                const variant = String(trigger.getAttribute('data-embed-variant') || 'wide');
+                const originalUrl = String(trigger.getAttribute('data-embed-original-url') || '');
+
+                modalContent.innerHTML = '';
+
+                const withAutoplay = function (rawUrl) {
+                    try {
+                        const url = new URL(rawUrl);
+                        if (provider === 'youtube') {
+                            url.searchParams.set('autoplay', '1');
+                            url.searchParams.set('mute', '0');
+                            url.searchParams.set('playsinline', '1');
+                            url.searchParams.set('rel', '0');
+                            url.searchParams.set('fs', '1');
+                        } else if (provider === 'facebook') {
+                            url.searchParams.set('autoplay', '1');
+                            url.searchParams.set('mute', '0');
+                            url.searchParams.set('muted', '0');
+                        }
+
+                        return url.toString();
+                    } catch (error) {
+                        return rawUrl;
+                    }
+                };
+
+                if (provider === 'instagram') {
+                    const blockquote = document.createElement('blockquote');
+                    blockquote.className = 'instagram-media blog-embed-instagram';
+                    blockquote.setAttribute('data-instgrm-permalink', embedUrl || originalUrl);
+                    blockquote.setAttribute('data-instgrm-version', '14');
+                    modalContent.appendChild(blockquote);
+
+                    if (!document.querySelector('script[src="https://www.instagram.com/embed.js"]')) {
+                        const script = document.createElement('script');
+                        script.async = true;
+                        script.src = 'https://www.instagram.com/embed.js';
+                        script.onload = function () {
+                            if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
+                                window.instgrm.Embeds.process();
+                            }
+                        };
+                        document.body.appendChild(script);
+                    } else if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
+                        window.instgrm.Embeds.process();
+                    }
+                } else if (embedUrl) {
+                    const iframe = document.createElement('iframe');
+                    iframe.setAttribute('src', withAutoplay(embedUrl));
+                    iframe.setAttribute('loading', 'lazy');
+                    iframe.setAttribute('allowfullscreen', 'true');
+                    iframe.setAttribute('webkitallowfullscreen', 'true');
+                    iframe.setAttribute('mozallowfullscreen', 'true');
+                    iframe.setAttribute('allow', provider === 'youtube'
+                        ? 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen'
+                        : 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen');
+                    iframe.allowFullscreen = true;
+                    iframe.className = 'blog-embed-frame ' + (variant === 'tall' ? 'blog-embed-frame--tall' : 'blog-embed-frame--wide');
+                    modalContent.appendChild(iframe);
+                }
+
+                openModal();
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
+@endsection

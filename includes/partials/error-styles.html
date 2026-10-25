@@ -1,0 +1,114 @@
+    <style>
+        .error-page {
+            min-height: calc(100vh - 260px);
+            display: flex;
+            align-items: center;
+            padding: 48px 0;
+        }
+        .error-card {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 40px 32px;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(2, 6, 23, 0.1);
+        }
+        .error-logo {
+            width: 72px;
+            height: auto;
+            margin-bottom: 8px;
+        }
+        .error-code {
+            margin: 0;
+            font-family: "Bebas Neue", sans-serif;
+            font-size: clamp(4.5rem, 14vw, 7.5rem);
+            line-height: 1;
+            letter-spacing: 0.04em;
+            color: #0b50a7;
+        }
+        .error-title {
+            margin: 4px 0 12px;
+            font-family: "Bebas Neue", sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            letter-spacing: 0.02em;
+            color: #0f172a;
+        }
+        .error-message {
+            margin: 0 auto 24px;
+            max-width: 46ch;
+            font: 400 1.05rem/1.6 Roboto, sans-serif;
+            color: #475569;
+        }
+        .error-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+        .error-actions .btn {
+            min-width: 150px;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font: 700 0.95rem Roboto, sans-serif;
+        }
+        .error-actions .btn-primary {
+            background: #0b50a7;
+            border-color: #0b50a7;
+        }
+        .error-actions .btn-primary:hover {
+            background: #083b7d;
+            border-color: #083b7d;
+        }
+        .error-actions .btn-outline-primary {
+            color: #0b50a7;
+            border-color: #0b50a7;
+        }
+        .error-actions .btn-outline-primary:hover {
+            background: #0b50a7;
+            color: #ffffff;
+        }
+        .error-links {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .error-links p {
+            margin: 0 0 10px;
+            font: 700 0.85rem Roboto, sans-serif;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        .error-links ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .error-links a {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(11, 80, 167, 0.08);
+            color: #0b50a7;
+            font: 600 0.9rem Roboto, sans-serif;
+            text-decoration: none;
+        }
+        .error-links a:hover {
+            background: #fd6f3b;
+            color: #ffffff;
+        }
+        @media (max-width: 575px) {
+            .error-card {
+                padding: 32px 20px;
+            }
+            .error-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>

@@ -1,0 +1,412 @@
+@extends('layouts.app')
+
+@section('title', 'Wine Association vs Theog Tigers | Season 1 | Pro HPCL')
+@section('description', 'Match scorecard and ball by ball commentary for Wine Association vs Theog Tigers in Season 1.')
+@section('canonical', '{{BASE}}/season/1/matches/1')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .match-center-shell {
+                max-width: 1240px;
+                margin: 0 auto;
+                padding: 34px 16px 78px;
+            }
+            .match-center-hero {
+                position: relative;
+                overflow: hidden;
+                border-radius: 30px;
+                padding: 30px;
+                color: #fff;
+                background:
+                    radial-gradient(circle at top right, rgba(255, 177, 66, 0.3), transparent 30%),
+                    radial-gradient(circle at bottom left, rgba(64, 156, 255, 0.22), transparent 28%),
+                    linear-gradient(135deg, #041f45 0%, #0b4f8c 58%, #1a7cc7 100%);
+                box-shadow: 0 28px 56px rgba(4, 31, 69, 0.22);
+            }
+            .match-center-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                color: #fff;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+            }
+            .match-center-chip--ghost {
+                background: rgba(255, 255, 255, 0.08);
+            }
+            .match-center-scoreboard {
+                display: grid;
+                gap: 14px;
+                margin-top: 22px;
+            }
+            .match-center-team {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                padding: 18px 20px;
+                border-radius: 22px;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.14);
+            }
+            .match-center-team__name {
+                font-size: 1.05rem;
+                font-weight: 800;
+                line-height: 1.25;
+            }
+            .match-center-team__meta {
+                margin-top: 0.25rem;
+                color: rgba(255, 255, 255, 0.72);
+                font-size: 0.84rem;
+                font-weight: 600;
+            }
+            .match-center-team__score {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 2.6rem;
+                line-height: 1;
+                letter-spacing: 0.06em;
+                white-space: nowrap;
+            }
+            .match-center-grid {
+                display: grid;
+                gap: 22px;
+                margin-top: 24px;
+            }
+            .match-panel {
+                border-radius: 26px;
+                background: #fff;
+                border: 1px solid rgba(15, 23, 42, 0.08);
+                box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+                overflow: hidden;
+            }
+            .match-panel__body {
+                padding: 24px;
+            }
+            .match-meta-grid {
+                display: grid;
+                gap: 14px;
+            }
+            .match-meta-card {
+                border-radius: 18px;
+                padding: 16px 18px;
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                border: 1px solid rgba(15, 23, 42, 0.06);
+            }
+            .match-meta-card__label {
+                font-size: 11px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: #64748b;
+            }
+            .match-meta-card__value {
+                margin-top: 0.45rem;
+                font-size: 0.98rem;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.4;
+            }
+            .innings-block + .innings-block {
+                border-top: 1px solid rgba(15, 23, 42, 0.08);
+            }
+            .innings-block__header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 18px;
+                margin-bottom: 22px;
+            }
+            .innings-block__title {
+                font-size: 1.3rem;
+                font-weight: 900;
+                color: #0f172a;
+                margin: 0;
+            }
+            .innings-block__subtitle {
+                margin-top: 0.3rem;
+                color: #64748b;
+                font-size: 0.92rem;
+                font-weight: 600;
+            }
+            .innings-block__score {
+                padding: 12px 16px;
+                border-radius: 18px;
+                background: linear-gradient(135deg, #072b5a, #1483c2);
+                color: #fff;
+                min-width: 150px;
+                text-align: right;
+            }
+            .innings-block__score strong {
+                display: block;
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 2.1rem;
+                line-height: 1;
+                letter-spacing: 0.05em;
+            }
+            .innings-block__score span {
+                display: block;
+                margin-top: 0.35rem;
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: rgba(255, 255, 255, 0.72);
+                font-weight: 700;
+            }
+            .innings-section + .innings-section {
+                margin-top: 24px;
+            }
+            .innings-section__heading {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+            .innings-section__heading h3 {
+                margin: 0;
+                font-size: 1rem;
+                font-weight: 900;
+                color: #0f172a;
+                letter-spacing: 0.01em;
+            }
+            .innings-section__heading span {
+                color: #64748b;
+                font-size: 0.8rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+            }
+            .scorecard-wrap {
+                overflow-x: auto;
+                border: 1px solid rgba(15, 23, 42, 0.08);
+                border-radius: 18px;
+            }
+            .scorecard-table {
+                width: 100%;
+                min-width: 720px;
+                border-collapse: collapse;
+                background: #fff;
+            }
+            .scorecard-table thead th {
+                padding: 13px 12px;
+                font-size: 11px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: #64748b;
+                background: #f8fafc;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            }
+            .scorecard-table tbody td {
+                padding: 14px 12px;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+                color: #0f172a;
+                vertical-align: top;
+            }
+            .scorecard-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+            .scorecard-table__player {
+                font-weight: 800;
+            }
+            .scorecard-table__sub {
+                margin-top: 0.18rem;
+                color: #64748b;
+                font-size: 0.82rem;
+            }
+            .commentary-feed {
+                display: grid;
+                gap: 12px;
+            }
+            .commentary-item {
+                display: grid;
+                grid-template-columns: 54px 42px minmax(0, 1fr);
+                gap: 14px;
+                align-items: start;
+                padding: 14px 16px;
+                border-radius: 18px;
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                border: 1px solid rgba(15, 23, 42, 0.06);
+            }
+            .commentary-item--wicket {
+                background: linear-gradient(90deg, rgba(254, 226, 226, 0.72) 0%, rgba(255, 255, 255, 1) 35%);
+            }
+            .commentary-item--boundary {
+                background: linear-gradient(90deg, rgba(204, 251, 241, 0.8) 0%, rgba(255, 255, 255, 1) 35%);
+            }
+            .commentary-ball {
+                padding-top: 0.35rem;
+                font-size: 0.9rem;
+                font-weight: 900;
+                color: #64748b;
+            }
+            .commentary-badge {
+                width: 2.35rem;
+                height: 2.35rem;
+                border-radius: 999px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 900;
+                font-size: 0.95rem;
+            }
+            .commentary-badge--dot { background: #e5e7eb; color: #334155; }
+            .commentary-badge--runs { background: #dbeafe; color: #1d4ed8; }
+            .commentary-badge--boundary { background: #ccfbf1; color: #0f766e; }
+            .commentary-badge--wicket { background: #fee2e2; color: #b91c1c; }
+            .commentary-title {
+                font-size: 0.98rem;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.45;
+            }
+            .commentary-meta {
+                margin-top: 0.28rem;
+                font-size: 0.84rem;
+                color: #64748b;
+                line-height: 1.55;
+            }
+            .commentary-empty {
+                border-radius: 18px;
+                border: 1px dashed rgba(15, 23, 42, 0.18);
+                padding: 22px 18px;
+                color: #64748b;
+                background: #f8fafc;
+                font-size: 0.92rem;
+            }
+            @media (min-width: 992px) {
+                .match-center-grid {
+                    grid-template-columns: 340px minmax(0, 1fr);
+                }
+                .match-meta-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+            @media (max-width: 991px) {
+                .innings-block__header {
+                    flex-direction: column;
+                }
+                .innings-block__score {
+                    width: 100%;
+                    text-align: left;
+                }
+            }
+            @media (max-width: 767px) {
+                .match-center-shell {
+                    padding-left: 12px;
+                    padding-right: 12px;
+                }
+                .match-center-hero,
+                .match-panel__body {
+                    padding: 20px;
+                }
+                .match-center-team {
+                    padding: 15px 16px;
+                }
+                .match-center-team__score {
+                    font-size: 2.15rem;
+                }
+                .commentary-item {
+                    grid-template-columns: 48px 38px minmax(0, 1fr);
+                    gap: 12px;
+                    padding: 12px;
+                }
+            }
+        </style>
+                    <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"SportsEvent","name":"Wine Association vs Theog Tigers","sport":"Cricket","url":"{{BASE}}/season/1/matches/1","description":"Scorecard for Wine Association vs Theog Tigers in Season 1.","startDate":"2022-04-25T08:00:00+05:30","competitor":[{"@type":"SportsTeam","name":"Wine Association","sport":"Cricket","logo":"{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png"},{"@type":"SportsTeam","name":"Theog Tigers","sport":"Cricket","logo":null}],"organizer":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","url":"{{BASE}}"}}
+        </script>
+@endsection
+
+@section('content')
+                    
+    <section class="match-center-shell">
+        <nav aria-label="breadcrumb" class="my-1">
+            <ol class="breadcrumb team-breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{BASE}}/matches">Matches</a></li>
+                <li class="breadcrumb-item"><a href="{{BASE}}/matches/season/1">Season 1</a></li>
+                <li class="breadcrumb-item active fw-semibold" aria-current="page">
+                    Match 1 (Wine Association vs Theog Tigers)
+                </li>
+            </ol>
+        </nav>
+
+        <div class="match-center-hero">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
+                <div>
+                    <a href="{{BASE}}/matches/season/1" class="match-center-chip mb-3">&larr; Back to Matches</a>
+                    <h1 class="mb-2">Wine Association vs Theog Tigers</h1>
+                    <p class="mb-0 text-white-50">Season 1 &middot; Wine Association won by 18 runs</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-content-start">
+                    <span class="match-center-chip match-center-chip--ghost">Completed</span>
+                                            <span class="match-center-chip match-center-chip--ghost">Match 1</span>
+                                        <span class="match-center-chip match-center-chip--ghost">League</span>
+                </div>
+            </div>
+
+            <div class="match-center-scoreboard">
+                <div class="match-center-team">
+                    <div>
+                        <div class="match-center-team__name">Wine Association</div>
+                                            </div>
+                    <div class="match-center-team__score">163/3 (15.0)</div>
+                </div>
+                <div class="match-center-team">
+                    <div>
+                        <div class="match-center-team__name">Theog Tigers</div>
+                                            </div>
+                    <div class="match-center-team__score">145/2 (15.0)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="match-center-grid">
+            <aside class="match-panel">
+                <div class="match-panel__body">
+                    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                        <h2 class="h5 mb-0">Match Info</h2>
+                        <span class="text-muted small">Season 1</span>
+                    </div>
+
+                    <div class="match-meta-grid">
+                        <div class="match-meta-card">
+                            <div class="match-meta-card__label">Venue</div>
+                            <div class="match-meta-card__value">Police Ground Bharari, Shimla, Himachal Pradesh</div>
+                        </div>
+                        <div class="match-meta-card">
+                            <div class="match-meta-card__label">Schedule</div>
+                            <div class="match-meta-card__value">25 Apr 2022, 08:00 AM</div>
+                        </div>
+                        <div class="match-meta-card">
+                            <div class="match-meta-card__label">Toss</div>
+                            <div class="match-meta-card__value">
+                                Theog Tigers elected to bowl
+                            </div>
+                        </div>
+                        <div class="match-meta-card">
+                            <div class="match-meta-card__label">Result</div>
+                            <div class="match-meta-card__value">Wine Association won by 18 runs</div>
+                        </div>
+                                            </div>
+                </div>
+            </aside>
+
+            <div class="d-grid gap-4">
+                                    <section class="match-panel">
+                        <div class="match-panel__body">
+                            <div class="commentary-empty">No scorecard has been published for this match yet.</div>
+                        </div>
+                    </section>
+                            </div>
+        </div>
+    </section>
+@endsection

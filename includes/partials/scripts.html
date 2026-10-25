@@ -1,0 +1,75 @@
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous">
+    </script>
+    <script src="{{BASE}}/assets/js/global.js"></script>
+    <script src="{{BASE}}/assets/js/forms.js?v=20261024b" defer></script>
+    <script>
+        (function() {
+            const cardSelectors = [
+                '.tpv2-card',
+                '.teams-section__card',
+                '.latest-news__card',
+                '.video-card',
+                '.section-card',
+                '.team-card',
+                '.stats-card',
+                '.sponsor-card',
+                '.owner-card',
+                '.about-card',
+                '.founder-card',
+                '.policy-card',
+                '.terms-card',
+                '.contact-info-card',
+                '.contact-form-card',
+                '.stat-card',
+                '.filter-card',
+                '.payment-card',
+                '.share-card',
+                '.single-card'
+            ];
+
+            const cardSet = new Set();
+            cardSelectors.forEach((selector) => {
+                document.querySelectorAll(selector).forEach((el) => cardSet.add(el));
+            });
+
+            const cards = Array.from(cardSet);
+            if (!cards.length) {
+                return;
+            }
+
+            cards.forEach((card) => card.classList.add('js-reveal-card'));
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                cards.forEach((card) => card.classList.add('is-visible'));
+                return;
+            }
+
+            document.body.classList.add('motion-ready');
+            cards.forEach((card, index) => {
+                card.style.setProperty('--reveal-index', String(index));
+            });
+
+            if (!('IntersectionObserver' in window)) {
+                cards.forEach((card) => card.classList.add('is-visible'));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries, io) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add('is-visible');
+                    io.unobserve(entry.target);
+                });
+            }, {
+                rootMargin: '0px 0px 12% 0px',
+                threshold: 0.08
+            });
+
+            cards.forEach((card) => observer.observe(card));
+        })();
+    </script>

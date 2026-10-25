@@ -1,0 +1,45 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/committee">&larr; All applications</a></p>
+        <h1>{!! $title !!}</h1>
+        <section class="admin-panel admin-section">
+            <div class="admin-panel__head"><h2>Application</h2>{!! $badge !!}</div>
+            <dl class="admin-facts">
+                <div><dt>Email</dt><dd><a href="mailto:{!! $email !!}">{!! $email !!}</a></dd></div>
+                <div><dt>Phone</dt><dd><a href="tel:+91{!! $phone !!}">{!! $phone !!}</a></dd></div>
+                <div><dt>Plan</dt><dd>{!! $plan !!}</dd></div>
+                <div><dt>Applied</dt><dd>{!! $applied !!}</dd></div>
+                <div><dt>Payment</dt><dd>{!! $payment !!}</dd></div>
+            </dl>
+            <h3 class="admin-committee-heading">Why they want to become a member</h3>
+            <p class="admin-committee-message">{!! $message !!}</p>
+        </section>
+        <section class="admin-panel admin-section">
+            <h2>Aadhaar card</h2>
+            <div class="admin-committee-docs">{!! $documents !!}</div>
+        </section>
+        <form class="admin-form admin-panel admin-section" method="post" action="{{BASE}}/admin/committee/{!! $id !!}">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <h2>Review</h2>
+            <div class="admin-field">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>{!! $statuses !!}</select>
+            </div>
+            <div class="admin-field">
+                <label for="admin_note">Note <span class="admin-optional">optional, only seen by admins</span></label>
+                <textarea id="admin_note" name="admin_note" rows="3" maxlength="2000">{!! $admin_note !!}</textarea>
+                <p class="admin-hint">{!! $reviewed !!}</p>
+            </div>
+            <div class="admin-form-actions">
+                <button type="submit">Save</button>{!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

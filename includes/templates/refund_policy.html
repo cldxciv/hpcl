@@ -1,0 +1,127 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/refund_policy')
+
+@section('head')
+        <style>
+        .policy-page {
+            padding: 24px 0 48px;
+        }
+
+        .policy-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(11, 80, 167, 0.14);
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
+            padding: 24px;
+        }
+
+        .policy-card h1 {
+            color: #0b50a7;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .policy-card h2 {
+            color: #0f172a;
+            font-family: Roboto, sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 10px;
+        }
+
+        .policy-card p,
+        .policy-card li {
+            color: #334155;
+            font-family: Roboto, sans-serif;
+            line-height: 1.7;
+        }
+
+        .policy-card ul {
+            padding-left: 1.1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Refund Policy","item":"{{BASE}}/refund_policy"}]}
+    </script>
+@endsection
+
+@section('breadcrumb')
+        <div class="auto-breadcrumb-wrap">
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                                                                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                                                                                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Refund Policy</li>
+                                                            </ol>
+            </nav>
+        </div>
+@endsection
+
+@section('content')
+                                <div class="policy-page">
+        <div class="container">
+            <div class="policy-card">
+                <h1 class="mb-3">Refund Policy</h1>
+                <p><strong>Effective Date:</strong> 15th Feb, 2025</p>
+
+                <h2>1. No Refunds on Registration Fees</h2>
+                <p>
+                    Once a player completes the registration and payment process for Pro HPCL, the registration fee
+                    <strong>is non-refundable under any circumstances</strong>,
+                </p>
+
+                <h2>2. Eligibility Criteria &amp; Player Participation</h2>
+                <ul>
+                    <li>
+                        Only 1 player from outside Himachal is allowed in Pro HPCL Season 4, a gesture to promote local
+                        talent.
+                    </li>
+                    <li>
+                        If a player is found to have provided false information during registration, their participation
+                        will
+                        be canceled without a refund.
+                    </li>
+                </ul>
+
+                <h2>3. Payment Errors &amp; Duplicate Transactions</h2>
+                <p>Refunds will only be considered in cases of:</p>
+                <ul>
+                    <li><strong>Duplicate payments</strong> due to technical errors (subject to verification by our payment
+                        gateway).</li>
+                    <li><strong>Transaction failures</strong> where the amount has been deducted but the registration is not
+                        confirmed.</li>
+                </ul>
+                <p>
+                    In such cases, players must submit a refund request within <strong>7 days</strong> of the transaction
+                    by emailing <a href="mailto:contact@prohpcl.com">contact@prohpcl.com</a> with proof of payment.
+                    After verification, eligible refunds (if any) will be processed within <strong>10-15 working
+                        days</strong>.
+                </p>
+
+                <h2>4. Changes &amp; Cancellations by Pro HPCL</h2>
+                <ul>
+                    <li>
+                        If Pro HPCL makes any significant changes or cancellations to the event, alternative options such as
+                        rescheduling or credit towards a future season may be provided.
+                    </li>
+                    <li>
+                        In case of league cancellation due to government regulations, pandemics, or unavoidable
+                        circumstances, Pro HPCL will determine the next course of action at its sole discretion.
+                    </li>
+                </ul>
+
+                <h2>5. Contact for Refund Queries</h2>
+                <p>For any concerns regarding payments, you can contact us at:</p>
+                <p><strong>Pro Himachal Premium Cricket League (Pro HPCL)</strong></p>
+                <p>Email: <a href="mailto:contact@prohpcl.com">contact@prohpcl.com</a></p>
+                <p>Phone: <a href="tel:+918908000025">+918908000025</a></p>
+                <p>Website: <a href="https://www.prohpcl.com" target="_blank" rel="noopener noreferrer">www.prohpcl.com</a></p>
+
+                <p class="mb-0">By registering for Pro HPCL, you agree to the terms of this Refund Policy.</p>
+            </div>
+        </div>
+    </div>
+@endsection

@@ -1,0 +1,814 @@
+@extends('layouts.app')
+
+@section('title', 'Season 1 Matches &amp;amp; Results | Pro HPCL')
+@section('description', 'View fixtures, results, and recent standings for Season 1 in Pro HPCL.')
+@section('canonical', '{{BASE}}/matches/season/1')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+            <style>
+            .match-shell {
+                max-width: 1180px;
+                margin: 0 auto;
+                padding: 32px 16px 72px;
+            }
+            .match-hero {
+                background:
+                    radial-gradient(circle at 15% 15%, rgba(255, 200, 75, 0.24), transparent 32%),
+                    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.15), transparent 38%),
+                    linear-gradient(135deg, #062347 0%, #0c4d8f 55%, #1477b6 100%);
+                color: #fff;
+                border-radius: 28px;
+                padding: 28px;
+                box-shadow: 0 24px 48px rgba(7, 43, 90, 0.22);
+            }
+            .match-hero__label {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.14);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                color: rgba(255, 255, 255, 0.95);
+                padding: 7px 12px;
+                font-size: 12px;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            .match-hero h1 {
+                font-size: clamp(1.5rem, 2.4vw, 2.25rem);
+                font-weight: 800;
+            }
+            .match-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                border-radius: 999px;
+                padding: 9px 15px;
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                color: #fff;
+                text-decoration: none;
+                font-weight: 700;
+            }
+            .match-chip:hover {
+                color: #fff;
+                text-decoration: none;
+                background: rgba(255, 255, 255, 0.2);
+            }
+            .match-stats {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 18px;
+            }
+            .match-stat {
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.24);
+                background: rgba(255, 255, 255, 0.12);
+                padding: 12px 14px;
+            }
+            .match-stat__label {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: rgba(255, 255, 255, 0.82);
+                margin-bottom: 3px;
+            }
+            .match-stat__value {
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: #fff;
+                line-height: 1.1;
+            }
+            .match-hero__notice {
+                margin-top: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(253, 224, 71, 0.35);
+                background: rgba(253, 224, 71, 0.14);
+                color: #fef3c7;
+                padding: 10px 12px;
+                font-weight: 600;
+                font-size: 0.92rem;
+            }
+            .match-surface {
+                background: #fff;
+                border-radius: 24px;
+                padding: 24px;
+                box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+                border: 1px solid rgba(15, 23, 42, 0.06);
+            }
+            .match-surface__header {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            .match-surface__title {
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 800;
+                color: #0f172a;
+            }
+            .match-surface__sub {
+                margin: 2px 0 0;
+                color: #64748b;
+                font-size: 0.92rem;
+            }
+            .match-filter-grid {
+                display: grid;
+                gap: 14px;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                background: #f8fafc;
+                border: 1px solid rgba(148, 163, 184, 0.28);
+                border-radius: 16px;
+                padding: 14px;
+            }
+            .match-filter-field label {
+                display: block;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #475569;
+                font-weight: 700;
+                margin: 0 0 6px;
+            }
+            .match-filter-grid .form-select {
+                border-radius: 14px;
+                padding: 12px 14px;
+                font-weight: 700;
+                border-color: rgba(148, 163, 184, 0.48);
+            }
+            .match-filter-actions {
+                display: flex;
+                align-items: flex-end;
+                gap: 10px;
+            }
+            .match-filter-actions .btn {
+                height: 50px;
+                border-radius: 12px;
+                font-weight: 700;
+                padding: 0 18px;
+            }
+            .match-filter-actions .btn-primary {
+                min-width: 132px;
+            }
+            .match-card {
+                border-radius: 22px;
+                padding: 20px;
+                border: 1px solid rgba(15, 23, 42, 0.08);
+                background: linear-gradient(180deg, #ffffff, #f9fbff);
+            }
+            .match-card__meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+            .match-card__meta span {
+                border-radius: 999px;
+                padding: 6px 10px;
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                background: #e7f0fa;
+                color: #0a4f91;
+            }
+            .match-card__meta .status-live {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .match-card__meta .status-completed {
+                background: #ecfeff;
+                color: #155e75;
+            }
+            .match-card__meta .status-scheduled {
+                background: #f1f5f9;
+                color: #475569;
+            }
+            .match-card__meta .status-abandoned {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            .match-scoreline {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            }
+            .match-scoreline:last-child {
+                border-bottom: 0;
+            }
+            .match-team-wrap {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+            }
+            .match-team-logo {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                background: #fff;
+            }
+            .match-team-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .match-team {
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.15;
+            }
+            .match-score {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 30px;
+                letter-spacing: 0.04em;
+                color: #072b5a;
+            }
+            .match-card__footer {
+                margin-top: 14px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 10px;
+                align-items: center;
+            }
+            .match-card__result {
+                font-weight: 700;
+                color: #0d4f95;
+            }
+            @media (min-width: 768px) {
+                .match-shell {
+                    padding-left: 24px;
+                    padding-right: 24px;
+                }
+                .match-stats {
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                }
+                .match-filter-grid {
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                }
+            }
+        </style>
+                    <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"SportsEvent","name":"Season 1 Matches","sport":"Cricket","url":"{{BASE}}/matches/season/1","organizer":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","url":"{{BASE}}"},"startDate":"2022-04-25","eventStatus":"https://schema.org/EventScheduled","description":"Fixtures and results for Season 1.","subEvent":[{"@type":"SportsEvent","name":"Rising Star Baldeyan vs PLB Super King","sport":"Cricket","url":"{{BASE}}/season/1/matches/11","startDate":"2022-04-27T13:47:00+05:30"},{"@type":"SportsEvent","name":"Shimla Titans vs Wine Association","sport":"Cricket","url":"{{BASE}}/season/1/matches/9","startDate":"2022-04-27T10:45:00+05:30"},{"@type":"SportsEvent","name":"Rising Star Baldeyan vs Royal Rivals Sarkaghat","sport":"Cricket","url":"{{BASE}}/season/1/matches/10","startDate":"2022-04-27T09:16:00+05:30"},{"@type":"SportsEvent","name":"Chudeshwar Leopards vs PLB Super King","sport":"Cricket","url":"{{BASE}}/season/1/matches/8","startDate":"2022-04-26T16:46:00+05:30"},{"@type":"SportsEvent","name":"Shimla Titans vs Theog Tigers","sport":"Cricket","url":"{{BASE}}/season/1/matches/7","startDate":"2022-04-26T14:03:00+05:30"},{"@type":"SportsEvent","name":"Wine Association vs ACC Theog","sport":"Cricket","url":"{{BASE}}/season/1/matches/6","startDate":"2022-04-26T11:09:00+05:30"},{"@type":"SportsEvent","name":"Royal Rivals Sarkaghat vs PLB Super King","sport":"Cricket","url":"{{BASE}}/season/1/matches/5","startDate":"2022-04-26T07:38:00+05:30"},{"@type":"SportsEvent","name":"Rising Star Baldeyan vs Chudeshwar Leopards","sport":"Cricket","url":"{{BASE}}/season/1/matches/4","startDate":"2022-04-25T16:43:00+05:30"},{"@type":"SportsEvent","name":"Theog Tigers vs ACC Theog","sport":"Cricket","url":"{{BASE}}/season/1/matches/3","startDate":"2022-04-25T13:43:00+05:30"},{"@type":"SportsEvent","name":"Chudeshwar Leopards vs Royal Rivals Sarkaghat","sport":"Cricket","url":"{{BASE}}/season/1/matches/2","startDate":"2022-04-25T11:10:00+05:30"},{"@type":"SportsEvent","name":"Wine Association vs Theog Tigers","sport":"Cricket","url":"{{BASE}}/season/1/matches/1","startDate":"2022-04-25T08:00:00+05:30"}]}
+        </script>
+@endsection
+
+@section('content')
+                    
+    <section class="match-shell">
+                <nav aria-label="breadcrumb" class="my-1">
+            <ol class="breadcrumb team-breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{BASE}}/matches">Matches</a></li>
+                <li class="breadcrumb-item active fw-semibold" aria-current="page">Season 1</li>
+            </ol>
+        </nav>
+
+        <div class="match-hero">
+            <div>
+                <div class="match-hero__label">Season 1</div>
+                <h1 class="mb-2">Season 1 Matches &amp; Results</h1>
+                <p class="mb-0 text-white-50">Fixtures, completed results, and official match updates.</p>
+                            </div>
+            <div class="match-stats">
+                <div class="match-stat">
+                    <div class="match-stat__label">Matches</div>
+                    <div class="match-stat__value">11</div>
+                </div>
+                <div class="match-stat">
+                    <div class="match-stat__label">Completed</div>
+                    <div class="match-stat__value">11</div>
+                </div>
+                <div class="match-stat">
+                    <div class="match-stat__label">Upcoming</div>
+                    <div class="match-stat__value">0</div>
+                </div>
+                <div class="match-stat">
+                    <div class="match-stat__label">Live</div>
+                    <div class="match-stat__value">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <div class="match-surface">
+                    <div class="match-surface__header">
+                        <div>
+                            <h2 class="match-surface__title">Match Schedule</h2>
+                            <p class="match-surface__sub">
+                                                                    Use filters to narrow by stage, status, or team.
+                                                            </p>
+                        </div>
+                    </div>
+                                            <form method="GET" action="{{BASE}}/matches/season/1" class="match-filter-grid">
+                            <div class="match-filter-field">
+                                <label for="filter-stage">Stage</label>
+                                <select id="filter-stage" name="stage" class="form-select">
+                                    <option value="">All stages</option>
+                                                                            <option value="league">League</option>
+                                                                            <option value="quarter_final">Quarter Final</option>
+                                                                            <option value="semi_final">Semi Final</option>
+                                                                            <option value="final">Final</option>
+                                                                    </select>
+                            </div>
+                            <div class="match-filter-field">
+                                <label for="filter-status">Status</label>
+                                <select id="filter-status" name="status" class="form-select">
+                                    <option value="">All statuses</option>
+                                                                            <option value="scheduled">Scheduled</option>
+                                                                            <option value="live">Live</option>
+                                                                            <option value="completed">Completed</option>
+                                                                            <option value="abandoned">Abandoned</option>
+                                                                    </select>
+                            </div>
+                            <div class="match-filter-field">
+                                <label for="filter-team">Team</label>
+                                <select id="filter-team" name="team" class="form-select">
+                                    <option value="">All teams</option>
+                                                                            <option value="3">ACC Theog</option>
+                                                                            <option value="9">Aryans XI</option>
+                                                                            <option value="11">Chudeshwar Leopards</option>
+                                                                            <option value="6">Jindal Warriors</option>
+                                                                            <option value="13">Karsog XI</option>
+                                                                            <option value="4">Mahakaal</option>
+                                                                            <option value="7">Mandi Marvels</option>
+                                                                            <option value="12">PLB Super King</option>
+                                                                            <option value="5">Rising Star Baldeyan</option>
+                                                                            <option value="8">Royal Rivals Sarkaghat</option>
+                                                                            <option value="18">Shimla Gladiators</option>
+                                                                            <option value="16">Shimla Royals</option>
+                                                                            <option value="15">Shimla Titans</option>
+                                                                            <option value="14">Theog Tigers</option>
+                                                                            <option value="17">Wine Association</option>
+                                                                            <option value="10">Yorkshire Mandyals</option>
+                                                                    </select>
+                            </div>
+                            <div class="match-filter-actions">
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                                <a href="{{BASE}}/matches/season/1" class="btn btn-outline-secondary">Reset</a>
+                            </div>
+                        </form>
+
+                        <div class="mt-4 d-grid gap-3">
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 11</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>27 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Rising Star Baldeyan" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Rising Star Baldeyan</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">108/8 (12.2)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="PLB Super King" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">PLB Super King</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">108/8 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">01:47 PM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Match tied</div>
+                                            <a href="{{BASE}}/season/1/matches/11" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 10</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>27 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Shimla Titans" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Shimla Titans</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">152/4 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png" alt="Wine Association" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Wine Association</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">102/7 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">10:45 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Shimla Titans won by 50 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/9" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 9</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>27 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png" alt="Rising Star Baldeyan" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Rising Star Baldeyan</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">153/7 (14.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="Royal Rivals Sarkaghat" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Royal Rivals Sarkaghat</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">148/2 (13.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">09:16 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Rising Star Baldeyan won by 5 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/10" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 8</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>26 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Chudeshwar Leopards" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Chudeshwar Leopards</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">158/6 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="PLB Super King" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">PLB Super King</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">123/10 (14.1)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Venue TBD
+                                                                                            <span class="ms-2">04:46 PM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Chudeshwar Leopards won by 35 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/8" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 7</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>26 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Shimla Titans" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Shimla Titans</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">126/7 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/39L95Pdr7NUH6bPl4g7wZYdiwoe6bXJnmxj2ECtt.png" alt="Theog Tigers" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Theog Tigers</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">126/6 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Venue TBD
+                                                                                            <span class="ms-2">02:03 PM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Theog Tigers won by 4 wickets</div>
+                                            <a href="{{BASE}}/season/1/matches/7" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 6</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>26 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Wine Association" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Wine Association</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">171/8 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/lbVUBEgDn2our43FK1RGfDL8BLevqQLAXf7rAmZ7.png" alt="ACC Theog" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">ACC Theog</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">155/5 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">11:09 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Wine Association won by 16 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/6" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 5</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>26 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/IJOV3QvtsKGVUwRo4rETXvD0bb6ngySvtX57m9oy.png" alt="Royal Rivals Sarkaghat" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Royal Rivals Sarkaghat</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">157/8 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="PLB Super King" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">PLB Super King</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">161/4 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">07:38 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">PLB Super King won by 6 wickets</div>
+                                            <a href="{{BASE}}/season/1/matches/5" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 4</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>25 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Rising Star Baldeyan" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Rising Star Baldeyan</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">174/4 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/0XOfDqNDTTNeJIIPVqaXaMGIktGWvl4XEXyVKmuI.png" alt="Chudeshwar Leopards" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Chudeshwar Leopards</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">124/8 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">04:43 PM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Rising Star Baldeyan won by 50 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/4" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 3</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>25 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Theog Tigers" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Theog Tigers</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">162/6 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="ACC Theog" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">ACC Theog</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">164/4 (12.5)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">01:43 PM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">ACC Theog won by 6 wickets</div>
+                                            <a href="{{BASE}}/season/1/matches/3" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 2</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>25 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/storage/uploads/teams/IJOV3QvtsKGVUwRo4rETXvD0bb6ngySvtX57m9oy.png" alt="Chudeshwar Leopards" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Chudeshwar Leopards</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">123/8 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Royal Rivals Sarkaghat" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Royal Rivals Sarkaghat</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">125/1 (11.1)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">11:10 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Royal Rivals Sarkaghat won by 9 wickets</div>
+                                            <a href="{{BASE}}/season/1/matches/2" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                                                            <article class="match-card">
+                                    <div class="match-card__meta">
+                                        <span>Match 1</span>
+                                        <span>League</span>
+                                        <span class="status-completed">Completed</span>
+                                                                                    <span>25 Apr 2022</span>
+                                                                            </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Wine Association" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Wine Association</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">163/3 (15.0)</div>
+                                    </div>
+                                    <div class="match-scoreline">
+                                        <div class="match-team-wrap">
+                                            <div class="match-team-logo">
+                                                <img src="{{BASE}}/logo.png" alt="Theog Tigers" onerror="this.onerror=null;this.src='{{BASE}}/logo.png';">
+                                            </div>
+                                            <div>
+                                                <div class="match-team">Theog Tigers</div>
+                                                                                            </div>
+                                        </div>
+                                        <div class="match-score">145/2 (15.0)</div>
+                                    </div>
+                                    <div class="match-card__footer">
+                                        <div class="text-muted small">
+                                            Police Ground Bharari, Shimla, Himachal Pradesh
+                                                                                            <span class="ms-2">08:00 AM</span>
+                                                                                    </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="match-card__result">Wine Association won by 18 runs</div>
+                                            <a href="{{BASE}}/season/1/matches/1" class="btn btn-sm btn-outline-primary">View Scorecard</a>
+                                        </div>
+                                    </div>
+                                </article>
+                                                    </div>
+                                    </div>
+            </div>
+        </div>
+    </section>
+@endsection

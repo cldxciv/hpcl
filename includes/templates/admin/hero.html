@@ -1,0 +1,11 @@
+@extends('layouts.admin')
+@section('title', 'Hero slider')
+@section('content')
+@include('partials.admin-bar')
+<main class="admin-main">
+{!! $flash !!}
+<div class="admin-heading"><h1>Hero slider</h1><p>Manage the images and content shown at the top of the home page.</p></div>
+{!! $content !!}
+</main>
+@include('partials.admin-footer')
+@endsection

@@ -1,0 +1,5 @@
+.env
+/private/committee/*
+!/private/committee/.gitkeep
+/storage/uploads/*/*
+!/storage/uploads/*/.gitkeep
