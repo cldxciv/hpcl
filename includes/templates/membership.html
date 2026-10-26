@@ -21,6 +21,12 @@
             margin: 0 0 12px;
         }
         .mship-hero p { max-width: 720px; margin: 0 auto; font-family: Roboto, sans-serif; opacity: 0.92; line-height: 1.6; }
+        /* The site theme makes every paragraph grey (body.home-unified-theme p in main.css); on this
+           page's dark sections their own colours must win. */
+        body.home-unified-theme .mship-hero p, body.home-unified-theme .mship-cta-band p { color: #fff; }
+        body.home-unified-theme .mshipcar-kicker { color: #ff7a18; font-family: "Barlow", sans-serif; }
+        body.home-unified-theme .mshipcar-slide--cta .mshipcar-kicker { color: #0b2b57; }
+        body.home-unified-theme .mshipcar-lede { color: rgba(255, 255, 255, 0.9); }
         .mship-hero .mship-hero__cta {
             display: inline-block; margin-top: 22px; padding: 12px 30px;
             background: #ff7a18; color: #fff; font-weight: 700; font-family: Barlow, sans-serif;
