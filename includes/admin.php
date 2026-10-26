@@ -277,6 +277,7 @@ function adminPages(): array {
         '~^/admin/membership/payment$~' => [['POST'], 'admin-membership.php', fn ($admin) => saveMembershipPaymentSetting($admin), ['membership']],
         '~^/admin/membership/(\d+)$~' => [$write, 'admin-membership.php', fn ($admin, $id) => renderMembershipApplication($admin, (int) $id), ['membership']],
         '~^/admin/membership/(\d+)/profile$~' => [['POST'], 'admin-membership.php', fn ($admin, $id) => createMemberFromApplication($admin, (int) $id), ['membership']],
+        '~^/admin/membership/(\d+)/verify$~' => [['POST'], 'admin-membership.php', fn ($admin, $id) => verifyMembershipPayment($admin, (int) $id), ['membership']],
         '~^/admin/membership/(\d+)/delete$~' => [$write, 'admin-membership.php', fn ($admin, $id) => renderMembershipDelete($admin, (int) $id), ['membership', 'delete']],
         '~^/admin/members$~' => [$read, 'admin-membership.php', fn ($admin) => renderAdminMembers($admin), ['membership']],
         '~^/admin/members/new$~' => [$write, 'admin-membership.php', fn ($admin) => renderMemberForm($admin, null), ['membership']],

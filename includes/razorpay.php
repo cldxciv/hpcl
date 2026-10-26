@@ -58,11 +58,21 @@ function razorpayValidSignature(string $orderId, string $paymentId, string $sign
     $secret = razorpayConfig()['key_secret'];
     return $secret !== '' && $signature !== '' && hash_equals(hash_hmac('sha256', $orderId . '|' . $paymentId, $secret), $signature);
 }
+/** The payment attempts of an order, as Razorpay has them (id, status, amount in paise, error_description…). Throws when the API fails. */
+function razorpayOrderPayments(string $orderId): array {
+    [$status, $data] = razorpayRequest('GET', '/orders/' . rawurlencode($orderId) . '/payments');
+    if ($status !== 200 || !is_array($data['items'] ?? null)) {
+        if ($status === 401) throw new RuntimeException('Razorpay didn’t accept the saved keys (Settings → Integrations).');
+        throw new RuntimeException('Razorpay answered ' . $status . (($data['error']['description'] ?? null) ? ': ' . $data['error']['description'] : '.'));
+    }
+    return $data['items'];
+}
 
 /**
  * Razorpay's notifications (Dashboard → Webhooks → URL https://…/razorpay/webhook, events
  * payment.captured and order.paid, with the webhook secret saved at Integrations). A paid order
- * is passed on to what it is for: committee applications (committee.php).
+ * is passed on to what it is for: a committee application (committee.php) or a membership
+ * request (membership-join.php).
  */
 function handleRazorpayWebhook(): never {
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') errorPage(405);
@@ -78,7 +88,9 @@ function handleRazorpayWebhook(): never {
     $payment = $event['payload']['payment']['entity'] ?? null;
     if (in_array($event['event'] ?? '', ['payment.captured', 'order.paid'], true) && is_string($payment['order_id'] ?? null) && is_string($payment['id'] ?? null)) {
         require_once __DIR__ . '/committee.php';
-        committeePaymentReceived($payment['order_id'], $payment['id'], (int) ($payment['amount'] ?? 0));
+        require_once __DIR__ . '/membership-join.php';
+        $paise = (int) ($payment['amount'] ?? 0);
+        if (!committeePaymentReceived($payment['order_id'], $payment['id'], $paise)) membershipPaymentReceived($payment['order_id'], $payment['id'], $paise);
     }
     // Razorpay retries anything but a 2xx answer, so other events are acknowledged too.
     http_response_code(200);

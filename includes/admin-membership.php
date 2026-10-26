@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/admin-forms.php';
 require_once __DIR__ . '/membership.php';
 require_once __DIR__ . '/razorpay.php';
+require_once __DIR__ . '/membership-join.php'; // membershipPaymentReceived()
 
 const MEMBERSHIP_PER_PAGE = 50;
 const MEMBERSHIP_APP_STATUSES = ['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'];
@@ -120,13 +121,53 @@ function renderMembershipApplication(array $admin, int $id): string {
         'tier' => escape(membershipTierLabel($app['tier'])), 'city' => $app['city'] ? escape($app['city']) : '<span class="admin-muted">—</span>', 'website' => $website,
         'applied' => escape(date('j M Y, g:i A', strtotime($app['created_at']))), 'message' => nl2br(escape($app['message'])),
         'payment' => membershipAppPaymentBadge($app['payment_status']) . match ($app['payment_status']) {
-            'paid' => ' ' . membershipPriceLabel((int) $app['amount']) . ($app['paid_at'] ? ' on ' . escape(date('j M Y, g:i A', strtotime($app['paid_at']))) : ''),
+            'paid' => ' ' . membershipPriceLabel((int) $app['amount']) . ($app['paid_at'] ? ' on ' . escape(date('j M Y, g:i A', strtotime($app['paid_at']))) : '')
+                . ($app['razorpay_payment_id'] ? ' <span class="admin-small admin-muted">Payment ID ' . escape($app['razorpay_payment_id']) . '</span>' : ''),
             'unpaid' => ' <span class="admin-small admin-muted">The applicant didn’t finish paying ' . membershipPriceLabel((int) $app['amount']) . '.</span>',
             default => '',
         },
+        'payment_check' => $app['razorpay_order_id'] ? '<form method="post" action="{{BASE}}/admin/membership/' . $id . '/verify"><input type="hidden" name="csrf_token" value="' . adminCsrfToken() . '">'
+            . '<button type="submit" class="admin-button-secondary">Check payment with Razorpay</button>'
+            . '<p class="admin-hint">Asks Razorpay about order ' . escape($app['razorpay_order_id']) . ': whether it was paid, failed or is still waiting. A successful payment it finds is recorded here.</p></form>' : '',
         'statuses' => $statuses, 'admin_note' => escape((string) $app['admin_note']), 'reviewed' => $reviewed,
         'create_profile' => '<form method="post" action="{{BASE}}/admin/membership/' . $id . '/profile"><input type="hidden" name="csrf_token" value="' . adminCsrfToken() . '"><button type="submit" class="admin-button">Create a member profile from this</button></form>',
         'delete' => adminCan('delete') ? '<a class="admin-danger-link" href="{{BASE}}/admin/membership/' . $id . '/delete">Delete this request</a>' : '']);
+}
+
+/**
+ * Asks Razorpay about the request's order and says what it has. A captured payment of the tier
+ * fee is recorded (for a payer who closed the page before the payment was confirmed, when the
+ * webhook isn't set up); anything else is only reported.
+ */
+function verifyMembershipPayment(array $admin, int $id): never {
+    $app = membershipApplication($id);
+    $back = '/admin/membership/' . $id;
+    if (!$app['razorpay_order_id']) {
+        adminFlash('This request has no Razorpay order: it was sent while payment was off.');
+        adminRedirect($back);
+    }
+    try {
+        $payments = razorpayOrderPayments($app['razorpay_order_id']);
+    } catch (RuntimeException $error) {
+        adminFlash('Couldn’t check with Razorpay: ' . $error->getMessage());
+        adminRedirect($back);
+    }
+    $paise = (int) $app['amount'] * 100;
+    foreach ($payments as $payment) {
+        if (($payment['status'] ?? '') !== 'captured' || (int) ($payment['amount'] ?? 0) !== $paise || !is_string($payment['id'] ?? null)) continue;
+        $recorded = $app['payment_status'] !== 'paid' && membershipPaymentReceived($app['razorpay_order_id'], $payment['id'], $paise);
+        adminFlash('Razorpay confirms payment ' . $payment['id'] . ' of ' . membershipPriceLabel((int) $app['amount']) . '.' . ($recorded ? ' The request is now marked paid.' : ''));
+        adminRedirect($back);
+    }
+    if (!$payments) adminFlash('Razorpay has no payment attempts for this order: the applicant hasn’t paid.');
+    else {
+        $counts = array_count_values(array_map(fn ($payment) => (string) ($payment['status'] ?? 'unknown'), $payments));
+        $failure = current(array_filter(array_column($payments, 'error_description')));
+        adminFlash('Razorpay has no successful payment for this order. Attempts: ' . implode(', ', array_map(fn ($status, $n) => "$n $status", array_keys($counts), $counts)) . '.'
+            . ($failure ? ' Last failure: ' . $failure : '')
+            . (isset($counts['authorized']) ? ' An authorized payment isn’t captured yet: capture it in the Razorpay Dashboard, or turn on automatic capture there.' : ''));
+    }
+    adminRedirect($back);
 }
 
 /** Creates a draft member profile prefilled from an application, then opens it for editing. */
