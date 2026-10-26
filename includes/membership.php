@@ -180,8 +180,95 @@ function renderMembershipPage(): string {
         'title' => 'Membership Programme | Pro HPCL',
         'description' => 'Join the Pro HPCL Membership Programme: four annual tiers — Silver, Gold, Diamond and Platinum — with business promotion, professional content, networking, merchandise and graded Shimla Cricket Ground match-fee discounts.',
         'tier_cards' => $cards,
+        'carousel' => membershipCarouselHtml(),
         'comparison_heads' => $heads,
         'comparison_rows' => $rows,
         'member_notes' => $notes,
     ]);
+}
+
+/** A swipeable brand carousel embedded on the membership page. Tier slide is built from
+ * MEMBERSHIP_TIERS so it stays in sync; the other slides are fixed promotional copy. */
+function membershipCarouselHtml(): string {
+    $check = '<svg viewBox="0 0 24 24" fill="none" stroke="#39d98a" stroke-width="2.8"><path d="M20 6 9 17l-5-5"/></svg>';
+    $benefitItems = [
+        'A business profile on the official Pro HPCL website',
+        'Professional, non-AI social media promotion',
+        'PR videos, podcasts &amp; reels for your brand',
+        'Merchandise, gifts &amp; networking with owners',
+        'Graded Shimla Cricket Ground match-fee discount',
+        'Recognition at selected Pro HPCL events',
+    ];
+    $benefits = implode("\n", array_map(fn ($b) => '<li>' . $check . '<span>' . $b . '</span></li>', $benefitItems));
+
+    $tiers = '';
+    foreach (MEMBERSHIP_TIERS as $key => $t) {
+        $flag = $t['highlight'] ? '<span class="mshipcar-tier__flag">Most popular</span>' : '';
+        $tiers .= '<div class="mshipcar-tier mshipcar-tier--' . $key . '">' . $flag
+            . '<span class="mshipcar-tier__name">' . escape($t['name']) . '</span>'
+            . '<span class="mshipcar-tier__price">' . membershipPriceLabel($t['price']) . '</span>'
+            . '<span class="mshipcar-tier__sub">' . escape($t['tagline']) . '</span>'
+            . '<span class="mshipcar-tier__disc">' . $t['discount'] . '% off match fees</span></div>';
+    }
+
+    $stats = [['4', 'Seasons since 2022'], ['20', 'Franchise teams'], ['300+', 'Players on the field'], ['47', 'Matches last season']];
+    $statHtml = implode('', array_map(fn ($s) => '<div class="mshipcar-stat"><b>' . $s[0] . '</b><span>' . $s[1] . '</span></div>', $stats));
+    $arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+    return '<section class="mshipcar-wrap" aria-label="Membership highlights">
+        <div class="mshipcar" id="mshipcar">
+            <div class="mshipcar__track" tabindex="0" aria-label="Membership highlights, 5 slides">
+                <article class="mshipcar-slide mshipcar-slide--hook">
+                    <span class="mshipcar-wm"><span>PRO</span><b>HPCL</b></span>
+                    <div class="mshipcar-col mshipcar-col--half">
+                        <p class="mshipcar-kicker">Membership Programme</p>
+                        <h3 class="mshipcar-display">Grow your business with Himachal\'s <span>biggest cricket league</span></h3>
+                        <p class="mshipcar-lede">Put your brand in front of a cricket-loving Himachal — and back local talent while you do it.</p>
+                        <a class="mshipcar-chip" href="{{BASE}}/membership/join">Become a member ' . $arrow . '</a>
+                    </div>
+                </article>
+                <article class="mshipcar-slide mshipcar-slide--why">
+                    <span class="mshipcar-wm"><span>PRO</span><b>HPCL</b></span>
+                    <div class="mshipcar-col mshipcar-col--full">
+                        <p class="mshipcar-kicker">More than a membership</p>
+                        <h3 class="mshipcar-display mshipcar-display--sm">What your membership gives you</h3>
+                        <ul class="mshipcar-benefits">
+' . $benefits . '
+                        </ul>
+                    </div>
+                </article>
+                <article class="mshipcar-slide mshipcar-slide--tiers">
+                    <span class="mshipcar-wm"><span>PRO</span><b>HPCL</b></span>
+                    <div class="mshipcar-col mshipcar-col--full">
+                        <p class="mshipcar-kicker">Four annual tiers</p>
+                        <h3 class="mshipcar-display mshipcar-display--sm">Choose your tier</h3>
+                        <div class="mshipcar-tiers">' . $tiers . '</div>
+                    </div>
+                </article>
+                <article class="mshipcar-slide mshipcar-slide--proof">
+                    <span class="mshipcar-wm"><span>PRO</span><b>HPCL</b></span>
+                    <div class="mshipcar-col mshipcar-col--full">
+                        <p class="mshipcar-kicker">A real audience</p>
+                        <h3 class="mshipcar-display mshipcar-display--sm">Your brand on the big stage</h3>
+                        <div class="mshipcar-stats">' . $statHtml . '</div>
+                    </div>
+                </article>
+                <article class="mshipcar-slide mshipcar-slide--cta">
+                    <span class="mshipcar-wm"><span>PRO</span><b>HPCL</b></span>
+                    <div class="mshipcar-col mshipcar-col--center">
+                        <p class="mshipcar-kicker">Become part of the family</p>
+                        <h3 class="mshipcar-display">Become a Pro HPCL member</h3>
+                        <a class="mshipcar-chip" href="{{BASE}}/membership/join">Join now ' . $arrow . '</a>
+                    </div>
+                </article>
+            </div>
+            <div class="mshipcar__controls">
+                <div class="mshipcar__dots" role="tablist" aria-label="Choose slide"></div>
+                <div class="mshipcar__arrows">
+                    <button type="button" class="mshipcar__arrow" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button>
+                    <button type="button" class="mshipcar__arrow" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+                </div>
+            </div>
+        </div>
+    </section>';
 }

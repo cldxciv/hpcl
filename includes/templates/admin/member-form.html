@@ -1,0 +1,102 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <div class="admin-heading admin-heading--actions">
+            <div><p class="admin-back"><a href="{{BASE}}/admin/members">&larr; All members</a></p><h1>{!! $title !!}</h1></div>
+            {!! $view_link !!}
+        </div>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label for="business_name">Business / brand name</label>
+                <input id="business_name" name="business_name" type="text" value="{!! $business_name !!}" maxlength="255" required{!! $business_name_invalid !!}>
+{!! $business_name_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="tier">Membership tier</label>
+                <select id="tier" name="tier" required{!! $tier_invalid !!}>{!! $tier_options !!}</select>
+{!! $tier_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="tagline">Tagline <span class="admin-optional">optional, one line</span></label>
+                <input id="tagline" name="tagline" type="text" value="{!! $tagline !!}" maxlength="255"{!! $tagline_invalid !!}>
+{!! $tagline_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="about">About <span class="admin-optional">optional</span></label>
+                <textarea id="about" name="about" rows="5" maxlength="5000"{!! $about_invalid !!}>{!! $about !!}</textarea>
+                <p class="admin-hint">Leave a blank line between paragraphs.</p>
+{!! $about_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="logo">Logo <span class="admin-optional">optional</span></label>
+{!! $logo_current !!}
+                <input id="logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp"{!! $logo_invalid !!}>
+                <p class="admin-hint">PNG, JPEG or WebP, up to 2 MB. Without a logo, a coloured monogram is shown.</p>
+{!! $logo_error !!}
+            </div>
+
+            <div class="admin-field-row">
+                <div class="admin-field">
+                    <label for="website">Website <span class="admin-optional">optional</span></label>
+                    <input id="website" name="website" type="text" value="{!! $website !!}" maxlength="255" placeholder="yourbusiness.com"{!! $website_invalid !!}>
+{!! $website_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="city">City / town <span class="admin-optional">optional</span></label>
+                    <input id="city" name="city" type="text" value="{!! $city !!}" maxlength="120"{!! $city_invalid !!}>
+{!! $city_error !!}
+                </div>
+            </div>
+
+            <div class="admin-field-row">
+                <div class="admin-field">
+                    <label for="phone">Phone <span class="admin-optional">optional</span></label>
+                    <input id="phone" name="phone" type="text" value="{!! $phone !!}" maxlength="32"{!! $phone_invalid !!}>
+{!! $phone_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="email">Email <span class="admin-optional">optional</span></label>
+                    <input id="email" name="email" type="email" value="{!! $email !!}" maxlength="255"{!! $email_invalid !!}>
+{!! $email_error !!}
+                </div>
+            </div>
+
+            <div class="admin-field-row">
+                <div class="admin-field">
+                    <label for="instagram">Instagram <span class="admin-optional">optional</span></label>
+                    <input id="instagram" name="instagram" type="text" value="{!! $instagram !!}" maxlength="255" placeholder="instagram.com/yourbusiness"{!! $instagram_invalid !!}>
+{!! $instagram_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="facebook">Facebook <span class="admin-optional">optional</span></label>
+                    <input id="facebook" name="facebook" type="text" value="{!! $facebook !!}" maxlength="255" placeholder="facebook.com/yourbusiness"{!! $facebook_invalid !!}>
+{!! $facebook_error !!}
+                </div>
+            </div>
+
+            <fieldset class="admin-field">
+                <legend>Visibility</legend>
+                <label class="admin-check"><input type="checkbox" name="published" value="1"{!! $published_checked !!}> Published (shown on /members)</label>
+                <label class="admin-check"><input type="checkbox" name="featured" value="1"{!! $featured_checked !!}> Featured (highlighted, shown first)</label>
+            </fieldset>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/members">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

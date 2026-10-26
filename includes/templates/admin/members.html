@@ -1,0 +1,25 @@
+@extends('layouts.admin')
+
+@section('title', 'Members')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div><h1>Members</h1><p>{!! $summary !!}</p></div>
+            <a class="admin-button" href="{{BASE}}/admin/members/new">Add member</a>
+        </div>
+
+        <form class="admin-search" method="get" action="{{BASE}}/admin/members" role="search">
+            <label class="admin-visually-hidden" for="q">Search members</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Search by business name">
+            <button type="submit" class="admin-button-secondary">Search</button>
+        </form>
+
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

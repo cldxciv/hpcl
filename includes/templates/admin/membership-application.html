@@ -1,0 +1,49 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/membership">&larr; All requests</a></p>
+        <h1>{!! $title !!}</h1>
+        <section class="admin-panel admin-section">
+            <div class="admin-panel__head"><h2>Request</h2>{!! $badge !!}</div>
+            <dl class="admin-facts">
+                <div><dt>Contact</dt><dd>{!! $contact !!}</dd></div>
+                <div><dt>Email</dt><dd><a href="mailto:{!! $email !!}">{!! $email !!}</a></dd></div>
+                <div><dt>Phone</dt><dd><a href="tel:+91{!! $phone !!}">{!! $phone !!}</a></dd></div>
+                <div><dt>Tier</dt><dd>{!! $tier !!}</dd></div>
+                <div><dt>City</dt><dd>{!! $city !!}</dd></div>
+                <div><dt>Website</dt><dd>{!! $website !!}</dd></div>
+                <div><dt>Applied</dt><dd>{!! $applied !!}</dd></div>
+                <div><dt>Payment</dt><dd>{!! $payment !!}</dd></div>
+            </dl>
+            <h3 class="admin-committee-heading">About the business &amp; goals</h3>
+            <p class="admin-committee-message">{!! $message !!}</p>
+        </section>
+        <section class="admin-panel admin-section">
+            <div class="admin-panel__head"><h2>Member profile</h2></div>
+            <p class="admin-hint">Create a public business profile for this applicant (shown at /members). It starts as a draft so you can add a logo and tagline before publishing.</p>
+{!! $create_profile !!}
+        </section>
+        <form class="admin-form admin-panel admin-section" method="post" action="{{BASE}}/admin/membership/{!! $id !!}">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <h2>Review</h2>
+            <div class="admin-field">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>{!! $statuses !!}</select>
+            </div>
+            <div class="admin-field">
+                <label for="admin_note">Note <span class="admin-optional">optional, only seen by admins</span></label>
+                <textarea id="admin_note" name="admin_note" rows="3" maxlength="2000">{!! $admin_note !!}</textarea>
+                <p class="admin-hint">{!! $reviewed !!}</p>
+            </div>
+            <div class="admin-form-actions">
+                <button type="submit">Save</button>{!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection
