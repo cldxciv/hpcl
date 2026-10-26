@@ -1,0 +1,75 @@
+@extends('layouts.page')
+
+@section('title', 'My Account | Pro HPCL')
+@section('description', 'Your Pro HPCL account: your details, your favourite team and your password.')
+@section('canonical', '{{BASE}}/account')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+@include('partials.account-styles')
+    <style>
+        .acct-details { display: grid; grid-template-columns: max-content 1fr; margin: 22px 0 24px; font-family: Roboto, sans-serif; }
+        .acct-details dt, .acct-details dd { margin: 0; padding: 12px 0; border-top: 1px solid rgba(11, 80, 167, 0.1); }
+        .acct-details dt { color: #475569; font-weight: 700; padding-right: 28px; }
+        .acct-details dd { color: #0f172a; overflow-wrap: anywhere; }
+        .acct-details__missing { color: #94a3b8; }
+        .acct-team { display: inline-flex; align-items: center; gap: 10px; color: #0b50a7; font-weight: 700; text-decoration: none; }
+        a.acct-team:hover span, a.acct-team:focus span { text-decoration: underline; }
+        .acct-team__logo { width: 40px; height: 40px; object-fit: contain; flex: none; background: #fff; border: 1px solid rgba(11, 80, 167, 0.14); border-radius: 8px; }
+        .acct-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .acct-actions .acct-submit { margin-top: 0; }
+        .acct-actions form { margin: 0 0 0 auto; }
+        .acct-promo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+        .acct-promo h2 { margin: 0 0 4px; }
+        .acct-promo p { margin: 0; color: #475569; font-family: Roboto, sans-serif; }
+        @media (max-width: 640px) {
+            .acct-details { grid-template-columns: 1fr; }
+            .acct-details dt { padding-bottom: 0; }
+            .acct-details dd { border-top: 0; padding-top: 4px; }
+            .acct-actions > *, .acct-actions form, .acct-actions form button { flex: 1 1 100%; width: 100%; margin-left: 0; text-align: center; }
+        }
+    </style>
+@endsection
+
+@section('content')
+    <div class="acct-page">
+        <div class="container">
+{!! $flash !!}
+            <section class="acct-card acct-card--wide" aria-labelledby="acct-greeting">
+                <h1 id="acct-greeting">Hello, {!! $name !!}</h1>
+                <p>Your Pro HPCL account. Keep your details up to date so we can reach you about seasons, matches and events.</p>
+
+                <dl class="acct-details">
+                    <dt>Email</dt>
+                    <dd>{!! $account_email !!}</dd>
+                    <dt>Mobile</dt>
+                    <dd>{!! $phone !!}</dd>
+                    <dt>City / town</dt>
+                    <dd>{!! $city !!}</dd>
+                    <dt>Favourite team</dt>
+                    <dd>{!! $team !!}</dd>
+                    <dt>Member since</dt>
+                    <dd>{!! $member_since !!}</dd>
+                </dl>
+
+                <div class="acct-actions">
+                    <a class="acct-submit" href="{{BASE}}/account/edit">Edit profile</a>
+                    <a class="acct-secondary" href="{{BASE}}/account/password">Change password</a>
+                    <form method="post" action="{{BASE}}/logout">
+                        <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                        <button type="submit" class="acct-secondary">Log out</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="acct-card acct-card--wide acct-promo" aria-labelledby="acct-membership">
+                <div>
+                    <h2 id="acct-membership">Grow your business with a Pro HPCL membership</h2>
+                    <p>Promotion to our cricket community, networking with fellow members and discounts on ground fees.</p>
+                </div>
+                <a class="acct-secondary" href="{{BASE}}/membership">See membership plans</a>
+            </section>
+        </div>
+    </div>
+@endsection

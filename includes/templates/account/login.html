@@ -1,0 +1,49 @@
+@extends('layouts.page')
+
+@section('title', 'Log In | Pro HPCL')
+@section('description', 'Log in to your Pro HPCL account to see and update your details and your favourite team.')
+@section('canonical', '{{BASE}}/login')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+@include('partials.account-styles')
+    <style>
+        .acct-forgot { margin: 6px 0 0; text-align: right; font-family: Roboto, sans-serif; font-size: 0.85rem; }
+        .acct-forgot a { color: #0b50a7; font-weight: 700; }
+    </style>
+@endsection
+
+@section('content')
+    <div class="acct-page">
+        <div class="container">
+            <section class="acct-card">
+                <h1>Log in</h1>
+                <p>Welcome back. Log in to see your Pro HPCL account.</p>
+{!! $notice !!}
+                <form method="post" action="{{BASE}}/login" data-ajax-form data-loading-text="Logging in…">
+                    <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                    <input type="hidden" name="next" value="{!! $next !!}">
+
+                    <div class="mb-3">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email_value !!}" maxlength="254" autocomplete="email" required
+                            data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
+{!! $email_error !!}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" class="form-control{!! $password_invalid !!}" maxlength="128" autocomplete="current-password" required
+                            data-msg-required="Enter your password." aria-describedby="password-error"{!! $password_aria !!}>
+{!! $password_error !!}
+                        <p class="acct-forgot"><a href="{{BASE}}/forgot-password">Forgot your password?</a></p>
+                    </div>
+                    <button type="submit" class="acct-submit acct-submit--block">Log in</button>
+                </form>
+                <p class="acct-links">New to Pro HPCL? <a href="{{BASE}}/signup">Create an account</a></p>
+            </section>
+        </div>
+    </div>
+@endsection

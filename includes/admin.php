@@ -33,6 +33,7 @@ const ADMIN_PERMISSIONS = [
     'owners' => ['Owners', 'Add and edit owners and the teams they own.'],
     'committee' => ['Committee applications', 'Read committee member applications with their Aadhaar card, and approve or reject them.'],
     'membership' => ['Membership', 'Review membership requests and manage public member business profiles.'],
+    'site_users' => ['Site users', 'See who has signed up for a website account, and deactivate or reactivate accounts.'],
     'settings' => ['Site settings', 'Manage the hero slider, contact details, social links and home page highlights season.'],
     'delete' => ['Delete records', 'Delete teams, players and owners, in the areas the role can use. (Deleted records go to your Trash, where you can restore them.)'],
 ];
@@ -45,9 +46,10 @@ const ADMIN_MENU = [
     '/admin/teams' => ['Teams', '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/>', 'teams'],
     '/admin/players' => ['Players', '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>', 'players'],
     '/admin/owners' => ['Owners', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.2c2.1.6 3.5 2.6 3.5 5.8"/>', 'owners'],
-    '/admin/committee' => ['Committee', '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>', 'committee'],
-    '/admin/membership' => ['Membership', '<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/>', 'membership'],
-    '/admin/members' => ['Members', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>', 'membership'],
+    '/admin/committee' => ['Committee', '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>', 'committee', 'people'],
+    '/admin/membership' => ['Membership', '<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/>', 'membership', 'people'],
+    '/admin/members' => ['Members', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>', 'membership', 'people'],
+    '/admin/site-users' => ['Site users', '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10.5" r="2.5"/><path d="M5.5 16.5c.5-1.7 1.9-2.6 3.5-2.6s3 .9 3.5 2.6M15 9.5h4M15 13.5h3"/>', 'site_users', 'people'],
     '/admin/hero' => ['Hero slider', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 4-6 5 7"/>', 'settings', 'settings'],
     '/admin/settings' => ['Site settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'settings', 'settings'],
     '/admin/integrations' => ['Integrations', '<path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5"/>', 'root', 'settings'],
@@ -55,6 +57,7 @@ const ADMIN_MENU = [
 ];
 // Dropdowns of the admin menu: key => [label, icon].
 const ADMIN_MENU_GROUPS = [
+    'people' => ['People', '<circle cx="12" cy="7" r="3"/><circle cx="5" cy="9" r="2.2"/><circle cx="19" cy="9" r="2.2"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M1.5 18c0-2 1.6-3.6 3.5-3.6M22.5 18c0-2-1.6-3.6-3.5-3.6"/>'],
     'settings' => ['Settings', '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
 ];
 
@@ -279,6 +282,8 @@ function adminPages(): array {
         '~^/admin/members/new$~' => [$write, 'admin-membership.php', fn ($admin) => renderMemberForm($admin, null), ['membership']],
         '~^/admin/members/(\d+)$~' => [$write, 'admin-membership.php', fn ($admin, $id) => renderMemberForm($admin, (int) $id), ['membership']],
         '~^/admin/members/(\d+)/delete$~' => [$write, 'admin-membership.php', fn ($admin, $id) => renderMemberDelete($admin, (int) $id), ['membership', 'delete']],
+        '~^/admin/site-users$~' => [$read, 'admin-site-users.php', fn ($admin) => renderAdminSiteUsers($admin), ['site_users']],
+        '~^/admin/site-users/(\d+)$~' => [$write, 'admin-site-users.php', fn ($admin, $id) => renderSiteUser($admin, (int) $id), ['site_users']],
         '~^/admin/hero$~' => [$write, 'admin-hero.php', fn ($admin) => renderAdminHero($admin), ['settings']],
         '~^/admin/hero/new$~' => [$write, 'admin-hero.php', fn ($admin) => renderHeroForm($admin, null), ['settings']],
         '~^/admin/hero/(\d+)$~' => [$write, 'admin-hero.php', fn ($admin, $id) => renderHeroForm($admin, (int) $id), ['settings']],

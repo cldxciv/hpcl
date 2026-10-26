@@ -1,0 +1,90 @@
+@extends('layouts.page')
+
+@section('title', 'Create Your Account | Pro HPCL')
+@section('description', 'Create a free Pro HPCL account to keep your details in one place and follow your favourite team in the Himachal Premium Cricket League.')
+@section('canonical', '{{BASE}}/signup')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+@include('partials.account-styles')
+    <style>
+        .acct-card .form-check-label a { color: #0b50a7; font-weight: 700; }
+    </style>
+@endsection
+
+@section('content')
+    <div class="acct-page">
+        <div class="container">
+            <section class="acct-card">
+                <h1>Create your account</h1>
+                <p>Join Pro HPCL to keep your details in one place and follow your favourite team.</p>
+                <form method="post" action="{{BASE}}/signup" data-ajax-form data-loading-text="Creating your account…">
+                    <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+                    <div class="mb-3">
+                        <label for="name">Full name</label>
+                        <input id="name" name="name" type="text" class="form-control{!! $name_invalid !!}" value="{!! $name_value !!}" minlength="{!! $name_min !!}" maxlength="{!! $name_max !!}" autocomplete="name" required
+                            data-validate="person-name" data-msg-required="Enter your full name." data-msg-minlength="Your name must be {!! $name_min !!} to {!! $name_max !!} characters long." data-msg-validate="Use only letters, spaces, dots, hyphens and apostrophes in your name." aria-describedby="name-error"{!! $name_aria !!}>
+{!! $name_error !!}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email_value !!}" maxlength="254" autocomplete="email" required
+                            data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
+{!! $email_error !!}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone">WhatsApp / mobile number <span class="text-muted">(optional)</span></label>
+                        <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone_value !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345"
+                            data-validate="phone-in" data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error phone-hint"{!! $phone_aria !!}>
+{!! $phone_error !!}
+                        <p class="acct-hint" id="phone-hint">Lets our team reach you on WhatsApp.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" class="form-control{!! $password_invalid !!}" minlength="{!! $password_min !!}" maxlength="{!! $password_max !!}" autocomplete="new-password" required
+                            data-msg-required="Choose a password." data-msg-minlength="Your password must be at least {!! $password_min !!} characters long." aria-describedby="password-error password-hint"{!! $password_aria !!}>
+{!! $password_error !!}
+                        <p class="acct-hint" id="password-hint">At least {!! $password_min !!} characters.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password_confirm">Confirm password</label>
+                        <input id="password_confirm" name="password_confirm" type="password" class="form-control{!! $password_confirm_invalid !!}" maxlength="{!! $password_max !!}" autocomplete="new-password" required
+                            data-validate="same-password" data-msg-required="Enter your password again." data-msg-validate="The passwords don’t match." aria-describedby="password_confirm-error"{!! $password_confirm_aria !!}>
+{!! $password_confirm_error !!}
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input id="terms" name="terms" type="checkbox" value="1" class="form-check-input{!! $terms_invalid !!}"{!! $terms_checked !!} required
+                            data-msg-required="Agree to the Terms and Privacy Policy to create your account." aria-describedby="terms-error"{!! $terms_aria !!}>
+                        <label class="form-check-label" for="terms">I agree to the <a href="{{BASE}}/terms" target="_blank" rel="noopener">Terms</a> and <a href="{{BASE}}/privacy_policy" target="_blank" rel="noopener">Privacy Policy</a></label>
+{!! $terms_error !!}
+                    </div>
+
+                    <div class="acct-trap" aria-hidden="true">
+                        <label for="website">Leave this field empty</label>
+                        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+                    </div>
+                    <button type="submit" class="acct-submit acct-submit--block">Create account</button>
+                </form>
+                <p class="acct-links">Already have an account? <a href="{{BASE}}/login">Log in</a></p>
+            </section>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        // The confirmation must repeat the password (the server checks it again). forms.js is
+        // deferred, so the rule is added once the page has loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.AppForm) AppForm.validators['same-password'] = (value, field) => field.value === field.form.elements.password.value;
+        });
+    </script>
+@endsection

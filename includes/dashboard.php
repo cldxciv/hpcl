@@ -39,10 +39,14 @@ function renderDashboard(array $admin, ?string $previousLogin): string {
         (SELECT COUNT(*) FROM blog_posts) AS blog_posts, (SELECT COUNT(*) FROM sponsors) AS sponsors, (SELECT COUNT(*) FROM shop_products) AS products,
         (SELECT COUNT(*) FROM teams WHERE deleted_at IS NOT NULL) + (SELECT COUNT(*) FROM players WHERE deleted_at IS NOT NULL)
             + (SELECT COUNT(*) FROM owners WHERE deleted_at IS NOT NULL) AS trash')[0];
+    $siteUsers = adminCan('site_users') ? query('SELECT COUNT(*) AS total, COALESCE(SUM(created_at > NOW() - INTERVAL 7 DAY), 0) AS recent FROM users')[0] : null;
     $tiles = dashboardTile('Players', $totals['players']) . dashboardTile('Teams', $totals['teams']) . dashboardTile('Seasons', $totals['seasons'])
         . dashboardTile('Owners', $totals['owners']) . dashboardTile('Videos', $totals['videos']) . dashboardTile('Blog posts', $totals['blog_posts'])
         . dashboardTile('Sponsors', $totals['sponsors'])
         . (shopEnabled() ? dashboardTile('Shop products', $totals['products']) : dashboardTile('Shop products', $totals['products'], 'Shop is hidden'))
+        // Website accounts made at /signup, for admins who can see them.
+        . ($siteUsers ? '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/site-users"><p class="admin-tile__label">Site users</p><p class="admin-tile__value">'
+            . dashboardNumber($siteUsers['total']) . '</p><p class="admin-tile__hint">' . dashboardNumber($siteUsers['recent']) . ' joined in the last 7 days</p></a>' : '')
         // The root user sees what is waiting in the trash.
         . (adminCan('root') ? '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/trash"><p class="admin-tile__label">In the trash</p><p class="admin-tile__value">'
             . dashboardNumber($totals['trash']) . '</p><p class="admin-tile__hint">Restore or delete for good</p></a>' : '');

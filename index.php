@@ -48,6 +48,12 @@ if ($path === '/admin' || str_starts_with($path, '/admin/')) {
     require_once __DIR__ . '/includes/admin.php';
     handleAdminRequest($path);
 }
+// Site user accounts (includes/account.php): sign-up, sign-in and the /account pages. They check
+// their own methods and start the user session.
+if (preg_match('~^/(signup|login|logout|forgot-password|reset-password|account(/[\w-]+)?)$~', $path)) {
+    require_once __DIR__ . '/includes/account.php';
+    handleAccountRequest($path);
+}
 // The public pages that accept POST: the committee member form and its payment
 // (includes/committee.php), the membership join form and its payment (includes/membership-join.php),
 // and Razorpay's payment notifications (includes/razorpay.php).

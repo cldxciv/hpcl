@@ -1,0 +1,76 @@
+@extends('layouts.page')
+
+@section('title', 'Edit Profile | Pro HPCL')
+@section('description', 'Edit your Pro HPCL profile: your name, mobile number, city and favourite team.')
+@section('canonical', '{{BASE}}/account/edit')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+@include('partials.account-styles')
+    <style>
+        .acct-card .form-control[readonly] { background: #f1f5f9; color: #475569; }
+        .acct-hint a { color: #0b50a7; font-weight: 700; }
+        .acct-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 6px; }
+        .acct-form-actions .acct-submit { margin-top: 0; }
+        @media (max-width: 640px) { .acct-form-actions > * { flex: 1 1 100%; text-align: center; } }
+    </style>
+@endsection
+
+@section('content')
+    <div class="acct-page">
+        <div class="container">
+            <section class="acct-card acct-card--wide">
+                <h1>Edit your profile</h1>
+                <p>Your mobile number, city and favourite team are optional.</p>
+                <form method="post" action="{{BASE}}/account/edit" data-ajax-form data-loading-text="Saving…">
+                    <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="name">Full name</label>
+                            <input id="name" name="name" type="text" class="form-control{!! $name_invalid !!}" value="{!! $name_value !!}" minlength="{!! $name_min !!}" maxlength="{!! $name_max !!}" autocomplete="name" required
+                                data-validate="person-name" data-msg-required="Enter your name." data-msg-validate="Use only letters, spaces, dots, hyphens and apostrophes in the name." aria-describedby="name-error"{!! $name_aria !!}>
+{!! $name_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email">Email</label>
+                            <input id="email" type="email" class="form-control" value="{!! $account_email !!}" readonly aria-describedby="email-hint">
+                            <p class="acct-hint" id="email-hint">To change your email, <a href="{{BASE}}/contact">contact us</a>.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="phone">Mobile number <span class="text-muted">(optional)</span></label>
+                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone_value !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345"
+                                data-validate="phone-in" data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345, or leave it blank." aria-describedby="phone-error"{!! $phone_aria !!}>
+{!! $phone_error !!}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="city">City / town <span class="text-muted">(optional)</span></label>
+                            <input id="city" name="city" type="text" class="form-control{!! $city_invalid !!}" value="{!! $city_value !!}" maxlength="{!! $city_max !!}" autocomplete="address-level2" placeholder="Shimla"
+                                data-msg-maxlength="The city name is too long." aria-describedby="city-error"{!! $city_aria !!}>
+{!! $city_error !!}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="favourite_team_id">Favourite team <span class="text-muted">(optional)</span></label>
+                        <select id="favourite_team_id" name="favourite_team_id" class="form-select{!! $favourite_team_id_invalid !!}" aria-describedby="favourite_team_id-error"{!! $favourite_team_id_aria !!}>
+{!! $teams !!}
+                        </select>
+{!! $favourite_team_id_error !!}
+                    </div>
+
+                    <div class="acct-form-actions">
+                        <button type="submit" class="acct-submit">Save changes</button>
+                        <a class="acct-secondary" href="{{BASE}}/account">Cancel</a>
+                    </div>
+                </form>
+                <p class="acct-links"><a href="{{BASE}}/account">Back to my account</a></p>
+            </section>
+        </div>
+    </div>
+@endsection

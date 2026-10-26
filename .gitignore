@@ -3,3 +3,5 @@
 !/private/committee/.gitkeep
 /storage/uploads/*/*
 !/storage/uploads/*/.gitkeep
+/private/sessions/
+/private/mail.log

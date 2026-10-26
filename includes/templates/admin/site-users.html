@@ -1,0 +1,30 @@
+@extends('layouts.admin')
+
+@section('title', 'Site users')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div><h1>Site users</h1><p>{!! $summary !!}. Visitors who signed up on the website, not admin users.</p></div>
+            <a class="admin-button-secondary" href="{{BASE}}/signup" target="_blank" rel="noopener">View the sign-up page</a>
+        </div>
+        <section class="admin-section" aria-label="Site user totals">
+            <div class="admin-tiles">
+{!! $tiles !!}
+            </div>
+        </section>
+{!! $tabs !!}
+        <form class="admin-search" method="get" action="{{BASE}}/admin/site-users" role="search">
+            <input type="hidden" name="status" value="{!! $status !!}">
+            <label class="admin-visually-hidden" for="q">Search site users</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Search by name, email or mobile">
+            <button type="submit" class="admin-button-secondary">Search</button>
+        </form>
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

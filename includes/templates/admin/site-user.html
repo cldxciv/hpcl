@@ -1,0 +1,41 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/site-users">&larr; All site users</a></p>
+        <h1>{!! $title !!}</h1>
+        <section class="admin-panel admin-section">
+            <div class="admin-panel__head"><h2>Profile</h2>{!! $badge !!}</div>
+            <dl class="admin-facts">
+                <div><dt>Email</dt><dd><a href="mailto:{!! $email !!}">{!! $email !!}</a></dd></div>
+                <div><dt>Email verified</dt><dd>{!! $verified !!}</dd></div>
+                <div><dt>Mobile</dt><dd>{!! $phone !!}</dd></div>
+                <div><dt>City</dt><dd>{!! $city !!}</dd></div>
+                <div><dt>Favourite team</dt><dd>{!! $team !!}</dd></div>
+            </dl>
+        </section>
+        <section class="admin-panel admin-section">
+            <h2>Activity</h2>
+            <dl class="admin-facts">
+                <div><dt>Joined</dt><dd>{!! $joined !!}</dd></div>
+                <div><dt>Last login</dt><dd>{!! $last_login !!}</dd></div>
+                <div><dt>Last updated</dt><dd>{!! $updated !!}</dd></div>
+                <div><dt>Sign-up IP</dt><dd>{!! $signup_ip !!}</dd></div>
+            </dl>
+        </section>
+        <form class="admin-panel admin-section" method="post" action="{{BASE}}/admin/site-users/{!! $id !!}">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <input type="hidden" name="is_active" value="{!! $next_active !!}">
+            <h2>Account</h2>
+            <p class="admin-hint">{!! $status_hint !!}</p>
+            <div class="admin-form-actions">
+                {!! $submit !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

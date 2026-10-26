@@ -1,0 +1,32 @@
+    <!-- Shared styles of the account pages (sign up, log in, /account…), in the look of the
+         membership join form. Include it in a page's head section with the partials.account-styles
+         include. (Never write the directive itself in this comment: view.php expands directives
+         inside comments too, so the partial would include itself forever.) -->
+    <style>
+        .acct-page { padding: 28px 0 56px; }
+        .acct-card {
+            max-width: 520px; margin: 0 auto; background: #fff; border: 1px solid rgba(11, 80, 167, 0.14);
+            border-radius: 16px; box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08); padding: 28px;
+        }
+        .acct-card--wide { max-width: 780px; }
+        .acct-card + .acct-card { margin-top: 20px; }
+        .acct-card h1, .acct-card h2 { color: #0b50a7; font-family: "Bebas Neue", sans-serif; letter-spacing: 0.02em; margin: 0 0 8px; }
+        .acct-card h2 { font-size: 1.5rem; }
+        .acct-card > p, .acct-hint { color: #475569; font-family: Roboto, sans-serif; line-height: 1.6; }
+        .acct-hint { font-size: 0.85rem; margin: 6px 0 0; }
+        .acct-card label { font-family: Roboto, sans-serif; color: #0f172a; font-weight: 700; margin-bottom: 6px; }
+        .acct-card .form-control, .acct-card .form-select { border: 1px solid rgba(11, 80, 167, 0.2); border-radius: 10px; padding: 10px 12px; font-family: Roboto, sans-serif; color: #0f172a; }
+        .acct-card .form-control:focus, .acct-card .form-select:focus { border-color: #0b50a7; box-shadow: 0 0 0 0.2rem rgba(11, 80, 167, 0.16); }
+        .acct-card .form-control.is-invalid, .acct-card .form-select.is-invalid { border-color: #dc3545; }
+        .acct-card .form-check-label { font-weight: 400; }
+        .acct-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+        .acct-submit { display: inline-block; margin-top: 6px; background: #0b50a7; color: #fff; border: none; border-radius: 10px; padding: 12px 26px; font-family: Barlow, sans-serif; font-weight: 700; letter-spacing: 0.02em; cursor: pointer; text-decoration: none; }
+        .acct-submit:hover, .acct-submit:focus { background: #083c80; color: #fff; }
+        .acct-submit--block { display: block; width: 100%; }
+        .acct-secondary { display: inline-block; background: transparent; color: #0b50a7; border: 1px solid rgba(11, 80, 167, 0.35); border-radius: 10px; padding: 10px 20px; font-family: Barlow, sans-serif; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .acct-secondary:hover, .acct-secondary:focus { background: rgba(11, 80, 167, 0.06); color: #083c80; }
+        .acct-links { margin: 18px 0 0; font-family: Roboto, sans-serif; color: #475569; text-align: center; }
+        .acct-links a { color: #0b50a7; font-weight: 700; }
+        .acct-flash { max-width: 780px; margin: 0 auto 20px; }
+        @media (max-width: 640px) { .acct-card { padding: 22px 18px; } }
+    </style>
