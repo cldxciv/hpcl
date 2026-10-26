@@ -1,10 +1,11 @@
-@extends('layouts.page')
+@extends('layouts.app')
 
 @section('title', 'Log In | Pro HPCL')
 @section('description', 'Log in to your Pro HPCL account to see and update your details and your favourite team.')
 @section('canonical', '{{BASE}}/login')
 @section('robots', 'noindex, nofollow')
 @section('body_class', 'home-unified-theme')
+@section('crumb', 'Log in')
 
 @section('head')
 @include('partials.account-styles')
@@ -15,8 +16,11 @@
 @endsection
 
 @section('content')
-    <div class="acct-page">
+    <div class="teams-linked-page acct-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
         <div class="container">
+@include('partials.account-breadcrumb')
             <section class="acct-card">
                 <h1>Log in</h1>
                 <p>Welcome back. Log in to see your Pro HPCL account.</p>
@@ -44,6 +48,7 @@
                 </form>
                 <p class="acct-links">New to Pro HPCL? <a href="{{BASE}}/signup">Create an account</a></p>
             </section>
+        </div>
         </div>
     </div>
 @endsection

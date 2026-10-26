@@ -1,0 +1,9 @@
+            <nav aria-label="breadcrumb" class="my-1">
+                <ol class="breadcrumb team-breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+@hasSection('crumb_account')
+                    <li class="breadcrumb-item"><a href="{{BASE}}/account">My account</a></li>
+@endif
+                    <li class="breadcrumb-item active fw-semibold" aria-current="page">@yield('crumb')</li>
+                </ol>
+            </nav>

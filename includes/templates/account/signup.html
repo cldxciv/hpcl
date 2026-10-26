@@ -1,21 +1,22 @@
-@extends('layouts.page')
+@extends('layouts.app')
 
 @section('title', 'Create Your Account | Pro HPCL')
 @section('description', 'Create a free Pro HPCL account to keep your details in one place and follow your favourite team in the Himachal Premium Cricket League.')
 @section('canonical', '{{BASE}}/signup')
 @section('robots', 'noindex, nofollow')
 @section('body_class', 'home-unified-theme')
+@section('crumb', 'Sign up')
 
 @section('head')
 @include('partials.account-styles')
-    <style>
-        .acct-card .form-check-label a { color: #0b50a7; font-weight: 700; }
-    </style>
 @endsection
 
 @section('content')
-    <div class="acct-page">
+    <div class="teams-linked-page acct-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
         <div class="container">
+@include('partials.account-breadcrumb')
             <section class="acct-card">
                 <h1>Create your account</h1>
                 <p>Join Pro HPCL to keep your details in one place and follow your favourite team.</p>
@@ -75,6 +76,7 @@
                 </form>
                 <p class="acct-links">Already have an account? <a href="{{BASE}}/login">Log in</a></p>
             </section>
+        </div>
         </div>
     </div>
 @endsection

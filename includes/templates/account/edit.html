@@ -1,10 +1,12 @@
-@extends('layouts.page')
+@extends('layouts.app')
 
 @section('title', 'Edit Profile | Pro HPCL')
 @section('description', 'Edit your Pro HPCL profile: your name, mobile number, city and favourite team.')
 @section('canonical', '{{BASE}}/account/edit')
 @section('robots', 'noindex, nofollow')
 @section('body_class', 'home-unified-theme')
+@section('crumb', 'Edit profile')
+@section('crumb_account', 'yes')
 
 @section('head')
 @include('partials.account-styles')
@@ -18,8 +20,11 @@
 @endsection
 
 @section('content')
-    <div class="acct-page">
+    <div class="teams-linked-page acct-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
         <div class="container">
+@include('partials.account-breadcrumb')
             <section class="acct-card acct-card--wide">
                 <h1>Edit your profile</h1>
                 <p>Your mobile number, city and favourite team are optional.</p>
@@ -71,6 +76,7 @@
                 </form>
                 <p class="acct-links"><a href="{{BASE}}/account">Back to my account</a></p>
             </section>
+        </div>
         </div>
     </div>
 @endsection
