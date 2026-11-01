@@ -75,10 +75,11 @@
             background: #fff;
             color: #334155;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.01em;
-            padding: 8px 12px;
+            padding: 8px 14px;
+            min-height: 36px;
         }
 
         .videos-category-chip:hover {
@@ -143,6 +144,10 @@
             text-decoration: underline;
         }
 
+        body.home-unified-theme .video-card .video-card-date {
+            color: #9a3412;
+        }
+
         .video-card-date {
             margin: 0;
             color: #64748b;
@@ -197,7 +202,7 @@
         .video-card-tag-section-title {
             margin: 0 0 5px;
             color: #64748b;
-            font-size: 0.68rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -209,7 +214,7 @@
             border: 1px solid #cbd5e1;
             background: #f8fafc;
             color: #334155;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 700;
             padding: 4px 8px;
             text-decoration: none;
@@ -268,6 +273,8 @@
             .videos-category-chip {
                 flex: 0 0 auto;
                 white-space: nowrap;
+                min-height: 44px;
+                scroll-snap-align: center;
             }
 
             .videos-grid {
@@ -292,6 +299,18 @@
     </style>
     <script type="application/ld+json">
         {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Videos","item":"{{BASE}}/videos"}]}
+    </script>
+@endsection
+
+@section('scripts')
+    <script>
+        // Bring the selected category chip into view when the chip row scrolls (mobile).
+        document.addEventListener('DOMContentLoaded', function () {
+            var active = document.querySelector('.videos-category-chip.is-active');
+            if (active && active.scrollIntoView) {
+                try { active.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {}
+            }
+        });
     </script>
 @endsection
 

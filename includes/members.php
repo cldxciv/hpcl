@@ -5,6 +5,7 @@ declare(strict_types=1);
 // of membership — a dedicated business profile on the official site); /member/<slug> is one
 // profile. Profiles live in the members table, created from approved applications or in the admin.
 require_once __DIR__ . '/membership.php';
+require_once __DIR__ . '/member-share.php';
 
 /** Tier display name for a member's tier key. */
 function memberTierName(string $tier): string {
@@ -29,7 +30,7 @@ function renderMembersIndex(): string {
         $cards .= '
                 <a class="member-card member-card--' . escape($tier) . ($m['featured'] ? ' member-card--featured' : '') . '" href="{{BASE}}/member/' . escape(rawurlencode($m['slug'])) . '">
                     <div class="member-card__logo-wrap">' . memberLogoHtml($m, 'member-card__logo') . '</div>
-                    <h3 class="member-card__name">' . escape($m['business_name']) . '</h3>
+                    <h2 class="member-card__name">' . escape($m['business_name']) . '</h2>
                     ' . ($m['tagline'] ? '<p class="member-card__tagline">' . escape(strLimit($m['tagline'], 70)) . '</p>' : '') . '
                     <div class="member-card__meta">
                         <span class="member-card__tier">' . escape(memberTierName($tier)) . ' Member</span>
@@ -37,7 +38,7 @@ function renderMembersIndex(): string {
                     </div>
                 </a>';
     }
-    $empty = $members ? '' : '<div class="members-empty"><p>Our member directory is just getting started. Be one of the first businesses featured on the official Pro HPCL website.</p><a class="members-empty__cta" href="{{BASE}}/membership/join">Become a member</a></div>';
+    $empty = $members ? '' : '<div class="members-empty"><h2>The directory is just getting started</h2><p>Businesses appear here as their memberships are approved. Be one of the first to get a profile on the official Pro HPCL website.</p><a class="members-empty__cta" href="{{BASE}}/membership/join">Become a member</a></div>';
     return view('templates.members', [
         'title' => 'Our Members | Pro HPCL',
         'description' => 'Businesses that are part of the Pro HPCL family, featured on the official Himachal Premium Cricket League website.',
@@ -73,6 +74,10 @@ function renderMemberPage(string $slug): ?string {
     $about = trim((string) $m['about']);
     $aboutHtml = $about !== '' ? implode("\n", array_map(fn ($p) => '<p>' . escape($p) . '</p>', preg_split('~\n{2,}~', $about))) : '';
 
+    $photo = !empty($m['photo']) ? '<img class="member-profile__photo" src="' . escape(mediaUrl($m['photo'], '')) . '" alt="' . escape($m['business_name']) . '" width="108" height="108" decoding="async">' : '';
+    // The shared link's preview picture is the member's creative.
+    $ogImage = memberCreativeAvailable() ? memberCreativeUrl($m) : '{{BASE}}/seo.png';
+
     return view('templates.member', [
         'title' => escape($m['business_name']) . ' | Pro HPCL Member',
         'description' => escape(strLimit($m['tagline'] ?: ($m['business_name'] . ' — a Pro HPCL member business.'), 160)),
@@ -82,6 +87,8 @@ function renderMemberPage(string $slug): ?string {
         'tier_key' => escape($tier),
         'tagline' => $m['tagline'] ? escape($m['tagline']) : '',
         'logo' => memberLogoHtml($m, 'member-profile__logo'),
+        'photo' => $photo,
+        'og_image' => $ogImage, 'og_image_size' => memberCreativeAvailable() ? 1080 : 630,
         'about' => $aboutHtml,
         'about_hidden' => $aboutHtml === '' ? ' hidden' : '',
         'links' => $links,

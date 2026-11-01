@@ -263,9 +263,9 @@ function committeeForm(array $input, array $errors, bool $sent): string {
     $data += ['payment_note' => $payable ? '<p class="committee-hint committee-payment-note">After you submit, you’ll pay the plan’s amount securely with Razorpay (UPI, cards, net banking or wallets). Your application is sent once the payment is complete.</p>' : '',
         'submit_label' => $payable ? 'Submit and pay' : 'Submit application',
         'payment_attr' => $payable ? ' data-payment' : '',
-        'payment_scripts' => $payable ? '<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script><script src="{{BASE}}/assets/js/committee-payment.js?v=20261024" defer></script>' : ''];
+        'payment_scripts' => $payable ? '<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script><script src="{{BASE}}/assets/js/committee-payment.js?v=20261101" defer></script>' : ''];
     foreach (COMMITTEE_FIELDS as $field) {
-        $data[$field] = escape($input[$field] ?? '');
+        $data[$field . '_value'] = escape($input[$field] ?? ''); // not $field: a view var named email would replace the footer's
         $data[$field . '_invalid'] = isset($errors[$field]) ? ' is-invalid' : '';
         $data[$field . '_aria'] = isset($errors[$field]) ? ' aria-invalid="true"' : '';
         $data[$field . '_error'] = $error($field);

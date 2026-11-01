@@ -231,6 +231,7 @@
                 <h1>Thank you for applying</h1>
                 <p>{!! $sent_message !!} Our team will review your application and get in touch by phone or email.</p>
                 <p data-payment-receipt hidden>Payment received. Payment ID: <strong></strong>. Keep it for your records.</p>
+                <p>Questions meanwhile? Write to <a href="mailto:{!! $email !!}">{!! $email !!}</a>.</p>
                 <a class="committee-submit-btn d-inline-block text-decoration-none" href="{{BASE}}">Back to the home page</a>
             </section>
 
@@ -241,20 +242,20 @@
                     <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
                     <div class="mb-3">
                         <label for="name">Full name</label>
-                        <input id="name" name="name" type="text" class="form-control{!! $name_invalid !!}" value="{!! $name !!}" minlength="{!! $name_min !!}" maxlength="{!! $name_max !!}" autocomplete="name" required
+                        <input id="name" name="name" type="text" class="form-control{!! $name_invalid !!}" value="{!! $name_value !!}" minlength="{!! $name_min !!}" maxlength="{!! $name_max !!}" autocomplete="name" required
                             data-validate="person-name" data-msg-required="Enter your full name." data-msg-minlength="Your name must be at least {!! $name_min !!} characters long." data-msg-validate="Use only letters, spaces, dots, hyphens and apostrophes in your name." aria-describedby="name-error"{!! $name_aria !!}>
 {!! $name_error !!}
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="email">Email</label>
-                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email !!}" maxlength="254" autocomplete="email" required
+                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email_value !!}" maxlength="254" autocomplete="email" required
                                 data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
 {!! $email_error !!}
                         </div>
                         <div class="col-md-6">
                             <label for="phone">Mobile number</label>
-                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
+                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone_value !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
                                 data-validate="phone-in" data-msg-required="Enter your mobile number." data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error"{!! $phone_aria !!}>
 {!! $phone_error !!}
                         </div>
@@ -284,7 +285,7 @@
                     <div class="mb-3">
                         <label for="message">Why do you want to become a member?</label>
                         <textarea id="message" name="message" rows="5" class="form-control{!! $message_invalid !!}" minlength="{!! $message_min !!}" maxlength="{!! $message_max !!}" required data-char-count
-                            data-msg-required="Tell us why you want to become a member." aria-describedby="message-error message-count"{!! $message_aria !!}>{!! $message !!}</textarea>
+                            data-msg-required="Tell us why you want to become a member." aria-describedby="message-error message-count"{!! $message_aria !!}>{!! $message_value !!}</textarea>
                         <div class="committee-counter" id="message-count" aria-live="polite"></div>
 {!! $message_error !!}
                     </div>

@@ -5,3 +5,4 @@
 !/storage/uploads/*/.gitkeep
 /private/sessions/
 /private/mail.log
+/storage/cache/

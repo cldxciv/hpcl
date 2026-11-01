@@ -18,6 +18,7 @@ const AGENT_VERSION = '2023-06-01';
 const AGENT_MAX_INPUT = 1500;        // characters accepted from one visitor message
 const AGENT_HISTORY_TURNS = 20;      // most recent messages sent to the model
 const AGENT_MAX_PER_SESSION = 60;    // messages from one session before we stop (abuse guard)
+const AGENT_MAX_PER_IP_HOUR = 40;    // visitor messages from one IP per hour (a new session id does not reset it)
 
 function agentApiKey(): string {
     return trim((string) getenv('ANTHROPIC_API_KEY'));
@@ -196,6 +197,9 @@ function handleAgentChat(): never {
     $conversation = agentConversation($sessionId, (string) ($input['page_url'] ?? ''));
     $count = (int) (query('SELECT COUNT(*) AS n FROM agent_messages WHERE conversation_id = ?', [$conversation['id']])[0]['n'] ?? 0);
     if ($count >= AGENT_MAX_PER_SESSION) { echo json_encode(['session_id' => $sessionId, 'reply' => 'Thanks for chatting! To go further, please open the membership page or leave your WhatsApp number and our team will reach out.', 'cta' => ['label' => 'See membership plans', 'url' => '/membership']]); exit; }
+
+    $ipCount = (int) (query("SELECT COUNT(*) AS n FROM agent_messages m JOIN agent_conversations c ON c.id = m.conversation_id WHERE c.ip = ? AND m.role = 'user' AND m.created_at > (NOW() - INTERVAL 1 HOUR)", [$_SERVER['REMOTE_ADDR'] ?? ''])[0]['n'] ?? 0);
+    if ($ipCount >= AGENT_MAX_PER_IP_HOUR) { echo json_encode(['session_id' => $sessionId, 'reply' => 'You have sent a lot of messages in a short time. Please try again later, or open the membership page to join.', 'cta' => ['label' => 'See membership plans', 'url' => '/membership']]); exit; }
 
     $reply = agentReply($conversation, $message, 'web');
 

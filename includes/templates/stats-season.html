@@ -83,7 +83,7 @@
                 padding: 4px 10px;
                 border-radius: 999px;
                 background: rgba(15, 23, 42, 0.4);
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
@@ -182,6 +182,122 @@
                 box-shadow: 0 0 0 0.2rem rgba(252, 109, 57, 0.35);
                 border-color: rgba(252, 109, 57, 0.6);
             }
+
+            /* Filter labels, hint and switched-off state */
+            .filter-label {
+                display: block;
+                margin: 0 0 4px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #fff;
+            }
+            .filter-control {
+                min-height: 44px;
+            }
+            .filter-control:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+            body.home-unified-theme .filter-bar .filter-hint {
+                color: #fff;
+                font-size: 14px;
+            }
+            /* Hero and summary text: keep AA contrast on the orange page background */
+            body.home-unified-theme .stats-hero .section-title {
+                color: #0b2a55;
+            }
+            body.home-unified-theme .stats-hero p {
+                color: #0f172a;
+            }
+            .stats-hero .btn-outline-primary {
+                background: #fff;
+            }
+            .stats-hero .btn {
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+            }
+            body.home-unified-theme .season-overview__subtitle {
+                color: #fff;
+            }
+            /* Leaderboard table: readable text, keyboard-scrollable, player column stays visible */
+            .stats-table-wrap {
+                border-radius: 12px;
+            }
+            .stats-table-wrap:focus-visible {
+                outline: 3px solid #0b50a7;
+                outline-offset: 2px;
+            }
+            .stats-table {
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+            .stats-table th,
+            .stats-table td {
+                white-space: nowrap;
+            }
+            .stats-table td.stats-table__player,
+            .stats-table th.stats-table__player {
+                position: sticky;
+                left: 0;
+                z-index: 1;
+                min-width: 190px;
+                white-space: normal;
+                background: #fff;
+                box-shadow: 2px 0 0 rgba(11, 80, 167, 0.12);
+            }
+            .stats-table th.stats-table__player {
+                background: #f8f9fa;
+            }
+            .stats-table__role {
+                font-size: 12px;
+                color: #475569;
+            }
+            @media (max-width: 575.98px) {
+                .stats-table td.stats-table__player,
+                .stats-table th.stats-table__player {
+                    min-width: 150px;
+                }
+                .stats-table .leader-player {
+                    width: 36px !important;
+                    height: 36px !important;
+                    border-radius: 50%;
+                }
+            }
+            .stats-table td a {
+                display: inline-block;
+                padding: 12px 0;
+            }
+            .stats-card .btn,
+            .stats-empty .btn {
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+            }
+            /* Empty state */
+            .stats-empty {
+                background: #fff;
+                border: 1px solid rgba(11, 80, 167, 0.14);
+                border-radius: 16px;
+                box-shadow: 0 12px 28px rgba(2, 6, 23, 0.08);
+                padding: 40px 24px;
+                text-align: center;
+            }
+            .stats-empty__title {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: clamp(30px, 4vw, 44px);
+                font-weight: 400;
+                letter-spacing: 0.03em;
+                color: #0b2a55;
+                margin: 0 0 8px;
+            }
+            .stats-empty__text {
+                max-width: 520px;
+                margin: 0 auto 20px;
+                font-size: 16px;
+            }
         </style>
                             <script type="application/ld+json">
             {!! $schema !!}
@@ -214,7 +330,7 @@
                         <div class="stats-hero">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                 <div>
-                                    <h2 class="section-title mb-2">Stats - {!! $season !!}</h2>
+                                    <h1 class="section-title mb-2">Stats &ndash; {!! $season !!}</h1>
                                     <p class="mb-0 text-muted">Player statistics for {!! $season !!}.</p>
                                 </div>
                                 <div class="d-flex gap-2">

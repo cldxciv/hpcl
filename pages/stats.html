@@ -53,7 +53,7 @@
                 justify-content: space-between;
                 gap: 12px;
             }
-            .stats-section-title h3 {
+            .stats-section-title h2 {
                 margin: 0;
             }
             .top-list .list-group-item {
@@ -136,7 +136,7 @@
                 padding: 4px 10px;
                 border-radius: 999px;
                 background: rgba(15, 23, 42, 0.4);
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
@@ -321,7 +321,7 @@
                 padding: 14px;
                 box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
             }
-            .season-overview__group h4 {
+            .season-overview__group h3 {
                 margin: 0 0 10px;
                 font-size: 0.92rem;
                 font-weight: 800;
@@ -360,7 +360,7 @@
                 gap: 4px;
             }
             .season-overview__stats span {
-                font-size: 0.72rem;
+                font-size: 0.8rem;
                 text-transform: uppercase;
                 letter-spacing: 0.07em;
                 color: rgba(255, 255, 255, 0.86);
@@ -384,6 +384,122 @@
                 .season-overview__stats {
                     grid-template-columns: 1fr;
                 }
+            }
+
+            /* Filter labels, hint and switched-off state */
+            .filter-label {
+                display: block;
+                margin: 0 0 4px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #fff;
+            }
+            .filter-control {
+                min-height: 44px;
+            }
+            .filter-control:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+            body.home-unified-theme .filter-bar .filter-hint {
+                color: #fff;
+                font-size: 14px;
+            }
+            /* Hero and summary text: keep AA contrast on the orange page background */
+            body.home-unified-theme .stats-hero .section-title {
+                color: #0b2a55;
+            }
+            body.home-unified-theme .stats-hero p {
+                color: #0f172a;
+            }
+            .stats-hero .btn-outline-primary {
+                background: #fff;
+            }
+            .stats-hero .btn {
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+            }
+            body.home-unified-theme .season-overview__subtitle {
+                color: #fff;
+            }
+            /* Leaderboard table: readable text, keyboard-scrollable, player column stays visible */
+            .stats-table-wrap {
+                border-radius: 12px;
+            }
+            .stats-table-wrap:focus-visible {
+                outline: 3px solid #0b50a7;
+                outline-offset: 2px;
+            }
+            .stats-table {
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+            .stats-table th,
+            .stats-table td {
+                white-space: nowrap;
+            }
+            .stats-table td.stats-table__player,
+            .stats-table th.stats-table__player {
+                position: sticky;
+                left: 0;
+                z-index: 1;
+                min-width: 190px;
+                white-space: normal;
+                background: #fff;
+                box-shadow: 2px 0 0 rgba(11, 80, 167, 0.12);
+            }
+            .stats-table th.stats-table__player {
+                background: #f8f9fa;
+            }
+            .stats-table__role {
+                font-size: 12px;
+                color: #475569;
+            }
+            @media (max-width: 575.98px) {
+                .stats-table td.stats-table__player,
+                .stats-table th.stats-table__player {
+                    min-width: 150px;
+                }
+                .stats-table .leader-player {
+                    width: 36px !important;
+                    height: 36px !important;
+                    border-radius: 50%;
+                }
+            }
+            .stats-table td a {
+                display: inline-block;
+                padding: 12px 0;
+            }
+            .stats-card .btn,
+            .stats-empty .btn {
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+            }
+            /* Empty state */
+            .stats-empty {
+                background: #fff;
+                border: 1px solid rgba(11, 80, 167, 0.14);
+                border-radius: 16px;
+                box-shadow: 0 12px 28px rgba(2, 6, 23, 0.08);
+                padding: 40px 24px;
+                text-align: center;
+            }
+            .stats-empty__title {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: clamp(30px, 4vw, 44px);
+                font-weight: 400;
+                letter-spacing: 0.03em;
+                color: #0b2a55;
+                margin: 0 0 8px;
+            }
+            .stats-empty__text {
+                max-width: 520px;
+                margin: 0 auto 20px;
+                font-size: 16px;
             }
         </style>
                     <script type="application/ld+json">
@@ -415,12 +531,12 @@
                     <div class="stats-hero">
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                             <div>
-                                <h2 class="section-title mb-2">Overall Stats</h2>
+                                <h1 class="section-title mb-2">Overall Stats</h1>
                                 <p class="mb-0 text-muted">All-time stats across Pro HPCL seasons.</p>
                             </div>
                             <div class="d-flex gap-2">
                                 <a href="{{BASE}}/teams" class="btn btn-outline-primary btn-sm">Teams</a>
-                                                                    <a href="{{BASE}}/stats/season/4" class="btn btn-primary btn-sm">Latest Season</a>
+                                                                    <a href="{{BASE}}/stats/season/4" id="stats-latest-link" class="btn btn-primary btn-sm">Latest Season</a>
                                                             </div>
                         </div>
                     </div>
@@ -631,13 +747,13 @@
 
     <section class="season-overview mb-4" aria-label="All seasons summary">
         <div class="season-overview__header">
-            <h3 class="season-overview__title">All Seasons Summary</h3>
+            <h2 class="season-overview__title">All Seasons Summary</h2>
             <p class="season-overview__subtitle">Aggregated Pro HPCL performance snapshot.</p>
         </div>
 
         <div class="season-overview__groups">
             <article class="season-overview__group season-overview__group--batting">
-                <h4>Batting</h4>
+                <h3>Batting</h3>
                 <div class="season-overview__stats">
                     <div><span>Runs</span><strong>27,817</strong></div>
                     <div><span>Innings</span><strong>1,429</strong></div>
@@ -649,7 +765,7 @@
             </article>
 
             <article class="season-overview__group season-overview__group--bowling">
-                <h4>Bowling</h4>
+                <h3>Bowling</h3>
                 <div class="season-overview__stats">
                     <div><span>Wickets</span><strong>1,288</strong></div>
                     <div><span>Balls Bowled</span><strong>19,645</strong></div>
@@ -660,7 +776,7 @@
             </article>
 
             <article class="season-overview__group season-overview__group--fielding">
-                <h4>Fielding</h4>
+                <h3>Fielding</h3>
                 <div class="season-overview__stats">
                     <div><span>Catches</span><strong>652</strong></div>
                     <div><span>Stumpings</span><strong>57</strong></div>
@@ -669,7 +785,7 @@
             </article>
 
             <article class="season-overview__group season-overview__group--insights">
-                <h4>Boundary Insights</h4>
+                <h3>Boundary Insights</h3>
                 <div class="season-overview__stats">
                     <div><span>Total Boundaries</span><strong>4,056</strong></div>
                     <div><span>Boundary %</span><strong>20.41</strong></div>
@@ -682,14 +798,14 @@
 
             <div class="row">
                 <div class="col-12">
-                    <h3 class="h5 fw-bold mb-3">Season Stats</h3>
+                    <h2 class="h5 fw-bold mb-3">Season Stats</h2>
                 </div>
             </div>
             <div class="row">
                                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card stats-card h-100">
                             <div class="card-body">
-                                <h4 class="h6 mb-2">Season 4</h4>
+                                <h3 class="h6 mb-2">Season 4</h3>
                                 <p class="text-muted small mb-3">View full stats for this season.</p>
                                 <a href="{{BASE}}/stats/season/4" class="btn btn-primary btn-sm">View Season Stats</a>
                             </div>
@@ -698,7 +814,7 @@
                                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card stats-card h-100">
                             <div class="card-body">
-                                <h4 class="h6 mb-2">Season 3</h4>
+                                <h3 class="h6 mb-2">Season 3</h3>
                                 <p class="text-muted small mb-3">View full stats for this season.</p>
                                 <a href="{{BASE}}/stats/season/3" class="btn btn-primary btn-sm">View Season Stats</a>
                             </div>
@@ -707,7 +823,7 @@
                                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card stats-card h-100">
                             <div class="card-body">
-                                <h4 class="h6 mb-2">Season 2</h4>
+                                <h3 class="h6 mb-2">Season 2</h3>
                                 <p class="text-muted small mb-3">View full stats for this season.</p>
                                 <a href="{{BASE}}/stats/season/2" class="btn btn-primary btn-sm">View Season Stats</a>
                             </div>
@@ -716,7 +832,7 @@
                                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card stats-card h-100">
                             <div class="card-body">
-                                <h4 class="h6 mb-2">Season 1</h4>
+                                <h3 class="h6 mb-2">Season 1</h3>
                                 <p class="text-muted small mb-3">View full stats for this season.</p>
                                 <a href="{{BASE}}/stats/season/1" class="btn btn-primary btn-sm">View Season Stats</a>
                             </div>

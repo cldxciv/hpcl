@@ -93,6 +93,61 @@
             background: #0a4189;
         }
 
+        .contact-actions {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .contact-form-card .contact-action {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 60px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: #0b50a7;
+            color: #fff;
+            font-family: Barlow, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+        }
+
+        .contact-form-card .contact-action:hover {
+            background: #083c80;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .contact-action small {
+            display: block;
+            font-family: Roboto, sans-serif;
+            font-size: 0.85rem;
+            font-weight: 400;
+            overflow-wrap: anywhere;
+        }
+
+        .contact-form-card .contact-action--call {
+            background: #fff;
+            color: #0b50a7;
+            border: 2px solid #0b50a7;
+        }
+
+        .contact-form-card .contact-action--call:hover {
+            background: #eaf1fb;
+            color: #083c80;
+        }
+
+        .contact-form-card .contact-action--whatsapp {
+            background: #0f7a3a;
+        }
+
+        .contact-form-card .contact-action--whatsapp:hover {
+            background: #0b6030;
+        }
+
         @media (max-width: 991px) {
             .contact-grid {
                 grid-template-columns: 1fr;
@@ -126,15 +181,18 @@
                         Send us a message and our team will get back to you.
                     </p>
                     <ul class="contact-list">
-                        <li><strong>Email:</strong> <a href="mailto:{!! $email !!}">{!! $email !!}</a></li>
+{!! $email_item !!}
 {!! $phone_items !!}
                         <li><strong>Address:</strong> Shimla, Himachal Pradesh</li>
                     </ul>
                 </section>
 
                 <section class="contact-form-card">
-                    <h2>Send Message</h2>
-                    <p>For enquiries, email <a href="mailto:{!! $email !!}">{!! $email !!}</a></p>
+                    <h2>Get in Touch</h2>
+                    <p>Pick the quickest way to reach our team. We reply to emails and WhatsApp messages as soon as we can.</p>
+                    <div class="contact-actions">
+{!! $contact_actions !!}
+                    </div>
                 </section>
             </div>
         </div>

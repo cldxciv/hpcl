@@ -1,0 +1,101 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', 'Download your Pro HPCL member picture and share your membership on social media.')
+@section('canonical', '{{BASE}}/membership')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <style>
+        .mshare-page { padding: 28px 0 56px; }
+        .mshare-card { max-width: 860px; margin: 0 auto 20px; background: #fff; border: 1px solid rgba(11, 80, 167, 0.14); border-radius: 16px; box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08); padding: 28px; font-family: Roboto, sans-serif; color: #334155; }
+        .mshare-card h1, .mshare-card h2 { color: #0b50a7; font-family: "Bebas Neue", sans-serif; font-weight: 400; letter-spacing: 0.02em; margin: 0 0 8px; }
+        .mshare-card h2 { font-size: 1.6rem; }
+        .mshare-lead { line-height: 1.6; margin: 0 0 18px; }
+        .mshare-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+        .mshare-creative { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(2, 6, 23, 0.1); background: #0b2a5b; }
+        .mshare-btn, .mshare-primary, .mshare-copy { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 20px; border-radius: 999px; font-family: Barlow, sans-serif; font-weight: 700; font-size: 0.95rem; text-decoration: none; cursor: pointer; border: 2px solid #0b50a7; }
+        .mshare-primary { background: #0b50a7; color: #fff; width: 100%; margin-top: 12px; }
+        .mshare-primary:hover { background: #083c80; color: #fff; }
+        .mshare-btn { background: #fff; color: #0b50a7; }
+        .mshare-btn:hover { background: #0b50a7; color: #fff; }
+        .mshare-copy { background: #fff; color: #0b50a7; min-width: 96px; }
+        .mshare-copy:hover { background: #0b50a7; color: #fff; }
+        .mshare-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 0; }
+        .mshare-field { margin: 0 0 18px; }
+        .mshare-field label { display: block; font-weight: 700; color: #0f172a; margin: 0 0 6px; font-size: 0.92rem; }
+        .mshare-row { display: flex; gap: 10px; }
+        .mshare-row input, .mshare-field textarea { flex: 1; min-width: 0; min-height: 44px; border: 1px solid rgba(2, 6, 23, 0.2); border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; color: #0f172a; background: #f8fafc; width: 100%; }
+        .mshare-field textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+        .mshare-status { min-height: 1.4em; margin: 6px 0 0; font-size: 0.88rem; color: #0b7a3b; font-weight: 700; }
+        .mshare-tip { background: rgba(253, 111, 59, 0.1); border: 1px solid rgba(253, 111, 59, 0.45); border-radius: 12px; padding: 14px 16px; line-height: 1.6; font-size: 0.92rem; margin: 0; }
+        @media (max-width: 760px) { .mshare-grid { grid-template-columns: 1fr; } .mshare-card { padding: 22px 16px; } }
+    </style>
+@endsection
+
+@section('content')
+    <div class="mshare-page">
+        <div class="container">
+            <section class="mshare-card" aria-labelledby="mshare-title">
+                <h1 id="mshare-title">You’re a Pro HPCL member!</h1>
+                <p class="mshare-lead">Welcome, {!! $name !!}. Download your member picture and share it on social media, with the link to your public profile on prohpcl.com.</p>
+                <div class="mshare-grid">
+                    <div>
+                        <img class="mshare-creative" src="{!! $creative !!}" width="1080" height="1080" alt="Your Pro HPCL member picture for {!! $name !!}">
+                        <a class="mshare-primary" href="{!! $creative_download !!}" download>Download picture</a>
+                    </div>
+                    <div>
+                        <div class="mshare-field">
+                            <label for="mshare-link">Your public profile link</label>
+                            <div class="mshare-row">
+                                <input id="mshare-link" type="text" value="{!! $profile_url !!}" readonly>
+                                <button type="button" class="mshare-copy" data-copy="#mshare-link">Copy link</button>
+                            </div>
+                            <p class="mshare-status"><a href="{!! $profile_path !!}" target="_blank" rel="noopener">Open your profile page</a></p>
+                        </div>
+                        <div class="mshare-field">
+                            <label for="mshare-caption">Caption to post with your picture</label>
+                            <textarea id="mshare-caption" readonly>{!! $caption !!}</textarea>
+                            <button type="button" class="mshare-copy" data-copy="#mshare-caption" style="margin-top:8px">Copy caption</button>
+                        </div>
+                        <h2>Share on</h2>
+                        <div class="mshare-buttons">
+{!! $share_buttons !!}
+                            <button type="button" class="mshare-copy" id="mshare-native" hidden>More…</button>
+                        </div>
+                        <p class="mshare-status" id="mshare-status" role="status" aria-live="polite"></p>
+                    </div>
+                </div>
+            </section>
+            <section class="mshare-card">
+                <p class="mshare-tip"><strong>Instagram:</strong> it doesn’t open links from a website, so download the picture, post it, and put your profile link in your bio or in a link sticker on your story. <strong>Keep this page’s address to yourself:</strong> it is your own kit.</p>
+            </section>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        (function () {
+            var status = document.getElementById('mshare-status');
+            function say(text) { status.textContent = text; window.setTimeout(function () { status.textContent = ''; }, 3000); }
+            document.querySelectorAll('[data-copy]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var field = document.querySelector(button.getAttribute('data-copy'));
+                    field.focus(); field.select();
+                    var done = function () { say('Copied.'); };
+                    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(field.value).then(done, function () { document.execCommand('copy'); done(); });
+                    else { document.execCommand('copy'); done(); }
+                });
+            });
+            var native = document.getElementById('mshare-native');
+            if (navigator.share) {
+                native.hidden = false;
+                native.addEventListener('click', function () {
+                    navigator.share({ title: 'Pro HPCL member', text: document.getElementById('mshare-caption').value, url: document.getElementById('mshare-link').value }).catch(function () {});
+                });
+            }
+        })();
+    </script>
+@endsection

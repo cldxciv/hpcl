@@ -325,6 +325,23 @@
         }
     }
 </style>
+<style>
+    .teams-linked-page .teams-section__name { font-size: 13px; }
+    body.home-unified-theme .teams-section__card .teams-section__count { margin: 4px 0 0; color: #fff; font-size: 0.875rem; font-weight: 500; text-align: center; }
+    /* Light card gradients need dark text. */
+    .teams-section__card--gold .teams-section__name,
+    body.home-unified-theme .teams-section__card--gold .teams-section__count,
+    .teams-section__card--teal .teams-section__name,
+    body.home-unified-theme .teams-section__card--teal .teams-section__count,
+    .teams-section__card--orange .teams-section__name,
+    body.home-unified-theme .teams-section__card--orange .teams-section__count,
+    .teams-section__card--yellow .teams-section__name,
+    body.home-unified-theme .teams-section__card--yellow .teams-section__count { color: #1c1204; }
+    /* Season badge images carry a small emblem in the middle of a large blue field: zoom in so the number is legible. */
+    .teams-linked-page .teams-section__logo-wrap--season { position: relative; padding: 0; overflow: hidden; }
+    .teams-linked-page .teams-section__logo-wrap--season::after { content: ""; position: absolute; inset: 0; border: 10px solid #fff; border-radius: 50%; pointer-events: none; }
+    .teams-linked-page .teams-section__logo--season { width: 100%; height: 100%; border-radius: 0; transform: scale(2.2); }
+</style>
                     <script type="application/ld+json">
             {"@context":"https://schema.org","@type":"CollectionPage","name":"Pro HPCL Teams","description":"Teams by season in Pro HPCL cricket league.","url":"{{BASE}}/teams","about":{"@type":"SportsOrganization","name":"Pro HPCL - Himachal Premium Cricket League","sport":"Cricket","url":"{{BASE}}"},"mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"name":"Season 1","url":"{{BASE}}/teams/season/1"},{"@type":"ListItem","position":2,"name":"Season 2","url":"{{BASE}}/teams/season/2"},{"@type":"ListItem","position":3,"name":"Season 3","url":"{{BASE}}/teams/season/3"},{"@type":"ListItem","position":4,"name":"Season 4","url":"{{BASE}}/teams/season/4"}]}}
         </script>
@@ -348,7 +365,7 @@
                         <li class="breadcrumb-item active fw-semibold" aria-current="page">Teams</li>
                     </ol>
                 </nav>
-                <h2 class="teams-section__title">Our Teams</h2>
+                <h1 class="teams-section__title">Our Teams</h1>
 
                 <div class="teams-section__grid">
                                             <a class="text-decoration-none" href="{{BASE}}/teams/season/1" aria-label="Season 1">

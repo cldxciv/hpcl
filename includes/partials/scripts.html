@@ -2,7 +2,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous">
     </script>
-    <script src="{{BASE}}/assets/js/global.js"></script>
+    <script src="{{BASE}}/assets/js/global.js?v=20261031b"></script>
     <script src="{{BASE}}/assets/js/forms.js?v=20261024b" defer></script>
     <script>
         (function() {
@@ -47,22 +47,44 @@
             }
 
             document.body.classList.add('motion-ready');
-            cards.forEach((card, index) => {
-                card.style.setProperty('--reveal-index', String(index));
-            });
+
+            const reveal = (card, delay) => {
+                if (card.classList.contains('is-visible')) {
+                    return;
+                }
+                card.style.transitionDelay = delay + 'ms';
+                card.classList.add('is-visible');
+                // Drop the delay once revealed so hover transitions are not held back.
+                setTimeout(() => { card.style.transitionDelay = ''; }, delay + 650);
+            };
+
+            // Cards still waiting that are inside (or above) the viewport.
+            const sweep = () => {
+                const limit = window.innerHeight * 1.1;
+                let n = 0;
+                cards.forEach((card) => {
+                    if (card.classList.contains('is-visible')) {
+                        return;
+                    }
+                    if (card.getBoundingClientRect().top < limit) {
+                        reveal(card, Math.min(n++ * 40, 200));
+                    }
+                });
+            };
 
             if (!('IntersectionObserver' in window)) {
                 cards.forEach((card) => card.classList.add('is-visible'));
                 return;
             }
 
+            // Stagger inside each batch the observer hands over (at most ~250 ms), so a
+            // card never waits for the cards that came before it on the page.
             const observer = new IntersectionObserver((entries, io) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) {
-                        return;
-                    }
-
-                    entry.target.classList.add('is-visible');
+                const batch = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top) || (a.boundingClientRect.left - b.boundingClientRect.left));
+                batch.forEach((entry, i) => {
+                    reveal(entry.target, Math.min(i * 40, 250));
                     io.unobserve(entry.target);
                 });
             }, {
@@ -71,5 +93,13 @@
             });
 
             cards.forEach((card) => observer.observe(card));
+
+            // Safety net: if the observer is slow or fails, nothing stays invisible.
+            setTimeout(sweep, 2500);
+            let sweepTimer = null;
+            window.addEventListener('scroll', () => {
+                clearTimeout(sweepTimer);
+                sweepTimer = setTimeout(sweep, 450);
+            }, { passive: true });
         })();
     </script>

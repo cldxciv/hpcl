@@ -221,7 +221,7 @@
     }
     .team-player-details span {
         font-family: var(--font-family-Font-2, Roboto), sans-serif;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         line-height: 1.2;
         letter-spacing: 0.02em;
@@ -233,6 +233,42 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    /* Deeper gradient than the shared orange card so white text stays readable at the top of the card. */
+    .team-player-performer.tpv2-card--orange {
+        background: linear-gradient(180deg, #e56a1a 0%, #c4202b 100%);
+    }
+    .team-player-performer .tpv2-card__metric-label {
+        align-self: flex-end;
+        background: rgba(15, 23, 42, 0.28);
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .team-player-performer .badge {
+        font-size: 12px;
+    }
+    /* Initials avatar for players without a photo. */
+    .team-player-avatar {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        z-index: 1;
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.94);
+        color: #b3202a;
+        font: 400 42px/92px 'Bebas Neue', sans-serif;
+        letter-spacing: 0.02em;
+        text-align: center;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+    }
+    .team-squad-empty {
+        background: #fff;
+        border: 1px dashed #93c5fd;
+        color: #334155;
     }
     .team-player-link {
         color: #ffffff;
@@ -266,11 +302,17 @@
         .team-player-performer .tpv2-card__meta {
             width: min(62%, 210px);
         }
+        .team-player-avatar {
+            width: 80px;
+            height: 80px;
+            font-size: 36px;
+            line-height: 80px;
+        }
         .team-player-performer .tpv2-card__name {
             font-size: clamp(24px, 6.5vw, 34px);
         }
         .team-player-details span {
-            font-size: 10px;
+            font-size: 12px;
         }
         .owners-grid {
             gap: 10px;

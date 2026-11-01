@@ -165,8 +165,83 @@
         });
     }
 
+    // Scrollable table wrappers must be reachable (and labelled) for keyboard users.
+    function initScrollableRegions() {
+        const wrappers = document.querySelectorAll('.table-responsive, [class*="-table-wrap"]');
+        const label = (el) => {
+            let node = el;
+            while (node && node !== document.body) {
+                let prev = node.previousElementSibling;
+                while (prev) {
+                    if (/^H[1-6]$/.test(prev.tagName) && prev.textContent.trim()) {
+                        return prev.textContent.trim().replace(/\s+/g, ' ');
+                    }
+                    const inner = prev.querySelector && prev.querySelector('h1,h2,h3,h4,h5,h6');
+                    if (inner && inner.textContent.trim()) {
+                        return inner.textContent.trim().replace(/\s+/g, ' ');
+                    }
+                    prev = prev.previousElementSibling;
+                }
+                node = node.parentElement;
+            }
+            return 'Scrollable table';
+        };
+
+        const update = () => {
+            wrappers.forEach((el) => {
+                if (el.scrollWidth > el.clientWidth + 1) {
+                    if (!el.hasAttribute('tabindex')) {
+                        el.setAttribute('tabindex', '0');
+                        el.dataset.scrollRegion = '1';
+                    }
+                    if (!el.hasAttribute('role') && !el.hasAttribute('aria-label')) {
+                        el.setAttribute('role', 'region');
+                        el.setAttribute('aria-label', label(el));
+                    }
+                } else if (el.dataset.scrollRegion === '1') {
+                    el.removeAttribute('tabindex');
+                    el.removeAttribute('role');
+                    el.removeAttribute('aria-label');
+                    delete el.dataset.scrollRegion;
+                }
+            });
+        };
+
+        update();
+        window.addEventListener('resize', update);
+        window.addEventListener('load', update);
+    }
+
+    // Hides the fade cue of .chip-scroll rows once they are scrolled to the end (or fit).
+    function initChipScroll() {
+        document.querySelectorAll('.chip-scroll').forEach((row) => {
+            const update = () => {
+                const max = row.scrollWidth - row.clientWidth;
+                row.classList.toggle('is-not-scrollable', max <= 1);
+                row.classList.toggle('is-scrolled-end', max > 1 && row.scrollLeft >= max - 2);
+            };
+            row.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', update);
+            update();
+        });
+    }
+
+    // Esc closes the open mobile menu and hands focus back to its toggle button.
+    function initMenuEscape() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            const toggler = document.querySelector('.navbar-toggler[aria-expanded="true"]');
+            if (!toggler) return;
+            toggler.click();
+            toggler.focus();
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         initGlobalImageFallback();
         initHeroCountdown();
+        initScrollableRegions();
+        initChipScroll();
+        initMenuEscape();
     });
 })();

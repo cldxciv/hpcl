@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Squads are edited on the squad pages (admin-squads.php); a player with stats
 // (player_season_stats) can't be deleted.
 require_once __DIR__ . '/admin-forms.php';
+require_once __DIR__ . '/cricheroes.php';
 
 const PLAYER_PHOTO_DIR = 'storage/uploads/players';
 const PLAYERS_PER_PAGE = 50;
@@ -70,7 +71,7 @@ function renderAdminPlayers(array $admin): string {
 }
 
 function renderPlayerForm(array $admin, ?int $id): string {
-    $player = $id === null ? ['id' => null, 'name' => '', 'slug' => '', 'age' => null, 'photo' => null, 'achievements' => ''] + array_fill_keys(array_keys(PLAYER_TEXT_FIELDS), '')
+    $player = $id === null ? ['id' => null, 'name' => '', 'slug' => '', 'age' => null, 'photo' => null, 'cricheroes_url' => '', 'achievements' => ''] + array_fill_keys(array_keys(PLAYER_TEXT_FIELDS), '')
         : query('SELECT * FROM players WHERE id = ? AND deleted_at IS NULL', [$id])[0] ?? notFound();
     $errors = [];
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') [$player, $errors] = savePlayer($player);
@@ -80,7 +81,7 @@ function renderPlayerForm(array $admin, ?int $id): string {
 /** Validates and saves the posted form; redirects on success, else returns [player, errors] to show again. */
 function savePlayer(array $player): array {
     $input = ['id' => $player['id'], 'photo' => $player['photo'], 'name' => postedText('name'), 'slug' => strtolower(postedText('slug')),
-        'age' => postedText('age'), 'achievements' => postedText('achievements')];
+        'age' => postedText('age'), 'achievements' => postedText('achievements'), 'cricheroes_url' => postedText('cricheroes_url')];
     foreach (PLAYER_TEXT_FIELDS as $field => $_) $input[$field] = postedText($field);
     $errors = [];
     if ($input['name'] === '') $errors['name'] = 'Enter the player’s name.';
@@ -99,6 +100,7 @@ function savePlayer(array $player): array {
         if (mb_strlen($input[$field]) > 255) $errors[$field] = $label . ' must be 255 characters or fewer.';
     }
     if ($input['age'] !== '' && (!ctype_digit($input['age']) || (int) $input['age'] < 5 || (int) $input['age'] > 99)) $errors['age'] = 'Enter an age from 5 to 99, or leave it empty.';
+    if ($input['cricheroes_url'] !== '' && cricheroesUrl($input['cricheroes_url']) === null) $errors['cricheroes_url'] = 'Enter the player’s CricHeroes profile link, starting with https://cricheroes.com/ or https://cricheroes.in/, or leave it empty.';
     if (mb_strlen($input['achievements']) > 10000) $errors['achievements'] = 'Achievements must be 10,000 characters or fewer.';
 
     $upload = uploadedImage('photo', 'photo');
@@ -114,7 +116,7 @@ function savePlayer(array $player): array {
         $input['photo'] = null;
     }
 
-    $columns = ['name', 'slug', 'city', 'state', 'age', 'type', 'batting_style', 'bowling_style', 'photo', 'achievements'];
+    $columns = ['name', 'slug', 'city', 'state', 'age', 'type', 'batting_style', 'bowling_style', 'photo', 'cricheroes_url', 'achievements'];
     $values = array_map(fn ($column) => $input[$column] === '' ? null : ($column === 'age' ? (int) $input[$column] : $input[$column]), $columns);
     // Old photo files are left in place: they may still be linked from elsewhere.
     try {
@@ -143,6 +145,9 @@ function playerForm(array $admin, array $player, array $errors): string {
             . '<input id="' . $field . '" name="' . $field . '" type="text" value="' . escape((string) $player[$field]) . '" maxlength="255"' . ($suggest ? ' list="' . $field . '-options" autocomplete="off"' : '') . fieldInvalid($errors, $field) . '>'
             . $list . fieldError($errors, $field) . '</div>';
     }
+    $fields .= '<div class="admin-field"><label for="cricheroes_url">CricHeroes profile <span class="admin-optional">optional</span></label>'
+        . '<input id="cricheroes_url" name="cricheroes_url" type="url" value="' . escape((string) ($player['cricheroes_url'] ?? '')) . '" maxlength="512" placeholder="https://cricheroes.com/player-profile/…" autocomplete="off"' . fieldInvalid($errors, 'cricheroes_url') . '>'
+        . '<p class="admin-hint">Shows a “View on CricHeroes” button on the player’s page.</p>' . fieldError($errors, 'cricheroes_url') . '</div>';
     $squads = $isNew ? [] : playerSquads((int) $player['id']);
     // Squad names link to their squad pages for admins who may edit squads.
     $squadName = fn ($squad) => adminCan('squads') ? '<a href="{{BASE}}/admin/teams/' . (int) $squad['team_id'] . '/squad/' . (int) $squad['season_id'] . '">'

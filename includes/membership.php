@@ -272,3 +272,54 @@ function membershipCarouselHtml(): string {
         </div>
     </section>';
 }
+
+/** The membership popup shown on public pages a few seconds after load (partials/membership-popup.html): tier, name, email and mobile number only. */
+function membershipPopupHtml(): string {
+    $tiers = '';
+    foreach (MEMBERSHIP_TIERS as $key => $tier) {
+        $tiers .= '<label class="mpop__tier"><input type="radio" name="tier" value="' . $key . '" data-msg-required="Choose a membership tier." required>'
+            . '<span class="mpop__tier-card"><span class="mpop__tier-name">' . escape($tier['name']) . '</span>'
+            . '<span class="mpop__tier-price">' . membershipPriceLabel($tier['price']) . '<small>/yr</small></span></span></label>';
+    }
+    return '<div id="mpop" class="mpop" data-base="{{BASE}}" hidden>
+    <div class="mpop__backdrop" data-mpop-close></div>
+    <div class="mpop__dialog" role="dialog" aria-modal="true" aria-labelledby="mpop-title" tabindex="-1">
+        <button type="button" class="mpop__close" data-mpop-close aria-label="Close">&times;</button>
+        <div id="mpop-form-wrap">
+            <h2 id="mpop-title">Become a Pro HPCL member</h2>
+            <p class="mpop__lead">Choose a tier and leave your details. Our team will contact you.</p>
+            <form method="post" action="{{BASE}}/membership/quick" data-ajax-form data-loading-text="Sending…" data-success-show="#mpop-thanks" data-success-hide="#mpop-form-wrap">
+                <div data-form-alert class="alert alert-danger" role="alert" hidden></div>
+                <fieldset class="mpop__fieldset">
+                    <legend>Membership tier</legend>
+                    <div class="mpop__tiers" data-field-group="tier">' . $tiers . '</div>
+                </fieldset>
+                <div class="mpop__field">
+                    <label for="mpop-name">Your name</label>
+                    <input id="mpop-name" name="contact_name" type="text" class="form-control" minlength="3" maxlength="100" autocomplete="name" required
+                        data-validate="person-name" data-msg-required="Enter your name." aria-describedby="contact_name-error">
+                </div>
+                <div class="mpop__row">
+                    <div class="mpop__field">
+                        <label for="mpop-email">Email</label>
+                        <input id="mpop-email" name="email" type="email" class="form-control" maxlength="254" autocomplete="email" required
+                            data-msg-required="Enter your email address." aria-describedby="email-error">
+                    </div>
+                    <div class="mpop__field">
+                        <label for="mpop-phone">Mobile number</label>
+                        <input id="mpop-phone" name="phone" type="tel" class="form-control" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
+                            data-validate="phone-in" data-msg-required="Enter your mobile number." data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error">
+                    </div>
+                </div>
+                <div class="mpop__trap" aria-hidden="true"><label for="mpop-company">Leave this field empty</label><input id="mpop-company" name="company_url" type="text" tabindex="-1" autocomplete="off"></div>
+                <button type="submit" class="mpop__submit">Request membership</button>
+            </form>
+        </div>
+        <div id="mpop-thanks" class="mpop__thanks" role="status" hidden>
+            <h2>Thank you!</h2>
+            <p>Your membership request has been received. Our team will contact you shortly to complete the next steps.</p>
+            <button type="button" class="mpop__submit" data-mpop-close>Close</button>
+        </div>
+    </div>
+</div>';
+}

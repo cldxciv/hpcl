@@ -17,6 +17,7 @@
                 <div><dt>Tier</dt><dd>{!! $tier !!}</dd></div>
                 <div><dt>City</dt><dd>{!! $city !!}</dd></div>
                 <div><dt>Website</dt><dd>{!! $website !!}</dd></div>
+                <div><dt>Photo</dt><dd>{!! $photo !!}</dd></div>
                 <div><dt>Applied</dt><dd>{!! $applied !!}</dd></div>
                 <div><dt>Payment</dt><dd>{!! $payment !!}</dd></div>
             </dl>
@@ -25,8 +26,8 @@
             <p class="admin-committee-message">{!! $message !!}</p>
         </section>
         <section class="admin-panel admin-section">
-            <div class="admin-panel__head"><h2>Member profile</h2></div>
-            <p class="admin-hint">Create a public business profile for this applicant (shown at /members). It starts as a draft so you can add a logo and tagline before publishing.</p>
+            <div class="admin-panel__head"><h2>Member profile &amp; share kit</h2></div>
+{!! $share_panel !!}
 {!! $create_profile !!}
         </section>
         <form class="admin-form admin-panel admin-section" method="post" action="{{BASE}}/admin/membership/{!! $id !!}">

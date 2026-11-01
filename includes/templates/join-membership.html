@@ -14,6 +14,9 @@
         }
         .mshipjoin-card h1 { color: #0b50a7; font-family: "Bebas Neue", sans-serif; letter-spacing: 0.02em; margin: 0 0 8px; }
         .mshipjoin-card > p, .mshipjoin-hint { color: #475569; font-family: Roboto, sans-serif; line-height: 1.6; }
+        .mshipjoin-kit { background: rgba(253, 111, 59, 0.1); border: 1px solid rgba(253, 111, 59, 0.45); border-radius: 12px; padding: 4px 18px 16px; margin: 14px 0; font-family: Roboto, sans-serif; color: #334155; }
+        .mshipjoin-next-title { color: #0b50a7; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 1.5rem; letter-spacing: 0.02em; margin: 18px 0 6px; }
+        .mshipjoin-next { color: #334155; font-family: Roboto, sans-serif; line-height: 1.7; padding-left: 1.25rem; }
         .mshipjoin-hint { font-size: 0.85rem; margin: 10px 0 0; }
         .mshipjoin-card label, .mshipjoin-card legend { font-family: Roboto, sans-serif; color: #0f172a; font-weight: 700; margin-bottom: 6px; }
         .mshipjoin-card legend { font-size: 1rem; }
@@ -45,13 +48,25 @@
                 <h1>Welcome to the Pro HPCL family</h1>
                 <p>{!! $sent_message !!}</p>
                 <p data-payment-receipt hidden>Payment received. Payment ID: <strong></strong>. Keep it for your records.</p>
+                <div class="mshipjoin-kit" data-share-kit hidden>
+                    <h2 class="mshipjoin-next-title">Your membership is active</h2>
+                    <p>Your public profile is live. Download your member picture and share it on social media with your profile link.</p>
+                    <a class="mshipjoin-submit d-inline-block text-decoration-none" href="#" data-share-kit-link>Get your share kit</a>
+                </div>
+                <h2 class="mshipjoin-next-title">What happens next</h2>
+                <ol class="mshipjoin-next">
+                    <li>Our team reviews your request.</li>
+                    <li>We contact you on the phone number or email you gave to confirm your tier.</li>
+                    <li>We set up your membership and your business promotion.</li>
+                </ol>
+                <p class="mshipjoin-hint">Questions meanwhile? Write to <a href="mailto:{!! $email !!}">{!! $email !!}</a>.</p>
                 <a class="mshipjoin-submit d-inline-block text-decoration-none" href="{{BASE}}/membership">Back to membership</a>
             </section>
 
             <section class="mshipjoin-card" id="mshipjoin-form-card"{!! $form_hidden !!}>
                 <h1>Become a Pro HPCL Member</h1>
                 <p>Choose your tier and tell us about your business. Our team will help you get set up and make the most of your membership.</p>
-                <form method="post" action="{{BASE}}/membership/join" data-ajax-form data-loading-text="Submitting…" data-success-show="#mshipjoin-thanks" data-success-hide="#mshipjoin-form-card"{!! $payment_attr !!}>
+                <form method="post" action="{{BASE}}/membership/join" enctype="multipart/form-data" data-ajax-form data-loading-text="Submitting…" data-success-show="#mshipjoin-thanks" data-success-hide="#mshipjoin-form-card"{!! $payment_attr !!}>
                     <div data-form-alert class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
 
                     <fieldset class="mb-3">
@@ -65,13 +80,13 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="business_name">Business / brand name</label>
-                            <input id="business_name" name="business_name" type="text" class="form-control{!! $business_name_invalid !!}" value="{!! $business_name !!}" minlength="{!! $business_min !!}" maxlength="{!! $business_max !!}" required
+                            <input id="business_name" name="business_name" type="text" class="form-control{!! $business_name_invalid !!}" value="{!! $business_name_value !!}" minlength="{!! $business_min !!}" maxlength="{!! $business_max !!}" required
                                 data-msg-required="Enter your business or brand name." aria-describedby="business_name-error"{!! $business_name_aria !!}>
 {!! $business_name_error !!}
                         </div>
                         <div class="col-md-6">
                             <label for="contact_name">Contact person</label>
-                            <input id="contact_name" name="contact_name" type="text" class="form-control{!! $contact_name_invalid !!}" value="{!! $contact_name !!}" minlength="{!! $contact_min !!}" maxlength="{!! $contact_max !!}" autocomplete="name" required
+                            <input id="contact_name" name="contact_name" type="text" class="form-control{!! $contact_name_invalid !!}" value="{!! $contact_name_value !!}" minlength="{!! $contact_min !!}" maxlength="{!! $contact_max !!}" autocomplete="name" required
                                 data-validate="person-name" data-msg-required="Enter the contact person’s name." aria-describedby="contact_name-error"{!! $contact_name_aria !!}>
 {!! $contact_name_error !!}
                         </div>
@@ -80,13 +95,13 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="email">Email</label>
-                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email !!}" maxlength="254" autocomplete="email" required
+                            <input id="email" name="email" type="email" class="form-control{!! $email_invalid !!}" value="{!! $email_value !!}" maxlength="254" autocomplete="email" required
                                 data-msg-required="Enter your email address." aria-describedby="email-error"{!! $email_aria !!}>
 {!! $email_error !!}
                         </div>
                         <div class="col-md-6">
                             <label for="phone">WhatsApp / mobile number</label>
-                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
+                            <input id="phone" name="phone" type="tel" class="form-control{!! $phone_invalid !!}" value="{!! $phone_value !!}" maxlength="16" autocomplete="tel" inputmode="tel" placeholder="98160 12345" required
                                 data-validate="phone-in" data-msg-required="Enter your mobile number." data-msg-validate="Enter a valid 10-digit Indian mobile number, like 98160 12345." aria-describedby="phone-error"{!! $phone_aria !!}>
 {!! $phone_error !!}
                         </div>
@@ -95,12 +110,12 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="website">Website or social link <span class="text-muted">(optional)</span></label>
-                            <input id="website" name="website" type="text" class="form-control{!! $website_invalid !!}" value="{!! $website !!}" maxlength="255" placeholder="yourbusiness.com" aria-describedby="website-error"{!! $website_aria !!}>
+                            <input id="website" name="website" type="text" class="form-control{!! $website_invalid !!}" value="{!! $website_value !!}" maxlength="255" placeholder="yourbusiness.com" aria-describedby="website-error"{!! $website_aria !!}>
 {!! $website_error !!}
                         </div>
                         <div class="col-md-6">
                             <label for="city">City / town <span class="text-muted">(optional)</span></label>
-                            <input id="city" name="city" type="text" class="form-control{!! $city_invalid !!}" value="{!! $city !!}" maxlength="120" placeholder="Shimla" aria-describedby="city-error"{!! $city_aria !!}>
+                            <input id="city" name="city" type="text" class="form-control{!! $city_invalid !!}" value="{!! $city_value !!}" maxlength="120" placeholder="Shimla" aria-describedby="city-error"{!! $city_aria !!}>
 {!! $city_error !!}
                         </div>
                     </div>
@@ -108,8 +123,15 @@
                     <div class="mb-3">
                         <label for="message">About your business &amp; what you want from membership</label>
                         <textarea id="message" name="message" rows="4" class="form-control{!! $message_invalid !!}" minlength="{!! $message_min !!}" maxlength="{!! $message_max !!}" required
-                            data-msg-required="Tell us a little about your business and goals." aria-describedby="message-error"{!! $message_aria !!}>{!! $message !!}</textarea>
+                            data-msg-required="Tell us a little about your business and goals." aria-describedby="message-error"{!! $message_aria !!}>{!! $message_value !!}</textarea>
 {!! $message_error !!}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="photo">Your photo <span class="text-muted">(optional)</span></label>
+                        <input id="photo" name="photo" type="file" class="form-control{!! $photo_invalid !!}" accept="image/jpeg,image/png,image/webp" data-max-size="5242880" aria-describedby="photo-hint photo-error"{!! $photo_aria !!}>
+                        <p class="mshipjoin-hint" id="photo-hint">Shown on your member picture and your public profile. JPG, PNG or WebP, up to 5 MB. A clear, front-facing photo works best.</p>
+{!! $photo_error !!}
                     </div>
 
                     <div class="mshipjoin-trap" aria-hidden="true">

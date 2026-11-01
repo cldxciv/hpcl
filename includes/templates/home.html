@@ -6,6 +6,13 @@
 @section('og_url', '{{BASE}}')
 
 @section('head')
+        <style>
+            /* white on the orange section is 2.8:1 */
+            .teams-section__title, .teams-section__title span { color: #0b2a5b; }
+            .hero-carousel-pause__icon--play { display: none; }
+            .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--play { display: block; }
+            .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--pause { display: none; }
+        </style>
         <script type="application/ld+json">
         {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"}]}
     </script>
@@ -13,10 +20,12 @@
 @endsection
 
 @section('content')
-    <div id="homeHeroCarousel" class="carousel slide hero-carousel{!! $carousel_class !!}" {!! $carousel_attributes !!}>
+    <h1 class="visually-hidden">Pro HPCL &ndash; Himachal Premium Cricket League</h1>
+    <div id="homeHeroCarousel" class="carousel slide hero-carousel{!! $carousel_class !!}" role="region" aria-roledescription="carousel" aria-label="Featured highlights" {!! $carousel_attributes !!}>
         {!! $carousel_indicators !!}
         <div class="carousel-inner">{!! $slides !!}</div>
         {!! $carousel_controls !!}
+        {!! $carousel_pause !!}
     </div>
 
     <section class="retained-players" aria-label="Retained players">
@@ -71,13 +80,13 @@
             <span class="stats-circle stats-circle--right-small" aria-hidden="true"></span>
 
             <div class="stats-layout">
-                <div class="stats-grid" role="list">
+                <div class="stats-grid">
 {!! $stats !!}
                 </div>
 
-                <aside class="stats-highlights" aria-label="Special records">
+                <div class="stats-highlights">
 {!! $stat_highlights !!}
-                </aside>
+                </div>
             </div>
         </div>
     </section>
@@ -109,19 +118,51 @@
                 return;
             }
 
-            const carousel = window.bootstrap.Carousel.getOrCreateInstance(el, {
-                interval: 3000,
-                ride: 'carousel',
-                touch: true,
-                pause: 'hover',
-                wrap: true
-            });
+            // Interval, hover pause and touch come from the data-bs-* attributes the server renders.
+            const carousel = window.bootstrap.Carousel.getOrCreateInstance(el);
+            const button = el.querySelector('.hero-carousel-pause');
+            let userPaused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            el.addEventListener('mouseenter', function () {
+            // Bootstrap restarts the slideshow on mouseleave, touchend and the like: not once the visitor paused it.
+            const cycle = carousel.cycle.bind(carousel);
+            carousel.cycle = function (event) {
+                if (!userPaused) {
+                    cycle(event);
+                }
+            };
+
+            const render = function () {
+                if (!button) {
+                    return;
+                }
+                button.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
+                button.setAttribute('aria-label', userPaused ? 'Play slideshow' : 'Pause slideshow');
+            };
+
+            if (userPaused) {
                 carousel.pause();
-            });
+            }
+            render();
 
-            el.addEventListener('mouseleave', function () {
+            if (button) {
+                button.addEventListener('click', function () {
+                    userPaused = !userPaused;
+                    if (userPaused) {
+                        carousel.pause();
+                    } else {
+                        cycle();
+                    }
+                    render();
+                });
+            }
+
+            // Keyboard users: hold the slide while focus is inside it.
+            el.addEventListener('focusin', function (event) {
+                if (event.target.matches(':focus-visible')) {
+                    carousel.pause();
+                }
+            });
+            el.addEventListener('focusout', function () {
                 carousel.cycle();
             });
         });

@@ -6,6 +6,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/site.php';
 require_once __DIR__ . '/videos.php';
 require_once __DIR__ . '/hero.php';
+require_once __DIR__ . '/membership.php';
 
 /** A row of site_settings, or $default when it is missing or empty. */
 function setting(string $name, string $default = ''): string {
@@ -62,6 +63,7 @@ viewComposer('partials.footer', function (): array {
 viewComposer('partials.header', fn (): array => ['shop_nav' => shopEnabled() ? '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop">SHOP</a></li>' : '']);
 
 // The copyright bar, also shown on the error pages, which do not use the database.
+viewComposer('partials.membership-popup', fn (): array => ['membership_popup' => membershipPopupHtml()]);
 viewComposer('partials.footer-bottom', fn (): array => ['year' => date('Y')]);
 
 /** Pages whose text is in includes/templates/{slug}.html and whose title and description are rows of the pages table. */
@@ -73,8 +75,34 @@ function renderTextPage(string $slug): ?string {
     if (!$page) return null;
     $data = ['title' => escape($page['title']), 'description' => escape((string) $page['description'])];
     if ($slug === 'contact') $data += ['email' => escape(setting('contact_email')),
-        'phone_items' => implode("\n", array_map(fn ($phone) => '                        <li><strong>Phone:</strong> ' . phoneLink($phone) . '</li>', settingLines('contact_phones')))];
+        'phone_items' => implode("\n", array_map(fn ($phone) => '                        <li><strong>Phone:</strong> ' . phoneLink($phone) . '</li>', settingLines('contact_phones'))),
+        'email_item' => setting('contact_email') !== '' ? '                        <li><strong>Email:</strong> <a href="mailto:' . escape(setting('contact_email')) . '">' . escape(setting('contact_email')) . '</a></li>' : '',
+        'contact_actions' => contactActions()];
     return view('templates.' . $slug, $data);
+}
+
+/** The contact page's action buttons: email, call and WhatsApp, each only when the site has that detail. */
+function contactActions(): string {
+    $email = setting('contact_email');
+    $phones = settingLines('contact_phones');
+    $icon = fn (string $path) => '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="currentColor">' . $path . '</svg>';
+    $actions = '';
+    if ($email !== '') $actions .= '<a class="contact-action contact-action--email" href="mailto:' . escape($email) . '">'
+        . $icon('<path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.8V17h16V7.8l-8 5.2-8-5.2ZM5.4 7 12 11.3 18.6 7H5.4Z"/>') . '<span>Email us<small>' . escape($email) . '</small></span></a>' . "\n";
+    foreach ($phones as $i => $phone) {
+        $actions .= '<a class="contact-action contact-action--call" href="tel:' . escape(preg_replace('~[^\d+]~', '', $phone)) . '">'
+            . $icon('<path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1l-2.2 2.2Z"/>')
+            . '<span>' . (count($phones) > 1 ? 'Call ' . ($i + 1) : 'Call') . '<small>' . escape($phone) . '</small></span></a>' . "\n";
+    }
+    if ($phones) {
+        // WhatsApp wants the number with its country code, digits only; a bare 10-digit Indian number gets 91.
+        $digits = preg_replace('~\D~', '', $phones[0]);
+        if (strlen($digits) === 10) $digits = '91' . $digits;
+        if (strlen($digits) >= 11) $actions .= '<a class="contact-action contact-action--whatsapp" href="https://wa.me/' . $digits . '" target="_blank" rel="noopener noreferrer">'
+            . $icon('<path d="M12 2a9.9 9.9 0 0 0-8.5 15L2 22l5.1-1.4A10 10 0 1 0 12 2Zm0 1.8a8.2 8.2 0 1 1-4.2 15.3l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 0 1 12 3.8Zm-3.2 4.2c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4l-.5-.3-1.7-.8c-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.9-.4-1.9-1-2.7-2.1-.3-.4-.5-.7-.7-1.1-.1-.2 0-.3.1-.5l.4-.5.2-.4v-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.3Z"/>')
+            . '<span>WhatsApp<small>Chat on ' . escape($phones[0]) . '</small><span class="visually-hidden"> (opens in a new tab)</span></span></a>' . "\n";
+    }
+    return $actions;
 }
 
 /** The latest season with teams, shown in the home page's Retained Players and Teams. */
@@ -93,14 +121,14 @@ function renderHome(): string {
         $hasContent = $title !== '' || $o['subheading'] !== '' || $o['description'] !== '' || $o['button_label'] !== '';
         $position = in_array($o['content_position'], HERO_POSITIONS, true) ? $o['content_position'] : 'bottom-center';
         $focus = in_array($o['image_position'], ['left', 'center', 'right', 'top', 'bottom'], true) ? $o['image_position'] : 'center';
-        $slides .= '<div class="carousel-item' . ($visibleIndex === 0 ? ' active' : '') . '"' . ($o['interval'] !== '' ? ' data-bs-interval="' . max(1000, min(60000, (int) $o['interval'])) . '"' : '') . '><div class="hero-slide-static' . ($hasContent && $o['overlay'] === '1' ? ' hero-slide-static--with-content' : '') . '">'
+        $slides .= '<div class="carousel-item' . ($visibleIndex === 0 ? ' active' : '') . '"' . ($o['interval'] !== '' ? ' data-bs-interval="' . max(5000, min(60000, (int) $o['interval'])) . '"' : '') . '><div class="hero-slide-static' . ($hasContent && $o['overlay'] === '1' ? ' hero-slide-static--with-content' : '') . '">'
             . '<picture class="hero-slide-picture">'
             . ($slide['mobile_image'] ? '<source media="(max-width: 768px)" srcset="' . escape(linkUrl($slide['mobile_image'])) . '">' : '')
             . '<img class="hero-slide-image" style="object-position:' . $focus . '" src="' . escape(linkUrl($slide['image'])) . '" alt="' . escape($o['alt'] ?: ($title ?: 'HPCL hero slide')) . '"'
             . ($visibleIndex === 0 ? ' fetchpriority="high" loading="eager"' : ' loading="lazy"') . '></picture>';
         if ($hasContent) {
             $slides .= '<div class="hero-slide-content hero-slide-content--' . $position . '">'
-                . ($title !== '' ? '<h2 class="hero-slide-title">' . escape($title) . '</h2>' : '')
+                . ($title !== '' ? '<p class="hero-slide-title">' . escape($title) . '</p>' : '')
                 . ($o['subheading'] !== '' ? '<p class="hero-slide-subheading">' . escape($o['subheading']) . '</p>' : '')
                 . ($o['description'] !== '' ? '<p class="hero-slide-description">' . escape($o['description']) . '</p>' : '');
             if ($o['button_label'] !== '' && $o['button_url'] !== '') $slides .= '<a class="hero-slide-cta" href="' . escape(linkUrl($o['button_url'])) . '"' . ($o['new_tab'] === '1' ? ' target="_blank" rel="noopener noreferrer"' : '') . '>' . escape($o['button_label']) . '</a>';
@@ -110,9 +138,11 @@ function renderHome(): string {
         $indicators .= '<button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="' . $visibleIndex . '"' . ($visibleIndex === 0 ? ' class="active" aria-current="true"' : '') . ' aria-label="Slide ' . ($visibleIndex + 1) . '"></button>';
         $visibleIndex++;
     }
-    $carouselAttributes = 'data-bs-ride="' . (setting('hero_autoplay', '1') === '1' ? 'carousel' : 'false') . '" data-bs-touch="true" data-bs-interval="' . max(1000, min(60000, (int) setting('hero_interval', '3000'))) . '" data-bs-pause="' . (setting('hero_pause', '1') === '1' ? 'hover' : 'false') . '" data-bs-wrap="' . (setting('hero_wrap', '1') === '1' ? 'true' : 'false') . '"';
+    $carouselAttributes = 'data-bs-ride="' . (setting('hero_autoplay', '1') === '1' ? 'carousel' : 'false') . '" data-bs-touch="true" data-bs-interval="' . max(5000, min(60000, (int) setting('hero_interval', '6000'))) . '" data-bs-pause="' . (setting('hero_pause', '1') === '1' ? 'hover' : 'false') . '" data-bs-wrap="' . (setting('hero_wrap', '1') === '1' ? 'true' : 'false') . '"';
     $carouselClass = setting('hero_fade', '0') === '1' ? ' carousel-fade' : '';
-    $carouselIndicators = $visibleIndex > 1 && setting('hero_indicators', '0') === '1' ? '<div class="carousel-indicators">' . $indicators . '</div>' : '';
+    // Indicators and the pause button are always shown (WCAG 2.2.2): the slides move by themselves.
+    $carouselIndicators = $visibleIndex > 1 ? '<div class="carousel-indicators">' . $indicators . '</div>' : '';
+    $carouselPause = $visibleIndex > 1 ? '<div class="hero-carousel-controls"><button type="button" class="hero-carousel-pause" aria-pressed="false" aria-label="Pause slideshow"><svg class="hero-carousel-pause__icon hero-carousel-pause__icon--pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg><svg class="hero-carousel-pause__icon hero-carousel-pause__icon--play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="currentColor" hidden><path d="M7 4.5v15l12-7.5z"></path></svg></button></div>' : '';
     $carouselControls = '';
     if ($visibleIndex > 1 && setting('hero_controls', '1') === '1') {
         foreach (['prev' => 'Previous', 'next' => 'Next'] as $direction => $label) $carouselControls .= '<button class="carousel-control-' . $direction . '" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="' . $direction . '" aria-label="' . $label . ' slide"><span class="carousel-control-' . $direction . '-icon" aria-hidden="true"></span></button>';
@@ -133,7 +163,7 @@ function renderHome(): string {
         foreach (query('SELECT t.name, t.slug, t.logo FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = ? AND t.deleted_at IS NULL ORDER BY t.name', [$season['id']]) as $index => $team) {
             $teams .= '<a class="text-decoration-none d-block" href="{{BASE}}/teams/season/' . $season['route_key'] . '/' . rawurlencode($team['slug']) . '" aria-label="' . escape($team['name']) . '">'
                 . '<article class="teams-section__card js-reveal-card teams-section__card--' . HOME_TEAM_COLOURS[$index % count(HOME_TEAM_COLOURS)] . '">'
-                . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . escape(mediaUrl($team['logo'], '/logo.png')) . '" alt="' . escape($team['name']) . '" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';"></div>'
+                . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . escape(mediaUrl($team['logo'], '/logo.png')) . '" alt="" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';"></div>'
                 . '<h3 class="teams-section__name">' . escape($team['name']) . "</h3></article></a>\n";
         }
     }
@@ -149,8 +179,8 @@ function renderHome(): string {
     $stats = '';
     foreach (query('SELECT * FROM home_stats ORDER BY position, id') as $tile) {
         $stats .= $tile['image']
-            ? '<article class="stats-tile stats-tile--image" role="listitem"><img src="' . escape(linkUrl($tile['image'])) . '" alt="' . escape((string) $tile['image_alt']) . '" loading="lazy" decoding="async"></article>' . "\n"
-            : '<article class="stats-tile stats-tile--value" role="listitem"><p class="stats-value">' . escape((string) $tile['value']) . '</p><p class="stats-label">' . escape((string) $tile['label']) . "</p></article>\n";
+            ? '<article class="stats-tile stats-tile--image"><img src="' . escape(linkUrl($tile['image'])) . '" alt="' . escape((string) $tile['image_alt']) . '" loading="lazy" decoding="async"></article>' . "\n"
+            : '<article class="stats-tile stats-tile--value"><p class="stats-value">' . escape((string) $tile['value']) . '</p><p class="stats-label">' . escape((string) $tile['label']) . "</p></article>\n";
     }
     $highlights = '';
     foreach (query('SELECT * FROM home_stat_highlights ORDER BY position, id') as $highlight) {
@@ -171,7 +201,7 @@ function renderHome(): string {
 
     $seasonName = $season ? 'Season ' . $season['route_key'] : '';
     return view('templates.home', [
-        'slides' => $slides, 'carousel_attributes' => $carouselAttributes, 'carousel_class' => $carouselClass, 'carousel_indicators' => $carouselIndicators, 'carousel_controls' => $carouselControls, 'retained_season' => $seasonName, 'retained_players' => $retained, 'teams_season' => $seasonName, 'teams' => $teams,
+        'slides' => $slides, 'carousel_attributes' => $carouselAttributes, 'carousel_class' => $carouselClass, 'carousel_indicators' => $carouselIndicators, 'carousel_controls' => $carouselControls, 'carousel_pause' => $carouselPause, 'retained_season' => $seasonName, 'retained_players' => $retained, 'teams_season' => $seasonName, 'teams' => $teams,
         'highlights_season' => escape(setting('home_highlights_season')), 'top_performers' => $performers, 'stats' => $stats, 'stat_highlights' => $highlights, 'videos' => $videos,
     ]);
 }

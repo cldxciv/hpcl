@@ -3,6 +3,10 @@
 @section('title', '{!! $title !!}')
 @section('description', '{!! $description !!}')
 @section('canonical', '{!! $canonical !!}')
+@section('image', '{!! $og_image !!}')
+@section('image_width', '{!! $og_image_size !!}')
+@section('image_height', '{!! $og_image_size !!}')
+@section('image_alt', 'Pro HPCL member: {!! $name !!}')
 @section('body_class', 'home-unified-theme')
 
 @section('head')
@@ -10,6 +14,7 @@
         .member-profile { max-width: 860px; margin: 0 auto; padding: 32px 16px 56px; }
         .member-profile__head { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
         .member-profile__logo-wrap { width: 108px; height: 108px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid rgba(2, 6, 23, 0.08); border-radius: 16px; flex: none; }
+        .member-profile__photo { width: 108px; height: 108px; border-radius: 50%; object-fit: cover; border: 4px solid #ff7a18; flex: none; }
         .member-profile__logo { max-width: 92px; max-height: 92px; object-fit: contain; }
         .member-profile .member-mono { width: 88px; height: 88px; border-radius: 14px; }
         .member-profile__name { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 4vw, 2.6rem); color: #0b50a7; letter-spacing: 0.02em; margin: 0; }
@@ -36,6 +41,7 @@
     <div class="member-profile member-profile--{!! $tier_key !!}">
         <a class="member-back" href="{{BASE}}/members">&larr; All members</a>
         <div class="member-profile__head">
+            {!! $photo !!}
             <div class="member-profile__logo-wrap">{!! $logo !!}</div>
             <div>
                 <h1 class="member-profile__name">{!! $name !!}</h1>

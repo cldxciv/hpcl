@@ -11,9 +11,9 @@ function renderTeamsIndex(string $html): string {
     $cards = '';
     foreach ($seasons as $index => $season) {
         $cards .= '<a class="text-decoration-none" href="{{BASE}}/teams/season/' . $season['route_key'] . '" aria-label="' . escape($season['name']) . '">'
-            . '<article class="teams-section__card teams-section__card--' . $variants[$index % count($variants)] . '"><div class="teams-section__logo-wrap">'
-            . '<img class="teams-section__logo teams-section__logo--season" src="' . mediaUrl($season['image'], '/logo.png') . '" alt="' . escape($season['name']) . '" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';">'
-            . '</div><h3 class="teams-section__name">' . escape($season['name']) . '</h3><p class="text-white-50 mb-0 small">' . $season['teams_count'] . ' teams</p></article></a>';
+            . '<article class="teams-section__card teams-section__card--' . $variants[$index % count($variants)] . '"><div class="teams-section__logo-wrap teams-section__logo-wrap--season">'
+            . '<img class="teams-section__logo teams-section__logo--season" src="' . mediaUrl($season['image'], '/logo.png') . '" alt="" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';">'
+            . '</div><h2 class="teams-section__name">' . escape($season['name']) . '</h2><p class="teams-section__count">' . $season['teams_count'] . ' teams</p></article></a>';
     }
     [$dom, $xpath] = loadPage($html);
     if ($grid = $xpath->query('//div[@class="teams-section__grid"]')->item(0)) replaceInnerHtml($dom, $grid, $cards ?: '<div class="alert alert-light border text-center w-100">No seasons available.</div>');
@@ -35,6 +35,11 @@ function seasonByRouteKey(string $routeKey): ?array {
 function seasonTeams(array $season): array {
     return query('SELECT t.* FROM teams t JOIN season_teams st ON st.team_id = t.id WHERE st.season_id = ? AND t.deleted_at IS NULL ORDER BY t.name', [$season['id']]);
 }
+function playerInitials(string $name): string {
+    $words = preg_split('~\s+~u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
+    $letters = array_map(fn ($word) => mb_substr($word, 0, 1, 'UTF-8'), array_slice($words, 0, 2));
+    return mb_strtoupper(implode('', $letters), 'UTF-8') ?: '?';
+}
 function teamSeasonUrl(array $season, array $team): string {
     return '{{BASE}}/teams/season/' . $season['route_key'] . '/' . rawurlencode((string) $team['slug']);
 }
@@ -48,12 +53,12 @@ function renderSeasonTeams(string $routeKey): ?string {
     $cards = '';
     foreach ($teams as $index => $team) {
         $cards .= '<a class="text-decoration-none" href="' . teamSeasonUrl($season, $team) . '" aria-label="' . escape($team['name']) . '"><article class="teams-section__card teams-section__card--' . TEAM_CARD_VARIANTS[$index % count(TEAM_CARD_VARIANTS)] . '">'
-            . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . mediaUrl($team['logo'], '/assets/media/logo.png') . '" alt="' . escape($team['name']) . '"></div>'
-            . '<h3 class="teams-section__name">' . escape($team['name']) . '</h3></article></a>';
+            . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . mediaUrl($team['logo'], '/assets/media/logo.png') . '" alt=""></div>'
+            . '<h2 class="teams-section__name">' . escape($team['name']) . '</h2></article></a>';
     }
     $content = '<section class="teams-section" aria-label="' . $name . ' Teams"><div class="teams-section__inner"><nav aria-label="breadcrumb" class="my-1"><ol class="breadcrumb team-breadcrumb mb-3">'
         . '<li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li><li class="breadcrumb-item"><a href="{{BASE}}/teams">Teams</a></li><li class="breadcrumb-item active fw-semibold" aria-current="page">' . $name . '</li></ol></nav>'
-        . '<h2 class="teams-section__title">' . $name . ' Teams</h2><div class="teams-section__grid">' . ($cards ?: '<div class="alert alert-light border text-center w-100">No teams mapped for this season.</div>') . '</div></div>'
+        . '<h1 class="teams-section__title">' . $name . ' Teams</h1><div class="teams-section__grid">' . ($cards ?: '<div class="alert alert-light border text-center w-100">No teams mapped for this season.</div>') . '</div></div>'
         . '<div class="teams-section__bottom-decor" aria-hidden="true"></div></section>';
     $url = '{{BASE}}/teams/season/' . $season['route_key'];
     $schema = ['@context' => 'https://schema.org', '@type' => 'CollectionPage', 'name' => $season['name'] . ' Teams', 'url' => $url,
@@ -63,7 +68,7 @@ function renderSeasonTeams(string $routeKey): ?string {
             '@type' => 'SportsTeam', 'name' => $team['name'], 'sport' => 'Cricket', 'url' => teamSeasonUrl($season, $team), 'logo' => $team['logo'] ? mediaUrl($team['logo'], '') : null, 'location' => hpPlace()]], $teams, array_keys($teams))]];
     return renderLayout('team-season.html', [
         'title' => $season['name'] . ' Teams | Pro HPCL',
-        'description' => 'Explore all teams participating in ' . $season['name'] . ' of Pro HPCL.',
+        'description' => 'Explore all teams in ' . $season['name'] . ' of the Himachal Premium Cricket League (Pro HPCL): team profiles, owners, squads and players.',
         'url' => $url,
     ], [TEAMS_CONTENT => $content], ['CollectionPage' => $schema]);
 }
@@ -75,8 +80,13 @@ function renderTeamPage(string $routeKey, string $slug): ?string {
     if (!$season || !$team) return null;
     $owners = query('SELECT o.* FROM season_team_owners sto JOIN owners o ON o.id = sto.owner_id WHERE sto.season_id = ? AND sto.team_id = ? AND o.deleted_at IS NULL ORDER BY sto.display_order, o.name', [$season['id'], $team['id']]);
     $squad = query('SELECT p.*, sp.is_retained FROM season_players sp JOIN players p ON p.id = sp.player_id WHERE sp.season_id = ? AND sp.team_id = ? AND p.deleted_at IS NULL ORDER BY sp.position, p.id', [$season['id'], $team['id']]);
-    $groups = [];
-    foreach ($squad as $player) $groups[$player['type'] ?: 'Uncategorized'][] = $player;
+    $groups = $unassigned = [];
+    foreach ($squad as $player) {
+        if ($player['type']) $groups[$player['type']][] = $player;
+        else $unassigned[] = $player;
+    }
+    // Players without a recorded role go last, under a neutral heading.
+    if ($unassigned) $groups[$groups ? 'Other Squad Members' : 'Squad'] = $unassigned;
 
     $teamName = escape($team['name']);
     $defaultLogo = '{{BASE}}/logo.png';
@@ -111,8 +121,12 @@ function renderTeamPage(string $routeKey, string $slug): ?string {
         $players .= '<div class="col-12 mt-4"><h2 class="text-dark border-bottom border-2 h2 fw-bold pb-2">' . escape((string) $type) . '</h2></div><div class="col-12"><div class="row g-3">';
         foreach ($members as $player) {
             $location = implode(', ', array_filter([$player['city'], $player['state']], fn ($value) => $value !== null && $value !== ''));
+            // No photo on file: an initials avatar instead of the generic silhouette.
+            $avatar = $player['photo']
+                ? '<img class="tpv2-card__player" src="' . mediaUrl($player['photo'], '/assets/media/player-fallback.svg') . '" alt="' . escape($player['name']) . '" onerror="this.onerror=null;this.src=\'' . $playerFallback . '\';">'
+                : '<span class="team-player-avatar" aria-hidden="true">' . escape(playerInitials((string) $player['name'])) . '</span>';
             $players .= '<div class="col-lg-3 col-md-4 col-12"><a href="{{BASE}}/player/' . escape(rawurlencode($player['slug'])) . '" class="w-100 text-decoration-none"><article class="tpv2-card team-player-performer tpv2-card--orange">'
-                . '<img class="tpv2-card__player" src="' . mediaUrl($player['photo'], '/assets/media/player-fallback.svg') . '" alt="' . escape($player['name']) . '" onerror="this.onerror=null;this.src=\'' . $playerFallback . '\';">'
+                . $avatar
                 . '<div class="tpv2-card__meta"><h3 class="tpv2-card__name"><span class="team-player-link">' . escape($player['name']) . '</span></h3>'
                 . ($player['is_retained'] ? '<div class="mb-1"><span class="badge bg-warning text-dark">Retained</span></div>' : '')
                 . '<p class="tpv2-card__metric-label">' . escape(strLimit($location ?: ($player['batting_style'] ?: 'Pro HPCL Player'), 26)) . '</p>'
@@ -122,7 +136,7 @@ function renderTeamPage(string $routeKey, string $slug): ?string {
         $players .= '</div></div>';
     }
     $squadSection = '<section style="background-color: var(--bs-gray-100);" class="py-lg-3"><div class="row"><div class="col-12"><div class="team-page-shell"><div class="row g-3 py-2">'
-        . ($players ?: '<div class="col-12 mt-4"><div class="section-card p-4 text-center text-muted">No players assigned for this season.</div></div>') . '</div></div></div></div></section>';
+        . ($players ?: '<div class="col-12 mt-4"><div class="section-card team-squad-empty p-4 text-center"><p class="h5 fw-bold mb-1">Squad to be announced</p><p class="mb-0">' . $teamName . ' has no players assigned for ' . escape($season['name']) . ' yet. Please check back soon.</p></div></div>') . '</div></div></div></div></section>';
 
     $url = teamSeasonUrl($season, $team);
     $image = $logo ?: $defaultLogo;

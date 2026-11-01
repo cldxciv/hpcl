@@ -13,13 +13,16 @@ declare(strict_types=1);
 require_once __DIR__ . '/membership.php';
 require_once __DIR__ . '/committee.php'; // reuse committeePhone(), committeeCleanText(), COMMITTEE_NAME_PATTERN
 require_once __DIR__ . '/razorpay.php';
+require_once __DIR__ . '/member-photo.php';
+require_once __DIR__ . '/member-share.php';
 
-const MEMBERSHIP_JOIN_FIELDS = ['business_name', 'contact_name', 'email', 'phone', 'tier', 'website', 'city', 'message'];
+const MEMBERSHIP_JOIN_FIELDS = ['business_name', 'contact_name', 'email', 'phone', 'tier', 'website', 'city', 'message', 'photo'];
 const MEMBERSHIP_BUSINESS_LENGTH = [2, 150];
 const MEMBERSHIP_CONTACT_LENGTH = [3, 100];
 const MEMBERSHIP_MESSAGE_LENGTH = [10, 1500];
 const MEMBERSHIP_PAYMENT_SETTING = 'membership_payment_enabled';
 const MEMBERSHIP_MAX_PER_HOUR = 6;
+const MEMBERSHIP_QUICK_MESSAGE = 'Quick request from the website popup: the visitor gave only a tier, name, email and mobile number.';
 const MEMBERSHIP_SENT_MESSAGE = 'Thank you! Your membership request has been received. Our team will contact you shortly to complete the next steps.';
 
 /** Whether applicants pay their tier fee online: the setting is on and Razorpay is ready. */
@@ -44,8 +47,15 @@ function handleMembershipJoin(): never {
         '/membership/join?sent=1', fn () => membershipJoinForm($input, $errors, false), $payment ? ['payment' => $payment] : []);
 }
 
-/** Checks the posted fields: cleaned values (phone as 10 digits) and errors by field. */
-function validateMembershipApplication(): array {
+/** The popup's short form (tier, name, email, mobile number), saved as an application for the team to follow up. POST only; it never takes payment. */
+function handleMembershipQuick(): never {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') errorPage(405);
+    [$input, $errors] = saveMembershipApplication(true);
+    formResponse($errors, MEMBERSHIP_SENT_MESSAGE, '/membership/join?sent=1', fn () => membershipJoinForm($input, $errors, false));
+}
+
+/** Checks the posted fields: cleaned values (phone as 10 digits) and errors by field. The quick form has no business name, website, city or message. */
+function validateMembershipApplication(bool $quick = false): array {
     $input = [
         'business_name' => committeeCleanText(postedText('business_name')),
         'contact_name' => committeeCleanText(postedText('contact_name')),
@@ -56,6 +66,7 @@ function validateMembershipApplication(): array {
         'city' => committeeCleanText(postedText('city')),
         'message' => committeeCleanText(postedText('message'), true),
     ];
+    if ($quick) $input = ['business_name' => 'Not provided', 'website' => '', 'city' => '', 'message' => MEMBERSHIP_QUICK_MESSAGE] + $input;
     $errors = [];
     [$bMin, $bMax] = MEMBERSHIP_BUSINESS_LENGTH;
     $bLen = mb_strlen($input['business_name']);
@@ -86,25 +97,28 @@ function validateMembershipApplication(): array {
     if ($mLen === 0) $errors['message'] = 'Tell us a little about your business and goals.';
     elseif ($mLen < $mMin || $mLen > $mMax) $errors['message'] = "Your message must be $mMin to $mMax characters long.";
 
+    if (!$quick && ($photoError = memberPhotoCheck())) $errors['photo'] = $photoError;
+
     return [$input, $errors];
 }
 
 /** Validates and stores the application; returns [input, errors, payment-options-or-null]. */
-function saveMembershipApplication(): array {
+function saveMembershipApplication(bool $quick = false): array {
     // Honeypot: a hidden field real people leave empty.
     if (postedText('company_url') !== '') return [array_fill_keys(MEMBERSHIP_JOIN_FIELDS, ''), [], null];
-    [$input, $errors] = validateMembershipApplication();
+    [$input, $errors] = validateMembershipApplication($quick);
     if ($errors) return [$input, $errors, null];
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     $recent = (int) (query('SELECT COUNT(*) AS n FROM membership_applications WHERE ip = ? AND created_at > (NOW() - INTERVAL 1 HOUR)', [$ip])[0]['n'] ?? 0);
     if ($recent >= MEMBERSHIP_MAX_PER_HOUR) return [$input, ['form' => 'Too many requests from this network. Please try again later.'], null];
 
-    $payable = membershipPaymentRequired();
+    $payable = !$quick && membershipPaymentRequired();
     $price = MEMBERSHIP_TIERS[$input['tier']]['price'];
-    db()->prepare('INSERT INTO membership_applications (business_name, contact_name, email, phone, tier, website, city, message, payment_status, amount, ip, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())')
+    $photo = $quick ? null : memberPhotoSave();
+    db()->prepare('INSERT INTO membership_applications (business_name, contact_name, email, phone, tier, website, city, message, photo, payment_status, amount, ip, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())')
         ->execute([$input['business_name'], $input['contact_name'], $input['email'], $input['phone'], $input['tier'],
-            $input['website'] ?: null, $input['city'] ?: null, $input['message'], $payable ? 'unpaid' : 'not_required', $payable ? $price : null, $ip]);
+            $input['website'] ?: null, $input['city'] ?: null, $input['message'], $photo, $payable ? 'unpaid' : 'not_required', $payable ? $price : null, $ip]);
     $id = (int) db()->lastInsertId();
 
     if (!$payable) return [$input, [], null];
@@ -112,6 +126,7 @@ function saveMembershipApplication(): array {
         $order = razorpayCreateOrder($price, 'membership-' . $id, ['application_id' => (string) $id, 'tier' => $input['tier']]);
     } catch (RuntimeException $error) {
         db()->prepare('DELETE FROM membership_applications WHERE id = ?')->execute([$id]);
+        memberPhotoDelete($photo);
         return [$input, ['form' => 'Online payment isn’t available right now, so your request wasn’t sent. Please try again in a few minutes.'], null];
     }
     db()->prepare('UPDATE membership_applications SET razorpay_order_id = ? WHERE id = ?')->execute([$order['id'], $id]);
@@ -136,8 +151,20 @@ function membershipPaymentReceived(string $orderId, string $paymentId, ?int $pai
     }
     if ($app['payment_status'] !== 'paid') {
         db()->prepare("UPDATE membership_applications SET payment_status = 'paid', razorpay_payment_id = ?, paid_at = NOW() WHERE id = ? AND payment_status <> 'paid'")->execute([$paymentId, $app['id']]);
+        // Paid: the membership is complete. Make the public profile and the share kit and send it; a failure here must not lose the payment.
+        try {
+            if ($kit = membershipActivateMember((int) $app['id'])) membershipSendShareKit(...$kit);
+        } catch (Throwable $error) {
+            error_log('Activating membership application ' . $app['id'] . ' after payment failed: ' . $error->getMessage());
+        }
     }
     return true;
+}
+
+/** The private share-kit address of a paid application's member, or null when it has none yet. */
+function membershipShareUrlForOrder(string $orderId): ?string {
+    $token = query("SELECT share_token FROM membership_applications WHERE razorpay_order_id = ? AND payment_status = 'paid'", [$orderId])[0]['share_token'] ?? null;
+    return $token ? membershipShareUrl($token) : null;
 }
 
 /** /membership/join/payment: Checkout's answer after paying, checked with its signature (JSON). */
@@ -154,7 +181,7 @@ function handleMembershipPayment(): never {
         echo json_encode(['ok' => false, 'message' => 'We couldn’t confirm your payment. If money was taken, don’t pay again: contact us with the payment ID ' . $paymentId . '.'], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    echo json_encode(['ok' => true, 'message' => MEMBERSHIP_SENT_MESSAGE, 'payment_id' => $paymentId], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => true, 'message' => MEMBERSHIP_SENT_MESSAGE, 'payment_id' => $paymentId, 'share_url' => membershipShareUrlForOrder($orderId)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
@@ -183,11 +210,11 @@ function membershipJoinForm(array $input, array $errors, bool $sent): string {
         'payment_note' => $payable ? '<p class="mshipjoin-hint">After you submit, you’ll pay the tier’s annual fee securely with Razorpay (UPI, cards, net banking or wallets). Your membership is confirmed once payment is complete.</p>' : '',
         'submit_label' => $payable ? 'Submit and pay' : 'Submit membership request',
         'payment_attr' => $payable ? ' data-payment' : '',
-        'payment_scripts' => $payable ? '<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script><script src="{{BASE}}/assets/js/committee-payment.js?v=20261024" defer></script>' : '',
+        'payment_scripts' => $payable ? '<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script><script src="{{BASE}}/assets/js/committee-payment.js?v=20261101" defer></script>' : '',
     ];
     foreach (MEMBERSHIP_JOIN_FIELDS as $field) {
         if ($field === 'tier') continue;
-        $data[$field] = escape($input[$field] ?? '');
+        $data[$field . '_value'] = escape($input[$field] ?? ''); // not $field: a view var named email would replace the footer's
         $data[$field . '_invalid'] = isset($errors[$field]) ? ' is-invalid' : '';
         $data[$field . '_aria'] = isset($errors[$field]) ? ' aria-invalid="true"' : '';
         $data[$field . '_error'] = $error($field);

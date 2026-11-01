@@ -3,6 +3,7 @@ declare(strict_types=1);
 date_default_timezone_set('Asia/Kolkata');
 require_once __DIR__ . '/includes/env.php';
 require_once __DIR__ . '/includes/errors.php';
+require_once __DIR__ . '/includes/thumb.php';
 
 // Errors are always logged. Visitors see the error page (includes/errors.php); with APP_DEBUG on,
 // the error itself is shown instead.
@@ -29,6 +30,8 @@ if ($base !== '' && str_starts_with($path, $base . '/')) $path = substr($path, s
 $path = '/' . trim($path, '/');
 if ($path === '/index.php') $path = '/';
 if ($path === '/players') $path = '/players/search';
+// Resized images (includes/thumb.php): answered before any database or view work.
+if (str_starts_with($path, '/thumb/')) thumbServe($path);
 require_once __DIR__ . '/includes/view.php';
 require_once __DIR__ . '/includes/content.php';
 $routes = json_decode(file_get_contents(__DIR__ . '/routes.json'), true, 512, JSON_THROW_ON_ERROR);
@@ -38,7 +41,14 @@ function render(string $html): string {
     $html = str_ireplace('%7B%7BBASE%7D%7D', '{{BASE}}', $html);
     // A bare {{BASE}} link is the home page: "/" at the domain root rather than "", which reloads the page.
     $html = preg_replace('~\{\{BASE\}\}(?=["\'])~', '{{BASE}}/', $html);
-    return str_replace('{{BASE}}', escape($base), $html);
+    // Canonical, social-preview and structured-data URLs must be absolute: crawlers and link previews ignore relative ones.
+    $html = preg_replace_callback('~(<link rel="canonical" href="|<meta (?:property="og:(?:url|image|image:secure_url)"|name="twitter:image") content=")(\{\{BASE\}\}[^"]*)"~',
+        fn (array $m) => $m[1] . escape(absoluteUrl($m[2])) . '"', $html);
+    $html = preg_replace_callback('~(<script type="application/ld\+json">)(.*?)(</script>)~s', fn (array $m) => $m[1] . str_replace('{{BASE}}', absoluteUrl('{{BASE}}'), $m[2]) . $m[3], $html);
+    $html = str_replace('{{BASE}}', escape($base), $html);
+    // Uploaded photos are served as resized copies (includes/thumb.php); admin pages keep the originals.
+    $route = $GLOBALS['path'] ?? '';
+    return $route === '/admin' || str_starts_with($route, '/admin/') ? $html : thumbRewriteHtml($html, escape($base));
 }
 function notFound(): never {
     errorPage(404);
@@ -61,8 +71,9 @@ if ($path === '/join-committee' || $path === '/join-committee/payment') {
     require_once __DIR__ . '/includes/committee.php';
     $path === '/join-committee' ? handleCommitteeRequest() : handleCommitteePayment();
 }
-if ($path === '/membership/join' || $path === '/membership/join/payment') {
+if ($path === '/membership/join' || $path === '/membership/join/payment' || $path === '/membership/quick') {
     require_once __DIR__ . '/includes/membership-join.php';
+    if ($path === '/membership/quick') handleMembershipQuick();
     $path === '/membership/join' ? handleMembershipJoin() : handleMembershipPayment();
 }
 if ($path === '/razorpay/webhook') {
@@ -89,7 +100,8 @@ if ($path === '/sitemap.xml') {
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     foreach ($routes as $route => $file) if (!str_contains($route, '?')) echo '<url><loc>' . escape($siteUrl . ($route === '/' ? '/' : $route)) . '</loc></url>';
     require_once __DIR__ . '/includes/teams.php';
-    $dynamicUrls = ['/', '/videos', '/blogs', '/join-committee'];
+    $dynamicUrls = ['/', '/videos', '/blogs', '/join-committee', '/membership', '/members'];
+    foreach (query('SELECT slug FROM members WHERE published = 1 ORDER BY position, business_name') as $member) $dynamicUrls[] = '/member/' . rawurlencode($member['slug']);
     foreach (query('SELECT slug FROM pages WHERE slug IN (' . implode(', ', array_fill(0, count(TEXT_PAGES), '?')) . ') ORDER BY slug', TEXT_PAGES) as $page) $dynamicUrls[] = '/' . $page['slug'];
     if (shopEnabled()) {
         require_once __DIR__ . '/includes/shop.php';
@@ -127,6 +139,8 @@ $dynamicRoutes = [
     '~^/membership$~' => ['membership.php', fn () => renderMembershipPage()],
     '~^/members$~' => ['members.php', fn () => renderMembersIndex()],
     '~^/member/([^/]+)$~' => ['members.php', fn ($slug) => renderMemberPage($slug)],
+    '~^/member/([^/]+)/creative\.png$~' => ['member-creative.php', fn ($slug) => serveMemberCreative($slug)],
+    '~^/membership/share/([a-f0-9]{32})$~' => ['member-share.php', fn ($token) => renderMembershipSharePage($token)],
     '~^/(' . implode('|', TEXT_PAGES) . ')$~' => ['content.php', fn ($slug) => renderTextPage($slug)],
     '~^/stats/season/(\d+)$~' => ['catalog.php', fn ($season) => renderSeasonStats($season, $query)],
     '~^/player/([^/]+)$~' => ['catalog.php', fn ($slug) => renderPlayerPage($slug)],

@@ -53,6 +53,7 @@ img {
 }
 
 .teams-linked-page {
+    overflow-x: clip;
     background: transparent;
     min-height: 100vh;
     position: relative;
@@ -279,7 +280,7 @@ body.home-unified-theme .leader-table-card {
 body.home-unified-theme .badge-season,
 body.home-unified-theme .video-card-date,
 body.home-unified-theme .latest-news__card-date {
-    color: #b45309;
+    color: #9a3412;
     background: rgba(253, 111, 59, 0.14);
     border: 1px solid rgba(253, 111, 59, 0.34);
     border-radius: 999px;
@@ -454,7 +455,7 @@ footer,
     border-radius: 6px;
     padding: 6px 12px;
     font:
-        700 11.5px/1 var(--font-family-Font-2, Roboto),
+        700 12px/1 var(--font-family-Font-2, Roboto),
         sans-serif;
     letter-spacing: 0.03em;
     margin-bottom: 14px;
@@ -570,7 +571,7 @@ footer,
     font-weight: var(--font-weight-400, 400) !important;
     line-height: 20.999px !important;
     letter-spacing: 0.477px !important;
-    padding: 0.42rem 0.48rem !important;
+    padding: 0.72rem 0.48rem !important;
     text-transform: uppercase !important;
     position: relative !important;
     white-space: nowrap !important;
@@ -780,9 +781,10 @@ footer {
 
 .sponsors-title {
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 48px;
-    font-weight: 700;
+    font-family: var(--font-family-Font-1, "Bebas Neue"), sans-serif;
+    font-size: 56px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
     color: #000;
     margin: 0;
     animation: sponsorFadeUp 0.7s ease both;
@@ -797,7 +799,7 @@ footer {
 .sponsors-subtitle {
     margin: 8px 0 0;
     color: #475569;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-size: 14px;
     font-weight: 500;
     animation: sponsorFadeUp 0.7s ease 0.18s both;
@@ -878,7 +880,7 @@ footer {
     display: block;
     min-height: 0;
     padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-size: 14px;
     font-weight: 800;
     color: #083d82;
@@ -937,8 +939,8 @@ footer {
     border-radius: 999px;
     background: rgba(8, 23, 51, 0.86);
     color: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
@@ -1045,7 +1047,7 @@ footer {
     text-align: center;
     display: block;
     padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
@@ -1081,7 +1083,7 @@ footer {
     z-index: 1;
     width: 100%;
     max-width: 1440px;
-    padding: 0;
+    padding: 0 clamp(16px, 3vw, 40px);
     margin: 0 auto;
 }
 
@@ -1104,7 +1106,8 @@ footer {
     align-self: stretch;
 }
 
-.footer-links-wrap h4 {
+.footer-links-wrap h4,
+.footer-links-wrap .footer-heading {
     margin-bottom: 16px;
     color: #ffffff;
     font-family: var(--font-family-Font-2, Roboto);
@@ -1135,7 +1138,7 @@ footer {
     margin: 0 0 6px;
     color: #f8fbff;
     font-size: 17px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-weight: 600;
     line-height: 1.45;
     letter-spacing: 0.01em;
@@ -1217,7 +1220,7 @@ footer {
     text-decoration: none;
     color: #f8fbff;
     font-size: 19px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-weight: 300;
     line-height: 1.45;
     letter-spacing: 0.01em;
@@ -1244,7 +1247,7 @@ footer {
     background: #fd6f3b url("../imgs/footer-strip.png") center / cover no-repeat;
     color: #1d2b4f;
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-Font-2, Roboto), sans-serif;
     font-size: 12px;
     padding: 12px 10px;
 }
@@ -1841,7 +1844,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -2027,7 +2030,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -2153,7 +2156,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -2271,7 +2274,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -2408,7 +2411,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -2567,7 +2570,7 @@ footer {
     color: var(--color-white-solid, #ffffff);
     text-align: right;
     font-family: var(--font-family-font-2, "Roboto-SemiBold", sans-serif);
-    font-size: 11.453960418701172px;
+    font-size: 12px;
     line-height: 13.74px;
     font-weight: var(--font-weight-600, 600);
     text-transform: uppercase;
@@ -3113,7 +3116,7 @@ footer {
     margin: 0 6px;
     color: #f2c01f;
     font-family: var(--font-family-Font-2, Roboto), sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -3249,7 +3252,7 @@ footer {
 .home-videos-section .latest-news__card-date {
     margin: 0 2px;
     color: #ffe082;
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.2;
     letter-spacing: 0.08em;
     font-weight: 700;
@@ -3532,7 +3535,6 @@ body.home-unified-theme .share-card:hover {
     transition:
         opacity 520ms ease,
         transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: calc(var(--reveal-index, 0) * 45ms);
     will-change: transform, opacity;
 }
 
@@ -3657,7 +3659,7 @@ body.home-unified-theme .share-card:hover {
     }
 
     .teams-section__name {
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .teams-section__bottom-decor {
@@ -3796,7 +3798,7 @@ body.home-unified-theme .share-card:hover {
     }
 
     .sponsors-title {
-        font-size: 34px;
+        font-size: 44px;
         margin-bottom: 20px;
     }
 
@@ -3862,7 +3864,8 @@ body.home-unified-theme .share-card:hover {
         padding-left: 8px;
     }
 
-    .footer-links-wrap h4 {
+    .footer-links-wrap h4,
+.footer-links-wrap .footer-heading {
         font-size: 22px;
         margin-bottom: 12px;
     }
@@ -4180,7 +4183,7 @@ body.home-unified-theme .share-card:hover {
 
 @media (max-width: 575px) {
     .sponsors-title {
-        font-size: 30px;
+        font-size: 40px;
     }
 
     .footer-sponsors-shell {
@@ -4236,7 +4239,8 @@ body.home-unified-theme .share-card:hover {
         justify-content: center;
     }
 
-    .footer-links-wrap h4 {
+    .footer-links-wrap h4,
+.footer-links-wrap .footer-heading {
         font-size: 20px;
     }
 
@@ -4390,4 +4394,304 @@ body.home-unified-theme .share-card:hover {
         width: 36px;
         height: 36px;
     }
+}
+
+/* =========================================================
+   Accessibility layer (WCAG 2.2 AA): skip link, focus, contrast,
+   tap targets, carousel controls, scroll helpers.
+   Some page templates ship their own scoped <style> after this file,
+   so the contrast overrides below use !important on purpose.
+   ========================================================= */
+:root {
+    --focus-ring: #0b50a7;
+    --ink-on-orange: #0a1f44;
+    --orange-strong: #c2410c; /* white text on this: 5.2:1 */
+    --orange-strong-hover: #9a3412;
+}
+
+/* Skip link (first focusable element on every page) */
+.skip-link {
+    position: absolute;
+    left: 12px;
+    top: -80px;
+    z-index: 2000;
+    padding: 12px 16px;
+    min-height: 44px;
+    background: #ffffff;
+    color: #0a1f44;
+    font: 700 16px/1.2 var(--font-family-Font-2, Roboto), sans-serif;
+    border-radius: 6px;
+    box-shadow: 0 0 0 3px #ffd23f, 0 6px 18px rgba(0, 0, 0, 0.35);
+    text-decoration: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    top: 12px;
+    outline: 3px solid #0a1f44 !important;
+}
+
+main:focus {
+    outline: none;
+}
+
+/* Consistent keyboard focus ring: navy on light, yellow on navy, dark ink on orange */
+.app-nav,
+footer,
+.footer-bottom,
+.retained-players,
+.hero-carousel,
+.mship-hero,
+.hpcl-agent__panel {
+    --focus-ring: #ffd23f;
+}
+
+.teams-linked-page {
+    --focus-ring: var(--ink-on-orange);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.btn:focus-visible,
+.page-link:focus-visible,
+.navbar-toggler:focus-visible,
+.nav-link:focus-visible {
+    outline: 3px solid var(--focus-ring) !important;
+    outline-offset: 2px !important;
+}
+
+.app-nav .nav-link:focus-visible {
+    outline-offset: 0 !important;
+}
+
+.skip-link:focus-visible {
+    --focus-ring: #0a1f44;
+}
+
+/* Contrast: text and controls on the orange page background and orange buttons */
+.teams-linked-page .team-breadcrumb .breadcrumb-item,
+.teams-linked-page .team-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+.teams-linked-page .team-breadcrumb .breadcrumb-item a,
+.teams-linked-page .team-breadcrumb .breadcrumb-item.active,
+.teams-linked-page .breadcrumb-item,
+.teams-linked-page .breadcrumb-item a,
+.teams-linked-page .breadcrumb-item.active {
+    color: var(--ink-on-orange) !important;
+}
+
+.teams-linked-page .team-breadcrumb .breadcrumb-item a {
+    text-decoration: underline;
+}
+
+.teams-linked-page .teams-section__title,
+.teams-linked-page .teams-section__title span,
+.teams-section .teams-section__title,
+.teams-section .teams-section__title span,
+.teams-linked-page .videos-page-title,
+.teams-linked-page .videos-page-subtitle,
+.teams-linked-page .blog-page-title,
+.teams-linked-page .blog-page-subtitle,
+body.home-unified-theme .videos-page-title,
+body.home-unified-theme .videos-page-subtitle,
+body.home-unified-theme .blog-page-subtitle {
+    color: var(--ink-on-orange) !important;
+}
+
+/* Season cards: the muted page paragraph colour is unreadable on the dark card gradients */
+.teams-section__card .teams-section__count {
+    color: #ffffff !important;
+}
+
+.teams-section__card--gold .teams-section__count {
+    color: #0a1f44 !important;
+}
+
+/* Footer text on navy: the page-level paragraph colour must not win over the footer's own */
+footer .footer-links-wrap p.footer-address {
+    color: #f8fbff !important;
+}
+
+/* Tap targets */
+.breadcrumb-item a {
+    display: inline-block;
+    padding: 3px 0;
+}
+
+@media (pointer: coarse), (max-width: 767px) {
+    .breadcrumb-item a {
+        padding: 13px 4px;
+        margin: -13px -4px;
+    }
+
+    .footer-links-wrap > div:not(.footer-brand-block) a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-contact-inline a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .videos-category-filters a,
+    .blog-category-filters a,
+    .page-link,
+    .pagination .page-item > * {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .footer-links-wrap .footer-social-link {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+    }
+
+    .app-nav .navbar-toggler {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .footer-bottom a {
+        display: inline-block;
+        padding: 15px 4px;
+        margin: -15px -4px;
+    }
+}
+
+/* Footer headings are real headings now (h2), styled like the old h4s */
+.footer-links-wrap .footer-heading {
+    margin-top: 0;
+}
+
+/* Home hero carousel: pause button and indicators */
+.hero-carousel-controls {
+    position: absolute;
+    /* bottom-left: the fixed chat bubble sits at the bottom-right of the viewport */
+    left: clamp(10px, 2vw, 24px);
+    bottom: clamp(10px, 2vw, 24px);
+    z-index: 25;
+    display: flex;
+    gap: 8px;
+}
+
+.hero-carousel-pause {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: rgba(8, 23, 51, 0.82);
+    color: #ffffff;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-carousel-pause:hover {
+    background: #0b50a7;
+    transform: scale(1.05);
+}
+
+.hero-carousel-pause[aria-pressed="true"] {
+    background: #ffffff;
+    color: #0a1f44;
+}
+
+.hero-carousel .carousel-indicators {
+    z-index: 25;
+    margin: 0 0 clamp(8px, 1.6vw, 20px);
+    gap: 2px;
+}
+
+.hero-carousel .carousel-indicators [data-bs-target] {
+    position: relative;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    opacity: 1;
+    text-indent: -9999px;
+    overflow: visible;
+}
+
+.hero-carousel .carousel-indicators [data-bs-target]::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: rgba(8, 23, 51, 0.55);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-carousel .carousel-indicators .active::before {
+    background: #ffffff;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Horizontal chip rows: scrolls on small screens with a fade cue at the right edge */
+.chip-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+}
+
+.chip-scroll > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.chip-scroll.is-scrolled-end,
+.chip-scroll.is-not-scrollable {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+@media (min-width: 768px) {
+    .chip-scroll {
+        flex-wrap: wrap;
+        overflow: visible;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}
+
+/* Scrollable table wrappers are focusable regions (see global.js) */
+.table-responsive[tabindex],
+[class*="-table-wrap"][tabindex] {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* The team page breadcrumb sits on the blue hero, not the orange page: keep it light there. */
+.teams-linked-page .team-hero .team-breadcrumb .breadcrumb-item,
+.teams-linked-page .team-hero .team-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+.teams-linked-page .team-hero .team-breadcrumb .breadcrumb-item a,
+.teams-linked-page .team-hero .team-breadcrumb .breadcrumb-item.active {
+    color: #fff !important;
 }

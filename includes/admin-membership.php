@@ -24,17 +24,20 @@ function membershipAppStatusBadge(string $status): string {
 function membershipAppPaymentBadge(string $status): string {
     return '<span class="admin-badge admin-badge--' . (MEMBERSHIP_PAYMENT_BADGES[$status] ?? 'unknown') . '">' . escape(MEMBERSHIP_PAYMENT_STATUSES[$status] ?? ucfirst($status)) . '</span>';
 }
+/** Where an applicant is in the whole flow: applied, paid, and whether their public profile is live. */
+function membershipFlowBadge(array $r): string {
+    $live = !empty($r['member_published']);
+    [$class, $label] = match (true) {
+        $r['payment_status'] === 'paid' && $live => ['ongoing', 'Complete'],
+        $r['payment_status'] === 'paid' => ['upcoming', 'Paid · profile hidden'],
+        $r['payment_status'] === 'unpaid' => ['completed', 'Awaiting payment'],
+        $live => ['ongoing', 'Profile live'],
+        default => ['unknown', 'Applied'],
+    };
+    return '<span class="admin-badge admin-badge--' . $class . '">' . $label . '</span>';
+}
 function membershipTierLabel(string $tier): string {
     return isset(MEMBERSHIP_TIERS[$tier]) ? MEMBERSHIP_TIERS[$tier]['name'] . ' · ' . membershipPriceLabel(MEMBERSHIP_TIERS[$tier]['price']) : ucfirst($tier);
-}
-
-/** A unique members.slug from a business name, optionally excluding one member id. */
-function memberSlug(string $name, ?int $excludeId = null): string {
-    $base = trim(preg_replace('~[^a-z0-9]+~', '-', strtolower($name)), '-') ?: 'member';
-    $taken = array_column(query('SELECT slug FROM members WHERE (slug = ? OR slug LIKE ?)' . ($excludeId ? ' AND id <> ?' : ''),
-        $excludeId ? [$base, likePattern($base . '-'), $excludeId] : [$base, likePattern($base . '-')]), 'slug', 'slug');
-    for ($n = 1, $slug = $base; isset($taken[$slug]); $slug = $base . '-' . ++$n);
-    return $slug;
 }
 
 // ---- Membership applications -------------------------------------------------
@@ -65,33 +68,36 @@ function membershipApplication(int $id): array {
 
 function renderAdminMembership(array $admin): string {
     $search = adminSearch();
-    $status = is_string($_GET['status'] ?? null) && isset(MEMBERSHIP_APP_STATUSES[$_GET['status']]) ? $_GET['status'] : '';
+    $status = is_string($_GET['status'] ?? null) && (isset(MEMBERSHIP_APP_STATUSES[$_GET['status']]) || $_GET['status'] === 'complete') ? $_GET['status'] : '';
     $conditions = [];
     $params = [];
-    if ($status !== '') { $conditions[] = 'status = ?'; $params[] = $status; }
-    if ($search !== '') { $conditions[] = '(business_name LIKE ? OR contact_name LIKE ? OR email LIKE ? OR phone LIKE ?)'; array_push($params, ...array_fill(0, 4, likePattern($search))); }
+    if ($status === 'complete') $conditions[] = "a.payment_status = 'paid'";
+    elseif ($status !== '') { $conditions[] = 'a.status = ?'; $params[] = $status; }
+    if ($search !== '') { $conditions[] = '(a.business_name LIKE ? OR a.contact_name LIKE ? OR a.email LIKE ? OR a.phone LIKE ?)'; array_push($params, ...array_fill(0, 4, likePattern($search))); }
     $where = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
-    $total = (int) query("SELECT COUNT(*) AS n FROM membership_applications $where", $params)[0]['n'];
+    $total = (int) query("SELECT COUNT(*) AS n FROM membership_applications a $where", $params)[0]['n'];
     $lastPage = max(1, (int) ceil($total / MEMBERSHIP_PER_PAGE));
     $page = min($lastPage, max(1, ctype_digit((string) ($_GET['page'] ?? '')) ? (int) $_GET['page'] : 1));
-    $apps = query("SELECT id, business_name, contact_name, email, phone, tier, status, payment_status, created_at FROM membership_applications $where ORDER BY created_at DESC, id DESC LIMIT "
+    $apps = query("SELECT a.id, a.business_name, a.contact_name, a.email, a.phone, a.tier, a.status, a.payment_status, a.created_at, m.id AS member_id, m.published AS member_published
+        FROM membership_applications a LEFT JOIN members m ON m.application_id = a.id $where ORDER BY a.created_at DESC, a.id DESC LIMIT "
         . MEMBERSHIP_PER_PAGE . ' OFFSET ' . (($page - 1) * MEMBERSHIP_PER_PAGE), $params);
     $rows = implode('', array_map(fn ($r) => '<tr><td><a href="{{BASE}}/admin/membership/' . (int) $r['id'] . '">' . escape($r['business_name']) . '</a><br><span class="admin-muted admin-small">' . escape($r['contact_name'] . ' · ' . $r['email']) . '</span></td>'
         . '<td class="admin-wide-only">' . escape($r['phone']) . '</td><td>' . escape(MEMBERSHIP_TIERS[$r['tier']]['name'] ?? $r['tier']) . '</td>'
-        . '<td>' . membershipAppStatusBadge($r['status']) . '</td><td>' . membershipAppPaymentBadge($r['payment_status']) . '</td><td class="admin-wide-only">' . escape(date('j M Y', strtotime($r['created_at']))) . '</td>'
+        . '<td>' . membershipFlowBadge($r) . '</td><td>' . membershipAppStatusBadge($r['status']) . '</td><td>' . membershipAppPaymentBadge($r['payment_status']) . '</td><td class="admin-wide-only">' . escape(date('j M Y', strtotime($r['created_at']))) . '</td>'
         . '<td class="admin-actions"><a href="{{BASE}}/admin/membership/' . (int) $r['id'] . '">View</a>'
         . (adminCan('delete') ? '<a class="admin-danger-link" href="{{BASE}}/admin/membership/' . (int) $r['id'] . '/delete">Delete</a>' : '') . '</td></tr>', $apps));
 
     $counts = array_column(query('SELECT status, COUNT(*) AS n FROM membership_applications GROUP BY status'), 'n', 'status');
+    $counts['complete'] = (int) query("SELECT COUNT(*) AS n FROM membership_applications WHERE payment_status = 'paid'")[0]['n'];
     $tabUrl = fn (string $key) => '{{BASE}}/admin/membership' . ($key !== '' || $search !== '' ? '?' . escape(http_build_query(array_filter(['status' => $key, 'q' => $search]))) : '');
     $tabs = '<nav class="admin-tabs" aria-label="Status">' . implode('', array_map(fn ($key, $label) => '<a href="' . $tabUrl($key) . '"' . ($key === $status ? ' aria-current="page"' : '') . '>'
-        . $label . ' <span class="admin-muted">' . number_format($key === '' ? array_sum($counts) : (int) ($counts[$key] ?? 0)) . '</span></a>', ['', ...array_keys(MEMBERSHIP_APP_STATUSES)], ['All', ...MEMBERSHIP_APP_STATUSES])) . '</nav>';
+        . $label . ' <span class="admin-muted">' . number_format($key === '' ? array_sum($counts) : (int) ($counts[$key] ?? 0)) . '</span></a>', ['', 'complete', ...array_keys(MEMBERSHIP_APP_STATUSES)], ['All', 'Completed', ...MEMBERSHIP_APP_STATUSES])) . '</nav>';
     $pageUrl = fn (int $number) => '{{BASE}}/admin/membership?' . escape(http_build_query(array_filter(['status' => $status, 'q' => $search, 'page' => $number > 1 ? $number : null])));
     $pager = $lastPage > 1 ? '<nav class="admin-pager" aria-label="Pages">'
         . ($page > 1 ? '<a href="' . $pageUrl($page - 1) . '" rel="prev">&larr; Previous</a>' : '<span></span>')
         . '<span class="admin-muted">Page ' . $page . ' of ' . $lastPage . '</span>'
         . ($page < $lastPage ? '<a href="' . $pageUrl($page + 1) . '" rel="next">Next &rarr;</a>' : '<span></span>') . '</nav>' : '';
-    $table = $apps ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Business</th><th class="admin-wide-only">Phone</th><th>Tier</th><th>Status</th><th>Payment</th><th class="admin-wide-only">Applied</th><th><span class="admin-visually-hidden">Actions</span></th></tr></thead><tbody>'
+    $table = $apps ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Business</th><th class="admin-wide-only">Phone</th><th>Tier</th><th>Progress</th><th>Status</th><th>Payment</th><th class="admin-wide-only">Applied</th><th><span class="admin-visually-hidden">Actions</span></th></tr></thead><tbody>'
         . $rows . '</tbody></table></div>' . $pager
         : '<p class="admin-empty">' . ($search === '' && $status === '' ? 'No membership requests yet. They arrive from <a href="{{BASE}}/membership/join">/membership/join</a>.' : 'No requests match.') . '</p>';
     $summary = number_format($total) . ' request' . ($total === 1 ? '' : 's') . ($search !== '' ? ($total === 1 ? ' matches' : ' match') . ' “' . escape($search) . '”' : '');
@@ -112,6 +118,7 @@ function renderMembershipApplication(array $admin, int $id): string {
         adminFlash('Choose a status, and keep the note to 2,000 characters or fewer.');
         adminRedirect('/admin/membership/' . $id);
     }
+    $existing = query('SELECT * FROM members WHERE application_id = ?', [$id])[0] ?? null;
     $statuses = implode('', array_map(fn ($key, $label) => '<option value="' . $key . '"' . ($app['status'] === $key ? ' selected' : '') . '>' . $label . '</option>', array_keys(MEMBERSHIP_APP_STATUSES), MEMBERSHIP_APP_STATUSES));
     $reviewed = $app['reviewed_at'] ? 'Last updated ' . escape(date('j M Y, g:i A', strtotime($app['reviewed_at']))) . ($app['reviewed_by_name'] ? ' by ' . escape($app['reviewed_by_name']) : '') : 'Not reviewed yet';
     $website = $app['website'] ? '<a href="' . escape(preg_match('~^https?://~i', $app['website']) ? $app['website'] : 'https://' . $app['website']) . '" target="_blank" rel="noopener nofollow">' . escape($app['website']) . '</a>' : '<span class="admin-muted">—</span>';
@@ -130,7 +137,9 @@ function renderMembershipApplication(array $admin, int $id): string {
             . '<button type="submit" class="admin-button-secondary">Check payment with Razorpay</button>'
             . '<p class="admin-hint">Asks Razorpay about order ' . escape($app['razorpay_order_id']) . ': whether it was paid, failed or is still waiting. A successful payment it finds is recorded here.</p></form>' : '',
         'statuses' => $statuses, 'admin_note' => escape((string) $app['admin_note']), 'reviewed' => $reviewed,
-        'create_profile' => '<form method="post" action="{{BASE}}/admin/membership/' . $id . '/profile"><input type="hidden" name="csrf_token" value="' . adminCsrfToken() . '"><button type="submit" class="admin-button">Create a member profile from this</button></form>',
+        'photo' => $app['photo'] ? adminImageHtml($app['photo'], 'admin-logo-preview') : '<span class="admin-muted">—</span>',
+        'share_panel' => membershipSharePanel($app, $existing),
+        'create_profile' => $existing ? '' : '<form method="post" action="{{BASE}}/admin/membership/' . $id . '/profile"><input type="hidden" name="csrf_token" value="' . adminCsrfToken() . '"><button type="submit" class="admin-button">Create a member profile from this</button></form>',
         'delete' => adminCan('delete') ? '<a class="admin-danger-link" href="{{BASE}}/admin/membership/' . $id . '/delete">Delete this request</a>' : '']);
 }
 
@@ -170,12 +179,54 @@ function verifyMembershipPayment(array $admin, int $id): never {
     adminRedirect($back);
 }
 
+/** The member profile and share-kit part of an application's page. */
+function membershipSharePanel(array $app, ?array $member): string {
+    $button = fn (string $do, string $label, string $class) => '<form method="post" action="{{BASE}}/admin/membership/' . (int) $app['id'] . '/sharekit" style="display:inline-block;margin:0 8px 8px 0"><input type="hidden" name="csrf_token" value="' . adminCsrfToken() . '">'
+        . '<input type="hidden" name="do" value="' . $do . '"><button type="submit" class="' . $class . '">' . $label . '</button></form>';
+    if (!$member || !$app['share_token']) {
+        return '<p class="admin-hint">Publishes a profile from this request (name, tier, city, website, photo) at /members and creates the member’s share kit: a picture for social media and a page with share buttons. A paid request gets this automatically.</p>'
+            . $button('activate', 'Publish profile and create share kit', 'admin-button');
+    }
+    $live = (bool) $member['published'];
+    $creative = $live && memberCreativeAvailable() ? '<p><img src="' . escape(memberCreativeUrl($member)) . '" alt="The member’s creative" width="240" height="240" style="border-radius:10px;border:1px solid rgba(2,6,23,.15)"></p>' : '';
+    $kit = membershipShareUrl($app['share_token']);
+    return '<p>' . ($live ? '<span class="admin-badge admin-badge--ongoing">Profile published</span>' : '<span class="admin-badge admin-badge--unknown">Profile is a draft: publish it in Members first</span>')
+        . ' <a href="{{BASE}}/admin/members/' . (int) $member['id'] . '">Edit profile</a>' . ($live ? ' · <a href="{{BASE}}/member/' . escape(rawurlencode($member['slug'])) . '" target="_blank" rel="noopener">View public page</a>' : '') . '</p>'
+        . $creative
+        . '<div class="admin-field"><label for="sharekit-url">Share kit link (private, for this member only)</label><input id="sharekit-url" type="text" readonly value="' . escape($kit) . '" onfocus="this.select()"></div>'
+        . ($live ? '<a class="admin-button-secondary" href="' . escape($kit) . '" target="_blank" rel="noopener" style="display:inline-block;margin:0 8px 8px 0">Open share kit</a>'
+            . '<a class="admin-button-secondary" href="' . escape(memberCreativeUrl($member, true)) . '" style="display:inline-block;margin:0 8px 8px 0">Download creative</a>'
+            . $button('email', 'Email the share kit to ' . escape($app['email']), 'admin-button-secondary') : '');
+}
+
+/** POST /admin/membership/<id>/sharekit: publish the profile and create the kit, or email the kit to the member. */
+function membershipShareKitAction(array $admin, int $id): never {
+    membershipApplication($id);
+    $back = '/admin/membership/' . $id;
+    $do = postedText('do');
+    $kit = in_array($do, ['activate', 'email'], true) ? membershipActivateMember($id) : null;
+    if (!$kit) { adminFlash('Nothing was done: unknown action.'); adminRedirect($back); }
+    [$app, $member] = $kit;
+    if ($do === 'activate') {
+        adminFlash($member['published'] ? 'The profile is published and the share kit is ready. Email it to the member below.' : 'The share kit is ready, but the profile is a draft: publish it in Members first.');
+    } elseif (!$member['published']) {
+        adminFlash('Publish the profile in Members first: the share kit only works for a published profile.');
+    } else {
+        adminFlash(membershipSendShareKit($app, $member) ? 'Emailed the share kit to ' . $app['email'] . '.' : 'The email could not be sent. Check Settings → Integrations, or copy the share kit link and send it yourself.');
+    }
+    adminRedirect($back);
+}
+
 /** Creates a draft member profile prefilled from an application, then opens it for editing. */
 function createMemberFromApplication(array $admin, int $id): never {
     $app = membershipApplication($id);
+    if ($existing = query('SELECT id FROM members WHERE application_id = ?', [$id])[0] ?? null) {
+        adminFlash('This request already has a member profile.');
+        adminRedirect('/admin/members/' . $existing['id']);
+    }
     $slug = memberSlug($app['business_name']);
-    adminExecute('INSERT INTO members (slug, business_name, tier, website, phone, email, city, about, published, application_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW())',
-        [$slug, $app['business_name'], $app['tier'], $app['website'] ?: null, $app['phone'], $app['email'], $app['city'] ?: null, $app['message'] ?: null, $id]);
+    adminExecute('INSERT INTO members (slug, business_name, tier, photo, website, phone, email, city, about, published, application_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW())',
+        [$slug, $app['business_name'], $app['tier'], $app['photo'] ?: null, $app['website'] ?: null, $app['phone'], $app['email'], $app['city'] ?: null, $app['message'] ?: null, $id]);
     $memberId = (int) db()->lastInsertId();
     adminFlash('Created a draft profile for ' . $app['business_name'] . '. Add a logo and tagline, then publish it.');
     adminRedirect('/admin/members/' . $memberId);

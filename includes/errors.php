@@ -37,7 +37,7 @@ function errorPage(int $status): never {
     }
     $data = ['code' => $status, 'heading' => escape($heading), 'message' => escape($message), 'actions' => $actions, 'suggestions' => $suggestions, 'year' => date('Y')];
     // Errors raised before includes/content.php is loaded have no header data.
-    if (!viewComposer('partials.header')) $data['shop_nav'] = '';
+    if (!viewComposer('partials.header')) $data += ['shop_nav' => '', 'membership_popup' => ''];
 
     // A server error is often the database being unavailable, and the full footer reads from the
     // database, so 500 uses the lighter layout without it; the others fall back to it if needed.

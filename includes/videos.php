@@ -32,8 +32,10 @@ function allVideos(): array {
     foreach (query('SELECT * FROM video_links ORDER BY video_id, kind DESC, position') as $link) if (isset($videos[$link['video_id']])) $videos[$link['video_id']]['links'][$link['kind']][] = $link;
     return $videos = array_values($videos);
 }
-function videoThumbnail(array $video): string {
-    return $video['thumbnail_url'] ?: 'https://i.ytimg.com/vi/' . $video['youtube_id'] . '/hqdefault.jpg';
+/** Cards use YouTube's 480x360 thumbnail; $large keeps the stored maxres image for the video page's player. */
+function videoThumbnail(array $video, bool $large = false): string {
+    $url = $video['thumbnail_url'] ?: 'https://i.ytimg.com/vi/' . $video['youtube_id'] . '/hqdefault.jpg';
+    return $large ? $url : str_replace('/maxresdefault.jpg', '/hqdefault.jpg', $url);
 }
 function videoUrl(array $video): string {
     return '{{BASE}}/videos/' . rawurlencode($video['slug']);
@@ -79,7 +81,7 @@ function renderVideosIndex(?string $category, ?string $tag, string $path, array 
     $html = '<section class="videos-page-wrap"><div class="videos-page-container"><div class="videos-page-head"><div><h1 class="videos-page-title">Latest YouTube Videos</h1><p class="videos-page-subtitle">All available uploads from the official Pro HPCL YouTube channel.</p></div>'
         . '<a class="videos-page-link" href="' . escape($channelUrl) . '" target="_blank" rel="noopener noreferrer">Open Channel</a></div>';
     if ($categories) {
-        $html .= '<div class="videos-category-filters"><a class="videos-category-chip ' . ($category === null && $tag === null ? 'is-active' : '') . '" href="{{BASE}}/videos">All</a>';
+        $html .= '<div class="videos-category-filters chip-scroll"><a class="videos-category-chip ' . ($category === null && $tag === null ? 'is-active' : '') . '" href="{{BASE}}/videos">All</a>';
         foreach ($categories as $item) $html .= '<a class="videos-category-chip ' . ($category === $item['slug'] ? 'is-active' : '') . '" href="{{BASE}}/videos/category/' . rawurlencode($item['slug']) . '">' . escape($item['name']) . '</a>';
         $html .= '</div>';
     }
@@ -147,7 +149,7 @@ function renderVideoPage(string $slug): ?string {
     if (!$video) return null;
     $title = trim($video['title']) ?: 'Pro HPCL Video';
     $description = trim((string) $video['description']) ?: trim($video['title']);
-    $thumbnail = videoThumbnail($video);
+    $thumbnail = videoThumbnail($video, true);
     $url = videoUrl($video);
     $embed = (string) $video['embed_url'];
     if ($embed !== '') $embed .= (str_contains($embed, '?') ? '&' : '?') . 'autoplay=1&rel=0&modestbranding=1&fs=1&playsinline=0';
@@ -155,8 +157,8 @@ function renderVideoPage(string $slug): ?string {
     $views = viewCountLabel($video['view_count']);
 
     $html = '<section class="video-watch-wrap"><div class="video-watch-container"><nav aria-label="breadcrumb" class="my-1"><ol class="breadcrumb team-breadcrumb mb-3"><li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li><li class="breadcrumb-item"><a href="{{BASE}}/videos">Videos</a></li>'
-        . '<li class="breadcrumb-item active fw-semibold" aria-current="page">' . escape(strLimit($title, 52)) . '</li></ol></nav><div class="video-watch-grid"><article class="video-watch-card">'
-        . '<div class="video-frame-wrap"><iframe class="video-frame" src="' . escape($embed) . '" title="' . escape($title) . '" loading="eager" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div>'
+        . '<li class="breadcrumb-item active fw-semibold video-crumb" aria-current="page" title="' . escape($title) . '"><span class="video-crumb-title">' . escape($title) . '</span></li></ol></nav><div class="video-watch-grid"><article class="video-watch-card">'
+        . '<div class="video-frame-wrap"><iframe class="video-frame" src="' . escape($embed) . '" title="' . escape($title) . '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div>'
         . '<div class="video-meta"><h1 class="video-title">' . escape($title) . '</h1><div class="video-meta-row">'
         . '<span class="video-meta-chip"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H2V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm15 9v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8h20Z"/></svg>' . escape($video['published_label'] ?? 'Published date unavailable') . '</span>'
         . '<span class="video-meta-chip"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c5.23 0 9.27 3.02 11 6.5C21.27 14.98 17.23 18 12 18S2.73 14.98 1 11.5C2.73 8.02 6.77 5 12 5Zm0 2C7.94 7 4.76 9.1 3.2 11.5 4.76 13.9 7.94 16 12 16s7.24-2.1 8.8-4.5C19.24 9.1 16.06 7 12 7Z"/></svg>' . escape($views ?? 'N/A views') . '</span>'
@@ -174,11 +176,11 @@ function renderVideoPage(string $slug): ?string {
         . '<div class="video-share-wrap"><p class="video-share-title">Share this video</p><div class="video-share-grid">';
     foreach ($share as [$href, $label]) $html .= '<a class="video-share-btn" href="' . escape($href) . '" target="_blank" rel="noopener noreferrer">' . $label . '</a>';
     $html .= '<a href="#" class="video-share-btn" data-copy-video-link="' . escape(absoluteUrl($url)) . '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 3a2 2 0 0 0-2 2v10h2V5h10V3H8Zm3 4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-8Z"/></svg><span data-copy-label>Copy Link</span></a></div></div></div></article>'
-        . '<aside class="video-related"><h2 class="video-related-title">Related Videos</h2><div class="video-related-list">';
+        . '<section class="video-related" aria-labelledby="video-related-heading"><h2 class="video-related-title" id="video-related-heading">Related Videos</h2><div class="video-related-list">';
     foreach (relatedVideos($video) as $item) {
         $html .= '<a class="video-related-item" href="' . videoUrl($item) . '"><img src="' . escape(videoThumbnail($item)) . '" alt="' . escape($item['title']) . '" loading="lazy"><div><p class="video-related-item-title">' . escape($item['title']) . '</p><p class="video-related-item-date">' . escape($item['published_label'] ?? '') . '</p></div></a>';
     }
-    $html .= '</div></aside></div></div></section>';
+    $html .= '</div></section></div></div></section>';
 
     $schema = ['@context' => 'https://schema.org', '@type' => 'VideoObject', 'name' => $title, 'description' => $description, 'thumbnailUrl' => [$thumbnail],
         // Laravel parses the date-only label, so the time of day is the request time.

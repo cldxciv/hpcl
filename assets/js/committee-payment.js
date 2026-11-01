@@ -73,6 +73,12 @@
             receipt.querySelector('strong').textContent = data.payment_id;
             receipt.hidden = false;
         }
+        // Membership payments answer with the member's share-kit page.
+        const kit = document.querySelector('[data-share-kit]');
+        if (kit && data.share_url) {
+            kit.querySelector('[data-share-kit-link]').href = data.share_url;
+            kit.hidden = false;
+        }
         setPending(null);
         AppForm.showAlert(form, '', '');
         AppForm.showSuccess(form, data);

@@ -60,14 +60,20 @@
         }
     }
     function closePanel() {
+        var hadFocus = panel.contains(document.activeElement);
         panel.hidden = true;
         bubble.setAttribute('aria-expanded', 'false');
+        if (hadFocus) bubble.focus();
     }
 
     bubble.addEventListener('click', function () {
         panel.hidden ? openPanel() : closePanel();
     });
     closeBtn.addEventListener('click', closePanel);
+    // Esc closes the chat from anywhere on the page while it is open.
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !panel.hidden) closePanel();
+    });
 
     // Deep link: any link to #chat (e.g. a "Chat with us" button) opens the assistant.
     function maybeOpenFromHash() { if (location.hash === '#chat') openPanel(); }

@@ -38,8 +38,8 @@
 {!! $social_links !!}
                 </div>
             </div>
-            <div>
-                <h4>Quick Links</h4>
+            <div role="navigation" aria-labelledby="footer-h-quick">
+                <h2 class="footer-heading" id="footer-h-quick">Quick Links</h2>
                 <a href="{{BASE}}">Home</a>
                 <a href="{{BASE}}/about">About Us</a>
                 <a href="{{BASE}}/contact">Contact</a>
@@ -49,17 +49,17 @@
                 <a href="{{BASE}}/stats">Stats</a>
                 <a href="{{BASE}}/teams">Teams</a>
             </div>
-            <div>
-                <h4>Policies</h4>
+            <div role="navigation" aria-labelledby="footer-h-policies">
+                <h2 class="footer-heading" id="footer-h-policies">Policies</h2>
                 <a href="{{BASE}}/privacy_policy">Privacy Policy</a>
                 <a href="{{BASE}}/terms">Terms Of Use</a>
                 <a href="{{BASE}}/refund_policy">Refund Policy</a>
             </div>
-            <div class="footer-important-links">
-                <h4>Important Links</h4>
+            <div class="footer-important-links" role="navigation" aria-labelledby="footer-h-important">
+                <h2 class="footer-heading" id="footer-h-important">Important Links</h2>
 {!! $important_links !!}
             </div>
         </div>
     </section>
-</footer>
 @include('partials.footer-bottom')
+</footer>
