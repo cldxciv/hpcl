@@ -79,14 +79,21 @@
         margin-bottom: 0;
         text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
     }
+    /* Owners sit centred under the heading whatever their number: one to four cards, never stuck to the left edge. */
+    .team-owners { text-align: center; }
     .owners-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 12px;
     }
+    .owners-grid > .owner-card {
+        flex: 0 0 calc((100% - 12px) / 2);
+        max-width: 200px;
+    }
     @media (min-width: 992px) {
-        .owners-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+        .owners-grid > .owner-card {
+            flex-basis: calc((100% - 36px) / 4);
         }
     }
     .owner-card {
