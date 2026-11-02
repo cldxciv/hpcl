@@ -203,6 +203,16 @@ function paginationHtml(int $page, int $lastPage, int $total, int $perPage, call
         . '</ul></div></div></nav>';
 }
 
+/**
+ * SQL condition: this season_teams row ($st is its table alias) is one of the teams actually playing the
+ * season. A season with a schedule (season_fixtures) counts only the teams placed in a group (pool); a
+ * season without one counts every team attached to it. Used for the public "N teams" figures, so the
+ * number stays right whether or not teams that are not in the schedule are still attached.
+ */
+function seasonPlayingTeamSql(string $st = 'st'): string {
+    return "($st.pool IS NOT NULL AND $st.pool <> '' OR NOT EXISTS (SELECT 1 FROM season_fixtures sf WHERE sf.season_id = $st.season_id))";
+}
+
 /** Full URL for a {{BASE}} path (share links): SITE_URL when set, else the current host. */
 function absoluteUrl(string $path): string {
     global $base;

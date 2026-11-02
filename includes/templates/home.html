@@ -9,6 +9,16 @@
         <style>
             /* white on the orange section is 2.8:1 */
             .teams-section__title, .teams-section__title span { color: #0b2a5b; }
+            /* Team cards: readable names, squad size, logos aligned, rows that fill (12 teams = 6 x 2). */
+            .teams-section__grid > a { display: block; }
+            .teams-section__card { min-height: 250px; height: 100%; justify-content: flex-start; padding-top: 26px; }
+            .teams-section__name { font-size: 15px; line-height: 1.3; letter-spacing: 0.03em; margin-top: 16px; }
+            .teams-section__card .teams-section__count { margin: 6px 0 0; color: #fff !important; font-size: 0.9rem; font-weight: 600; text-align: center; }
+            .teams-section__card--gold .teams-section__name, .teams-section__card--teal .teams-section__name,
+            .teams-section__card--orange .teams-section__name, .teams-section__card--yellow .teams-section__name,
+            .teams-section__card--gold .teams-section__count, .teams-section__card--teal .teams-section__count,
+            .teams-section__card--orange .teams-section__count, .teams-section__card--yellow .teams-section__count { color: #1c1204 !important; }
+            @media (min-width: 1281px) { .teams-section__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
             .hero-carousel-pause__icon--play { display: none; }
             .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--play { display: block; }
             .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--pause { display: none; }

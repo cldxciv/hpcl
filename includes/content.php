@@ -160,11 +160,12 @@ function renderHome(): string {
                 . '<div class="tpv2-card__meta"><span class="tpv2-card__tag">RETAINED</span><h3 class="tpv2-card__name retained-players__name">' . escape($player['name']) . '</h3>'
                 . '<p class="tpv2-card__metric-label retained-players__team">' . escape($player['team_name']) . "</p></div></article></a>\n";
         }
-        foreach (query('SELECT t.name, t.slug, t.logo FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = ? AND t.deleted_at IS NULL ORDER BY t.name', [$season['id']]) as $index => $team) {
-            $teams .= '<a class="text-decoration-none d-block" href="{{BASE}}/teams/season/' . $season['route_key'] . '/' . rawurlencode($team['slug']) . '" aria-label="' . escape($team['name']) . '">'
+        foreach (query('SELECT t.name, t.slug, t.logo, (SELECT COUNT(*) FROM season_players sp2 WHERE sp2.season_id = st.season_id AND sp2.team_id = t.id) AS player_count FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = ? AND t.deleted_at IS NULL AND ' . seasonPlayingTeamSql() . ' ORDER BY t.name', [$season['id']]) as $index => $team) {
+            $teams .= '<a class="text-decoration-none d-block" href="{{BASE}}/teams/season/' . $season['route_key'] . '/' . rawurlencode($team['slug']) . '">'
                 . '<article class="teams-section__card js-reveal-card teams-section__card--' . HOME_TEAM_COLOURS[$index % count(HOME_TEAM_COLOURS)] . '">'
                 . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . escape(mediaUrl($team['logo'], '/logo.png')) . '" alt="" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';"></div>'
-                . '<h3 class="teams-section__name">' . escape($team['name']) . "</h3></article></a>\n";
+                . '<h3 class="teams-section__name">' . escape($team['name']) . '</h3>'
+                . ($team['player_count'] ? '<p class="teams-section__count">' . (int) $team['player_count'] . ' players</p>' : '') . "</article></a>\n";
         }
     }
 

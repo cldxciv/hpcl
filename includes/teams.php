@@ -6,14 +6,14 @@ require_once __DIR__ . '/catalog.php';
 
 /** /teams: one card per season. Port of resources/views/public/teams/index.blade.php. */
 function renderTeamsIndex(string $html): string {
-    $seasons = query('SELECT s.*, (SELECT COUNT(*) FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = s.id AND t.deleted_at IS NULL) AS teams_count FROM seasons s ORDER BY s.route_key, s.start_date DESC');
+    $seasons = query('SELECT s.*, (SELECT COUNT(*) FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = s.id AND t.deleted_at IS NULL AND ' . seasonPlayingTeamSql() . ') AS teams_count FROM seasons s ORDER BY s.route_key, s.start_date DESC');
     $variants = ['red', 'gold', 'purple', 'blue', 'pink', 'teal', 'orange', 'yellow', 'magenta', 'violet', 'navy'];
     $cards = '';
     foreach ($seasons as $index => $season) {
-        $cards .= '<a class="text-decoration-none" href="{{BASE}}/teams/season/' . $season['route_key'] . '" aria-label="' . escape($season['name']) . '">'
+        $cards .= '<a class="text-decoration-none" href="{{BASE}}/teams/season/' . $season['route_key'] . '">'
             . '<article class="teams-section__card teams-section__card--' . $variants[$index % count($variants)] . '"><div class="teams-section__logo-wrap teams-section__logo-wrap--season">'
             . '<img class="teams-section__logo teams-section__logo--season" src="' . mediaUrl($season['image'], '/logo.png') . '" alt="" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';">'
-            . '</div><h2 class="teams-section__name">' . escape($season['name']) . '</h2><p class="teams-section__count">' . $season['teams_count'] . ' teams</p></article></a>';
+            . '</div><h2 class="teams-section__name">' . escape($season['name']) . '</h2><p class="teams-section__count">' . (int) $season['teams_count'] . ((int) $season['teams_count'] === 1 ? ' team' : ' teams') . '</p></article></a>';
     }
     [$dom, $xpath] = loadPage($html);
     if ($grid = $xpath->query('//div[@class="teams-section__grid"]')->item(0)) replaceInnerHtml($dom, $grid, $cards ?: '<div class="alert alert-light border text-center w-100">No seasons available.</div>');

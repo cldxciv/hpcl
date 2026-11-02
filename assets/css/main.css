@@ -4695,3 +4695,98 @@ footer .footer-links-wrap p.footer-address {
 .teams-linked-page .team-hero .team-breadcrumb .breadcrumb-item.active {
     color: #fff !important;
 }
+
+/* =========================================================
+   Player cards (home Top Performers and Retained Players, stats leaders)
+   The photo takes at most 42% of the card and the text column uses the rest, so a
+   name can never run onto the photo; the type scales with the card width and the
+   card grows with its text. Browsers without container units keep the fixed sizes.
+   The team page has its own player card styles (team.html) and is not touched.
+   ========================================================= */
+.top-performers-v2 .tpv2-card,
+.retained-players .tpv2-card,
+.stats-performer-card.tpv2-card {
+    container-type: inline-size;
+    padding: 18px 0;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__player,
+.retained-players .tpv2-card .tpv2-card__player,
+.stats-performer-card .tpv2-card__player {
+    left: 18px;
+    top: auto;
+    bottom: 0;
+    width: 150px;
+    height: 200px;
+    object-position: left bottom;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__meta,
+.retained-players .tpv2-card .tpv2-card__meta,
+.stats-performer-card .tpv2-card__meta {
+    position: static;
+    margin: 0 16px 0 188px;
+    min-width: 0;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__tag,
+.retained-players .tpv2-card .tpv2-card__tag,
+.stats-performer-card .tpv2-card__tag {
+    max-width: 100%;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    white-space: normal;
+    line-height: 1.15;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__name,
+.retained-players .tpv2-card .tpv2-card__name,
+.stats-performer-card .tpv2-card__name {
+    max-width: 100%;
+    font-size: 32px;
+    line-height: 1;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__metric-label,
+.retained-players .tpv2-card .tpv2-card__metric-label,
+.stats-performer-card .tpv2-card__metric-label {
+    max-width: 100%;
+    text-align: right;
+}
+
+.top-performers-v2 .tpv2-card .tpv2-card__metric-value,
+.retained-players .tpv2-card .tpv2-card__metric-value,
+.stats-performer-card .tpv2-card__metric-value {
+    font-size: 56px;
+}
+
+@supports (width: 1cqw) {
+    .top-performers-v2 .tpv2-card .tpv2-card__player,
+.retained-players .tpv2-card .tpv2-card__player,
+.stats-performer-card .tpv2-card__player {
+        width: min(218px, 42cqw);
+        height: calc(min(218px, 42cqw) * 1.35);
+    }
+
+    .top-performers-v2 .tpv2-card .tpv2-card__meta,
+.retained-players .tpv2-card .tpv2-card__meta,
+.stats-performer-card .tpv2-card__meta {
+        margin-left: calc(min(218px, 42cqw) + 28px);
+    }
+
+    .top-performers-v2 .tpv2-card .tpv2-card__name,
+.retained-players .tpv2-card .tpv2-card__name,
+.stats-performer-card .tpv2-card__name {
+        font-size: clamp(26px, 8.6cqw, 48px);
+    }
+
+    .top-performers-v2 .tpv2-card .tpv2-card__metric-value,
+.retained-players .tpv2-card .tpv2-card__metric-value,
+.stats-performer-card .tpv2-card__metric-value {
+        font-size: clamp(44px, 16cqw, 72px);
+    }
+}

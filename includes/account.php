@@ -34,6 +34,7 @@ const ACCOUNT_ROUTES = [
     '/reset-password' => ['account-auth.php', 'handleResetPassword'],
     '/account' => ['account-profile.php', 'handleAccountHome'],
     '/account/edit' => ['account-profile.php', 'handleAccountEdit'],
+    '/account/team' => ['account-profile.php', 'handleAccountTeam'],
     '/account/password' => ['account-profile.php', 'handleAccountPassword'],
 ];
 
@@ -228,23 +229,40 @@ function accountTakeFlash(): string {
 }
 
 /**
- * Sends an account email (password reset, welcome…). Outside production it is written to
- * private/mail.log instead, since the SMTP settings are the live mailbox's. Returns false (and
- * logs why) when sending fails, so a mail problem never shows the visitor an error page.
+ * Sends an account email (password reset, welcome…): $text, and $html as the formatted version when
+ * given. Outside production it is written to private/mail.log instead (the HTML to
+ * private/mail-html/), since the SMTP settings are the live mailbox's. Returns false (and logs why)
+ * when sending fails, so a mail problem never shows the visitor an error page.
  */
-function accountSendMail(string $to, string $subject, string $text): bool {
+function accountSendMail(string $to, string $subject, string $text, ?string $html = null): bool {
     if (appEnv() !== 'production') {
-        file_put_contents(USER_MAIL_LOG, '[' . date('c') . "] To: $to\nSubject: $subject\n\n$text\n" . str_repeat('-', 60) . "\n", FILE_APPEND | LOCK_EX);
+        file_put_contents(USER_MAIL_LOG, '[' . date('c') . "] To: $to
+Subject: $subject
+
+$text
+" . ($html !== null ? "[+ HTML version]
+" : '') . str_repeat('-', 60) . "
+", FILE_APPEND | LOCK_EX);
+        if ($html !== null) {
+            $folder = dirname(USER_MAIL_LOG) . '/mail-html';
+            if (!is_dir($folder)) mkdir($folder, 0700, true);
+            file_put_contents($folder . '/' . date('Ymd-His') . '-' . preg_replace('~[^a-z0-9]+~i', '-', $to) . '.html', $html);
+        }
         return true;
     }
     require_once __DIR__ . '/mailer.php';
     try {
-        sendMail($to, $subject, $text);
+        sendMail($to, $subject, $text, $html);
         return true;
     } catch (RuntimeException $error) {
         error_log('Account email to ' . json_encode($to) . ' failed: ' . $error->getMessage());
         return false;
     }
+}
+
+/** The first word of a name, to greet someone ("Welcome, Rohit!"). */
+function accountFirstName(string $name): string {
+    return explode(' ', trim($name))[0];
 }
 
 /** The teams a user can pick as their favourite, by name: id => name. */

@@ -11,6 +11,7 @@ declare(strict_types=1);
 // from an IP address, attempts are refused with the same message as a wrong password. Reset links
 // are emailed, work once for USER_RESET_MINUTES, and only their SHA-256 is stored (user_tokens).
 require_once __DIR__ . '/committee.php'; // reuse committeePhone(), committeeCleanText(), COMMITTEE_NAME_PATTERN
+require_once __DIR__ . '/account-mail.php'; // welcomeEmail()
 
 const USER_SIGNUP_FIELDS = ['name', 'email', 'phone', 'password', 'password_confirm', 'terms'];
 // Accounts that can be created from one IP address per hour, against spam.
@@ -37,11 +38,6 @@ function accountEmailError(string $email): ?string {
     if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('~@[^@]+\.[a-z]{2,}$~i', $email)) return 'Enter a valid email address, like name@example.com.';
     return null;
 }
-/** The first word of a name, to greet someone ("Welcome, Rohit!"). */
-function accountFirstName(string $name): string {
-    return explode(' ', trim($name))[0];
-}
-
 /** GET shows the sign-up form; POST creates the account and signs it in. Signed-in users go to /account. */
 function handleSignup(): never {
     $method = accountAuthMethod();
@@ -95,9 +91,8 @@ function createAccount(): array {
 
     $first = accountFirstName($input['name']);
     accountFlash("Welcome to Pro HPCL, $first!");
-    accountSendMail($input['email'], 'Welcome to Pro HPCL', "Hi $first,\n\nWelcome to Pro HPCL! Your account is ready.\n\n"
-        . 'Log in at any time to update your details and pick your favourite team: ' . absoluteUrl('{{BASE}}/login') . "\n\n"
-        . "If you didn’t create this account, reply to this email and we’ll sort it out.\n\nThe Pro HPCL team\n");
+    [$welcomeText, $welcomeHtml] = welcomeEmail($first);
+    accountSendMail($input['email'], 'Welcome to Pro HPCL', $welcomeText, $welcomeHtml);
     return [$input, []];
 }
 

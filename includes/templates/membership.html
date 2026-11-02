@@ -58,18 +58,18 @@
         .mship-card--gold      .mship-card__name { color: #c08a1e; }
         .mship-card--diamond  .mship-card__name { color: #0b7ea7; }
         .mship-card--platinum .mship-card__name { color: #4b3fa7; }
-        .mship-card__tagline { font-family: Roboto, sans-serif; color: #64748b; font-size: 0.82rem; margin: 0 0 10px; min-height: 2.4em; }
+        .mship-card__tagline { font-family: Roboto, sans-serif; color: #475569; font-weight: 500; font-size: 0.86rem; line-height: 1.45; margin: 0 0 10px; min-height: 2.9em; }
         .mship-card__price {
             font-family: Barlow, sans-serif; font-weight: 800; font-size: 2rem; color: #0f172a; margin: 0;
         }
-        .mship-card__price span { font-size: 0.9rem; font-weight: 500; color: #64748b; }
+        .mship-card__price span { font-size: 0.9rem; font-weight: 700; color: #475569; }
         .mship-card__discount {
             margin: 8px 0 0; display: inline-block; font-family: Barlow, sans-serif; font-weight: 700;
-            font-size: 0.8rem; color: #0b7a3b; background: rgba(16, 185, 129, 0.12); padding: 4px 12px; border-radius: 999px;
+            font-size: 0.84rem; color: #08622f; background: rgba(16, 185, 129, 0.14); padding: 4px 12px; border-radius: 999px;
         }
         .mship-card__benefits {
             list-style: none; padding: 16px 0 0; margin: 0 0 18px; flex: 1;
-            font-family: Roboto, sans-serif; color: #334155; font-size: 0.86rem; line-height: 1.5;
+            font-family: Roboto, sans-serif; color: #1e293b; font-weight: 500; font-size: 0.9rem; line-height: 1.5;
         }
         .mship-card__benefits li { position: relative; padding: 6px 0 6px 24px; }
         .mship-card__benefits li::before {
@@ -78,7 +78,7 @@
         }
         .mship-card__cta {
             display: block; text-align: center; padding: 11px 16px; border-radius: 10px; text-decoration: none;
-            font-family: Barlow, sans-serif; font-weight: 700; letter-spacing: 0.02em;
+            font-family: Barlow, sans-serif; font-weight: 800; letter-spacing: 0.02em;
             background: #0b50a7; color: #fff; transition: background 0.15s ease;
         }
         .mship-card__cta:hover { background: #083c80; }
@@ -131,50 +131,54 @@
             .mship-notes { grid-template-columns: 1fr; }
         }
 
-        /* Embedded brand carousel */
+        /* Embedded brand carousel. One frame size and one layout for every slide: the wordmark top-left, then
+           kicker, title and content starting on the same line. Sizes follow the slide width through --u (1cqw,
+           scaled up on phones) with pixel floors on the small print, so nothing shrinks or jumps between slides. */
         .mshipcar-wrap { max-width: 1120px; margin: 52px auto 0; padding: 0 16px; }
         .mshipcar { position: relative; }
-        .mshipcar__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; scrollbar-width: none; -ms-overflow-style: none; }
+        .mshipcar__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; gap: 16px; scrollbar-width: none; -ms-overflow-style: none; }
         .mshipcar__track::-webkit-scrollbar { display: none; }
-        .mshipcar-slide { flex: 0 0 100%; scroll-snap-align: center; container-type: inline-size; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; position: relative; display: flex; padding: 5cqw; color: #fff; box-shadow: 0 16px 36px rgba(2, 6, 23, 0.18); }
+        .mshipcar-slide { --u: 1cqw; flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; container-type: inline-size; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; position: relative; display: flex; color: #fff; box-shadow: 0 16px 36px rgba(2, 6, 23, 0.18); }
         .mshipcar-slide--hook { background: radial-gradient(130% 120% at 88% 12%, #1663c4 0%, #0b50a7 36%, #06264f 100%); }
         .mshipcar-slide--why { background: linear-gradient(135deg, #0b50a7 0%, #06264f 100%); }
         .mshipcar-slide--tiers { background: linear-gradient(160deg, #0c2a54 0%, #061732 100%); }
         .mshipcar-slide--proof { background: radial-gradient(130% 130% at 12% 18%, #1663c4 0%, #06264f 68%); }
-        .mshipcar-slide--cta { background: linear-gradient(140deg, #ff7a18 0%, #d85c08 56%, #a8430a 100%); justify-content: center; text-align: center; }
+        .mshipcar-slide--cta { background: linear-gradient(140deg, #ff7a18 0%, #d85c08 56%, #a8430a 100%); text-align: center; }
         .mshipcar-slide::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 60% at 100% 100%, rgba(255,255,255,.08), transparent 60%); }
-        .mshipcar-wm { position: absolute; top: 5cqw; left: 5cqw; z-index: 2; font-family: "Bebas Neue", sans-serif; font-size: 3cqw; letter-spacing: .04em; line-height: 1; }
+        .mshipcar-wm { position: absolute; top: calc(var(--u) * 4.5); left: calc(var(--u) * 5); z-index: 2; font-family: "Bebas Neue", sans-serif; font-size: max(calc(var(--u) * 3), 20px); letter-spacing: .04em; line-height: 1; }
         .mshipcar-wm span { color: #fff; } .mshipcar-wm b { color: #ff7a18; font-weight: 400; }
         .mshipcar-slide--cta .mshipcar-wm b { color: #0b2b57; }
-        .mshipcar-col { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; height: 100%; }
-        .mshipcar-col--half { width: 60%; } .mshipcar-col--full { width: 100%; } .mshipcar-col--center { width: 100%; align-items: center; }
-        .mshipcar-kicker { font-family: "Barlow", sans-serif; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-size: 1.6cqw; color: #ff7a18; margin: 0 0 2.4cqw; }
+        .mshipcar-col { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: flex-start; padding: calc(var(--u) * 10.5) calc(var(--u) * 5) calc(var(--u) * 5); }
+        .mshipcar-col--center { align-items: center; }
+        .mshipcar-col--half .mshipcar-display { max-width: 62%; }
+        .mshipcar-kicker { font-family: "Barlow", sans-serif; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-size: max(calc(var(--u) * 1.6), 11px); color: #ff7a18; margin: 0 0 calc(var(--u) * 2); }
         .mshipcar-slide--cta .mshipcar-kicker { color: #0b2b57; }
-        .mshipcar-display { font-family: "Bebas Neue", sans-serif; font-weight: 400; line-height: .94; letter-spacing: .01em; text-transform: uppercase; margin: 0; font-size: 7cqw; color: #fff; }
+        .mshipcar-display { font-family: "Bebas Neue", sans-serif; font-weight: 400; line-height: .94; letter-spacing: .01em; text-transform: uppercase; margin: 0; font-size: calc(var(--u) * 6.4); color: #fff; }
         .mshipcar-slide--cta .mshipcar-display { color: #06264f; }
-        .mshipcar-display--sm { font-size: 5.6cqw; }
+        .mshipcar-display--sm { font-size: calc(var(--u) * 5.6); }
         .mshipcar-display span { color: #ff7a18; }
-        .mshipcar-lede { font-size: 2.2cqw; line-height: 1.45; color: rgba(255,255,255,.9); margin: 2.6cqw 0 0; max-width: 42ch; }
-        .mshipcar-chip { align-self: flex-start; margin-top: 3.2cqw; display: inline-flex; align-items: center; gap: 1cqw; background: #ff7a18; color: #082447; font-family: "Barlow", sans-serif; font-weight: 800; letter-spacing: .02em; font-size: 1.9cqw; padding: 1.5cqw 2.8cqw; border-radius: 999px; text-decoration: none; }
+        .mshipcar-lede { font-size: max(calc(var(--u) * 2.2), 14px); line-height: 1.45; color: rgba(255,255,255,.9); margin: calc(var(--u) * 2.2) 0 0; max-width: 42ch; }
+        .mshipcar-chip { align-self: flex-start; margin-top: calc(var(--u) * 3); display: inline-flex; align-items: center; gap: calc(var(--u) * 1); background: #ff7a18; color: #082447; font-family: "Barlow", sans-serif; font-weight: 800; letter-spacing: .02em; font-size: max(calc(var(--u) * 1.9), 14px); padding: calc(var(--u) * 1.5) calc(var(--u) * 2.8); border-radius: 999px; text-decoration: none; }
+        .mshipcar-col--center .mshipcar-chip { align-self: center; }
         .mshipcar-chip:hover { background: #e8690c; color: #082447; }
         .mshipcar-slide--cta .mshipcar-chip { background: #0b2b57; color: #fff; } .mshipcar-slide--cta .mshipcar-chip:hover { background: #082044; color: #fff; }
-        .mshipcar-chip svg { width: 2cqw; height: 2cqw; }
-        .mshipcar-benefits { margin: 3cqw 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw 4cqw; }
-        .mshipcar-benefits li { display: flex; gap: 1.6cqw; align-items: flex-start; font-size: 2cqw; line-height: 1.3; color: rgba(255,255,255,.95); }
-        .mshipcar-benefits svg { flex: none; width: 2.6cqw; height: 2.6cqw; margin-top: .3cqw; }
-        .mshipcar-tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2cqw; margin-top: auto; }
-        .mshipcar-tier { border: .18cqw solid rgba(255,255,255,.16); border-radius: 2.2cqw; background: rgba(255,255,255,.05); padding: 2.6cqw 2cqw; position: relative; display: flex; flex-direction: column; gap: .6cqw; }
-        .mshipcar-tier__name { font-family: "Bebas Neue", sans-serif; font-size: 3.4cqw; line-height: 1; letter-spacing: .03em; }
+        .mshipcar-chip svg { width: max(calc(var(--u) * 2), 14px); height: max(calc(var(--u) * 2), 14px); }
+        .mshipcar-benefits { margin: calc(var(--u) * 3) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 2) calc(var(--u) * 4); }
+        .mshipcar-benefits li { display: flex; gap: calc(var(--u) * 1.6); align-items: flex-start; font-size: max(calc(var(--u) * 2), 13px); line-height: 1.3; color: rgba(255,255,255,.95); }
+        .mshipcar-benefits svg { flex: none; width: max(calc(var(--u) * 2.6), 16px); height: max(calc(var(--u) * 2.6), 16px); margin-top: calc(var(--u) * .3); }
+        .mshipcar-tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--u) * 2); margin-top: calc(var(--u) * 4); }
+        .mshipcar-tier { border: .18cqw solid rgba(255,255,255,.16); border-radius: calc(var(--u) * 2.2); background: rgba(255,255,255,.05); padding: calc(var(--u) * 2.6) calc(var(--u) * 2); position: relative; display: flex; flex-direction: column; gap: calc(var(--u) * .6); }
+        .mshipcar-tier__name { font-family: "Bebas Neue", sans-serif; font-size: calc(var(--u) * 3.4); line-height: 1; letter-spacing: .03em; }
         .mshipcar-tier--silver .mshipcar-tier__name { color: #cfd8e6; } .mshipcar-tier--gold .mshipcar-tier__name { color: #e8b64d; }
         .mshipcar-tier--diamond .mshipcar-tier__name { color: #39c0e8; } .mshipcar-tier--platinum .mshipcar-tier__name { color: #c9b8ff; }
-        .mshipcar-tier__price { font-family: "Barlow", sans-serif; font-weight: 800; font-size: 2.6cqw; }
-        .mshipcar-tier__sub { font-size: 1.35cqw; color: #9fb0c8; }
-        .mshipcar-tier__disc { font-family: "Barlow", sans-serif; font-weight: 700; font-size: 1.5cqw; color: #39d98a; margin-top: .4cqw; }
+        .mshipcar-tier__price { font-family: "Barlow", sans-serif; font-weight: 800; font-size: calc(var(--u) * 2.6); }
+        .mshipcar-tier__sub { font-size: max(calc(var(--u) * 1.35), 11px); color: #b4c2d8; }
+        .mshipcar-tier__disc { font-family: "Barlow", sans-serif; font-weight: 700; font-size: max(calc(var(--u) * 1.5), 12px); color: #39d98a; margin-top: calc(var(--u) * .4); }
         .mshipcar-tier--diamond { border-color: rgba(57,192,232,.6); background: rgba(57,192,232,.1); }
-        .mshipcar-tier__flag { position: absolute; top: -1.6cqw; left: 2cqw; background: #ff7a18; color: #082447; font-family: "Barlow", sans-serif; font-weight: 800; font-size: 1.1cqw; letter-spacing: .06em; text-transform: uppercase; padding: .5cqw 1.4cqw; border-radius: 999px; }
-        .mshipcar-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4cqw; margin-top: 3cqw; }
-        .mshipcar-stat b { display: block; font-family: "Bebas Neue", sans-serif; font-size: 6.4cqw; line-height: .9; color: #ff7a18; }
-        .mshipcar-stat span { font-size: 1.55cqw; color: rgba(255,255,255,.88); }
+        .mshipcar-tier__flag { position: absolute; top: calc(var(--u) * -1.6); left: calc(var(--u) * 2); background: #ff7a18; color: #082447; font-family: "Barlow", sans-serif; font-weight: 800; font-size: max(calc(var(--u) * 1.1), 10px); letter-spacing: .06em; text-transform: uppercase; padding: calc(var(--u) * .5) calc(var(--u) * 1.4); border-radius: 999px; white-space: nowrap; }
+        .mshipcar-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--u) * 2.4); margin-top: calc(var(--u) * 4); }
+        .mshipcar-stat b { display: block; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: calc(var(--u) * 7.6); line-height: .9; color: #ff7a18; }
+        .mshipcar-stat span { font-size: max(calc(var(--u) * 1.7), 12px); color: rgba(255,255,255,.9); }
         .mshipcar__controls { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; gap: 12px; }
         .mshipcar__dots { display: flex; gap: 8px; }
         .mshipcar__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(11,80,167,.25); border: none; padding: 0; cursor: pointer; transition: background .2s, transform .2s; }
@@ -182,7 +186,13 @@
         .mshipcar__arrows { display: flex; gap: 8px; }
         .mshipcar__arrow { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(11,80,167,.25); background: #fff; color: #0b50a7; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
         .mshipcar__arrow:hover { border-color: #ff7a18; color: #ff7a18; }
-        @media (max-width: 640px) { .mshipcar-slide { aspect-ratio: 3 / 4; } .mshipcar-benefits { grid-template-columns: 1fr; gap: 2cqw; } }
+        @media (max-width: 640px) {
+            .mshipcar-slide { --u: 1.7cqw; aspect-ratio: 3 / 4; }
+            .mshipcar-col--half .mshipcar-display { max-width: none; }
+            .mshipcar-benefits { grid-template-columns: 1fr; gap: calc(var(--u) * 2.2); }
+            .mshipcar-tiers, .mshipcar-stats { grid-template-columns: 1fr 1fr; }
+            .mshipcar-tiers { row-gap: calc(var(--u) * 3); }
+        }
         @media (prefers-reduced-motion: reduce) { .mshipcar__track { scroll-behavior: auto; } }
         </style>
 @endsection
@@ -263,7 +273,11 @@
             dotsWrap.appendChild(d);
         });
         var dots = Array.prototype.slice.call(dotsWrap.children);
-        function go(i) { i = Math.max(0, Math.min(slides.length - 1, i)); slides[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+        function go(i) {
+            i = Math.max(0, Math.min(slides.length - 1, i));
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            track.scrollTo({ left: slides[i].offsetLeft - track.offsetLeft, behavior: reduce ? 'auto' : 'smooth' });
+        }
         function setActive(i) { if (i === current) return; current = i; dots.forEach(function (d, j) { d.setAttribute('aria-current', j === i ? 'true' : 'false'); }); }
         car.querySelectorAll('.mshipcar__arrow').forEach(function (btn) {
             btn.addEventListener('click', function () { go(current + parseInt(btn.getAttribute('data-dir'), 10)); });

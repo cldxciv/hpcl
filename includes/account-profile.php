@@ -25,6 +25,8 @@ const PROFILE_DEFAULT_LOGO = '/assets/media/logo.png';
 function handleAccountHome(): never {
     if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) errorPage(405);
     $user = requireUser();
+    // First visit after signing up or logging in for the first time: ask for a favourite team once.
+    if (teamPromptDue($user)) accountRedirect('/account/team');
     $missing = '<span class="acct-details__missing">Not added</span>';
     $team = profileFavouriteTeam((int) $user['favourite_team_id']);
     accountPage(view('templates.account.home', [
@@ -33,7 +35,7 @@ function handleAccountHome(): never {
         'account_email' => escape($user['email']),
         'phone' => $user['phone'] ? profilePhoneLabel($user['phone']) : $missing,
         'city' => $user['city'] ? escape($user['city']) : $missing,
-        'team' => $team ? profileTeamHtml($team) : '<span class="acct-details__missing">Not chosen</span>',
+        'team' => $team ? profileTeamHtml($team) : '<span class="acct-details__missing">Not chosen</span> · <a class="acct-team-link" href="{{BASE}}/account/team">Choose your team</a>',
         'member_since' => date('j M Y', strtotime($user['created_at'])),
         'csrf' => accountCsrfToken(),
     ]));
@@ -66,6 +68,63 @@ function handleAccountPassword(): never {
     if ($method !== 'POST') accountPage(profilePasswordForm($user, []));
     $errors = changeProfilePassword($user);
     accountFormResponse($errors, 'Your password is changed.', '/account', fn () => profilePasswordForm($user, $errors));
+}
+
+/**
+ * Whether to ask this user for a favourite team now: they have none and were never asked (or
+ * skipped, which also counts as asked). Without the users.team_prompted_at column (database/
+ * users-team-prompt.sql not yet applied) nobody is asked, so the prompt can't repeat.
+ */
+function teamPromptDue(array $user): bool {
+    return array_key_exists('team_prompted_at', $user) && $user['team_prompted_at'] === null && empty($user['favourite_team_id']);
+}
+
+/** /account/team: GET shows the team picker; POST saves the chosen team, or skips (once either is done the prompt never returns). */
+function handleAccountTeam(): never {
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    if (!in_array($method, ['GET', 'HEAD', 'POST'], true)) errorPage(405);
+    $user = requireUser();
+    if ($method !== 'POST') accountPage(profileTeamPicker($user, (string) ($user['favourite_team_id'] ?? ''), ''));
+
+    if (!accountCsrfValid()) accountPage(profileTeamPicker($user, '', USER_FORM_EXPIRED), 400);
+    $skip = postedText('skip') !== '';
+    $choice = postedText('favourite_team_id');
+    if (!$skip && (!ctype_digit($choice) || !isset(accountTeams()[(int) $choice]))) {
+        accountPage(profileTeamPicker($user, '', 'Choose a team from the list, or skip for now.'), 422);
+    }
+    // team_prompted_at is only there once the migration has run; the team is saved either way.
+    $marker = array_key_exists('team_prompted_at', $user) ? ', team_prompted_at = NOW()' : '';
+    accountExecute('UPDATE users SET favourite_team_id = ?' . $marker . ', updated_at = NOW() WHERE id = ?', [$skip ? ($user['favourite_team_id'] ?: null) : (int) $choice, $user['id']]);
+    accountFlash($skip ? 'No problem: you can choose your favourite team any time under Edit profile.' : 'Your favourite team is saved: ' . accountTeams()[(int) $choice] . '.');
+    accountRedirect('/account');
+}
+
+/** The teams to pick from: the latest season's first (its name, then the rest by name). [season name or '', teams of it, other teams]. */
+function profilePickerTeams(): array {
+    $season = query('SELECT id, name FROM seasons ORDER BY start_date DESC, id DESC LIMIT 1')[0] ?? null;
+    $rows = query('SELECT t.id, t.name, t.logo, (st.team_id IS NOT NULL) AS in_season FROM teams t
+        LEFT JOIN season_teams st ON st.team_id = t.id AND st.season_id = ? WHERE t.deleted_at IS NULL ORDER BY in_season DESC, t.name', [$season['id'] ?? 0]);
+    return [$season['name'] ?? '', array_values(array_filter($rows, fn ($r) => $r['in_season'])), array_values(array_filter($rows, fn ($r) => !$r['in_season']))];
+}
+
+/** One team as a radio tile: the whole tile is the label, so it is a large touch target. */
+function profileTeamTile(array $team, string $selected): string {
+    $id = 'team-' . (int) $team['id'];
+    return '<div class="pick-tile"><input class="pick-tile__input" type="radio" name="favourite_team_id" id="' . $id . '" value="' . (int) $team['id'] . '"' . ((string) $team['id'] === $selected ? ' checked' : '') . '>'
+        . '<label class="pick-tile__body" for="' . $id . '"><img class="pick-tile__logo" src="' . escape(mediaUrl($team['logo'], PROFILE_DEFAULT_LOGO)) . '" alt="" width="64" height="64" loading="lazy"'
+        . ' onerror="this.onerror=null;this.src=\'{{BASE}}' . PROFILE_DEFAULT_LOGO . '\';"><span class="pick-tile__name">' . escape($team['name']) . '</span></label></div>';
+}
+
+function profileTeamPicker(array $user, string $selected, string $error): string {
+    [$seasonName, $inSeason, $others] = profilePickerTeams();
+    $group = fn (string $title, array $teams) => $teams ? '<fieldset class="pick-group"><legend>' . escape($title) . '</legend><div class="pick-grid">'
+        . implode('', array_map(fn ($t) => profileTeamTile($t, $selected), $teams)) . '</div></fieldset>' : '';
+    // Without a season (an empty database) every team is in the second group, which then needs no "Other" title.
+    $groups = $group($inSeason ? $seasonName . ' teams' : 'Teams', $inSeason ?: $others) . ($inSeason ? $group('Other teams', $others) : '');
+    return view('templates.account.team', [
+        'name' => escape(accountFirstName($user['name'])), 'csrf' => accountCsrfToken(), 'groups' => $groups,
+        'summary' => $error !== '' ? escape($error) : '', 'summary_hidden' => $error === '' ? ' hidden' : '',
+    ]);
 }
 
 /** Checks the posted profile fields: cleaned values (phone as 10 digits or '') and errors by field. */

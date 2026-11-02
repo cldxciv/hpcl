@@ -1,0 +1,93 @@
+@extends('layouts.app')
+
+@section('title', 'Pick Your Favourite Team | Pro HPCL')
+@section('description', 'Choose your favourite Pro HPCL team.')
+@section('canonical', '{{BASE}}/account/team')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+@section('crumb', 'Favourite team')
+@section('crumb_account', 'yes')
+
+@section('head')
+@include('partials.account-styles')
+    <style>
+        .pick-card { max-width: 980px; padding-bottom: 0; overflow: visible; }
+        .pick-card h1 { margin-bottom: 6px; }
+        .pick-group { border: 0; margin: 22px 0 0; padding: 0; min-width: 0; }
+        .pick-group legend { float: none; width: auto; padding: 0; margin: 0 0 12px; font-family: Barlow, sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: #b8420a; }
+        .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .pick-tile { position: relative; }
+        /* The radio is visually hidden but stays focusable: arrow keys move between teams. */
+        .pick-tile__input { position: absolute; inset: 0; opacity: 0; margin: 0; width: 100%; height: 100%; cursor: pointer; z-index: 1; }
+        .pick-tile__body {
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; text-align: center;
+            height: 100%; padding: 16px 10px 14px; background: #fff; border: 2px solid rgba(11, 80, 167, 0.16); border-radius: 14px;
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background-color 0.15s; margin: 0;
+        }
+        .pick-tile__logo { width: 64px; height: 64px; object-fit: contain; border-radius: 10px; background: #fff; }
+        .pick-tile__name { font-family: Barlow, sans-serif; font-weight: 700; font-size: 0.95rem; line-height: 1.25; color: #0b2a5b; overflow-wrap: anywhere; }
+        .pick-tile:hover .pick-tile__body { border-color: #0b50a7; transform: translateY(-2px); }
+        .pick-tile__input:focus-visible + .pick-tile__body { outline: 3px solid #0b50a7; outline-offset: 2px; }
+        .pick-tile__input:checked + .pick-tile__body { border-color: #ff7a18; background: #fff7ef; box-shadow: 0 8px 22px rgba(255, 122, 24, 0.26); }
+        .pick-tile__input:checked + .pick-tile__body::after {
+            content: ""; position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: #ff7a18 no-repeat center/14px
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E");
+        }
+        .pick-actions {
+            position: sticky; bottom: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 26px -32px 0; padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.96); border-top: 1px solid rgba(11, 80, 167, 0.14); border-radius: 0 0 20px 20px; backdrop-filter: blur(6px);
+        }
+        .pick-actions .acct-submit { margin-top: 0; }
+        .pick-actions__note { margin: 0 0 0 auto; color: #475569; font-size: 0.85rem; }
+        .pick-actions .acct-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        @media (max-width: 640px) {
+            .pick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            /* The right edge is left free for the floating chat button. */
+            .pick-actions { margin: 22px -18px 0; padding: 12px 84px 12px 18px; border-radius: 0 0 16px 16px; }
+            .pick-actions > .acct-submit, .pick-actions > .acct-secondary { flex: 1 1 100%; }
+            .pick-actions__note { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) { .pick-tile__body { transition: none; } .pick-tile:hover .pick-tile__body { transform: none; } }
+    </style>
+@endsection
+
+@section('content')
+    <div class="teams-linked-page acct-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
+        <div class="container">
+@include('partials.account-breadcrumb')
+            <section class="acct-card pick-card" aria-labelledby="pick-heading">
+                <h1 id="pick-heading">Who do you back, {!! $name !!}?</h1>
+                <p>Pick your favourite Pro HPCL team. It shows on your account, and you can change it any time under Edit profile.</p>
+                <form method="post" action="{{BASE}}/account/team" id="pick-form">
+                    <div class="alert alert-danger" role="alert"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+{!! $groups !!}
+                    <div class="pick-actions">
+                        <button type="submit" class="acct-submit" id="pick-save">Save my team</button>
+                        <button type="submit" class="acct-secondary" name="skip" value="1" formnovalidate>Skip for now</button>
+                        <p class="pick-actions__note" id="pick-note">Pick a team to continue</p>
+                    </div>
+                </form>
+            </section>
+        </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+    (function () {
+        var form = document.getElementById('pick-form'), save = document.getElementById('pick-save'), note = document.getElementById('pick-note');
+        if (!form || !save) return;
+        function sync() {
+            var chosen = form.querySelector('input[name="favourite_team_id"]:checked');
+            save.disabled = !chosen;
+            if (note) note.textContent = chosen ? 'Your pick: ' + form.querySelector('label[for="' + chosen.id + '"] .pick-tile__name').textContent : 'Pick a team to continue';
+        }
+        form.addEventListener('change', sync);
+        sync();
+    })();
+    </script>
+@endsection

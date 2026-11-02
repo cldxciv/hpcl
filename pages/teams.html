@@ -326,8 +326,20 @@
     }
 </style>
 <style>
-    .teams-linked-page .teams-section__name { font-size: 13px; }
-    body.home-unified-theme .teams-section__card .teams-section__count { margin: 4px 0 0; color: #fff; font-size: 0.875rem; font-weight: 500; text-align: center; }
+    /* Season cards: the whole card is the link, so it fills its grid cell and every card is the same height. */
+    .teams-linked-page .teams-section__grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 20px; }
+    .teams-linked-page .teams-section__grid > a { display: block; border-radius: 10px; }
+    .teams-linked-page .teams-section__grid > a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+    .teams-linked-page .teams-section__card { height: 100%; min-height: 290px; justify-content: flex-start; padding-top: 30px; }
+    .teams-linked-page .teams-section__logo-wrap { width: 148px; height: 148px; }
+    .teams-linked-page .teams-section__name { font-size: 17px; line-height: 1.3; letter-spacing: 0.06em; margin-top: 20px; }
+    body.home-unified-theme .teams-section__card .teams-section__count { margin: 6px 0 0; color: #fff; font-size: 0.95rem; font-weight: 600; text-align: center; }
+    @media (max-width: 768px) {
+        .teams-linked-page .teams-section__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .teams-linked-page .teams-section__card { min-height: 244px; padding-top: 24px; }
+        .teams-linked-page .teams-section__logo-wrap { width: 112px; height: 112px; }
+        .teams-linked-page .teams-section__name { font-size: 15px; margin-top: 16px; }
+    }
     /* Light card gradients need dark text. */
     .teams-section__card--gold .teams-section__name,
     body.home-unified-theme .teams-section__card--gold .teams-section__count,
@@ -337,6 +349,10 @@
     body.home-unified-theme .teams-section__card--orange .teams-section__count,
     .teams-section__card--yellow .teams-section__name,
     body.home-unified-theme .teams-section__card--yellow .teams-section__count { color: #1c1204; }
+    /* The shared page colour for a card's count is white and wins with !important: say so for the light cards. */
+    body.home-unified-theme .teams-section__card--teal .teams-section__count,
+    body.home-unified-theme .teams-section__card--orange .teams-section__count,
+    body.home-unified-theme .teams-section__card--yellow .teams-section__count { color: #1c1204 !important; }
     /* Season badge images carry a small emblem in the middle of a large blue field: zoom in so the number is legible. */
     .teams-linked-page .teams-section__logo-wrap--season { position: relative; padding: 0; overflow: hidden; }
     .teams-linked-page .teams-section__logo-wrap--season::after { content: ""; position: absolute; inset: 0; border: 10px solid #fff; border-radius: 50%; pointer-events: none; }
