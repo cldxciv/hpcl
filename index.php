@@ -100,7 +100,7 @@ if ($path === '/sitemap.xml') {
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     foreach ($routes as $route => $file) if (!str_contains($route, '?')) echo '<url><loc>' . escape($siteUrl . ($route === '/' ? '/' : $route)) . '</loc></url>';
     require_once __DIR__ . '/includes/teams.php';
-    $dynamicUrls = ['/', '/videos', '/blogs', '/join-committee', '/membership', '/members'];
+    $dynamicUrls = ['/', '/videos', '/blogs', '/join-committee', '/membership', '/members', '/fixtures'];
     foreach (query('SELECT slug FROM members WHERE published = 1 ORDER BY position, business_name') as $member) $dynamicUrls[] = '/member/' . rawurlencode($member['slug']);
     foreach (query('SELECT slug FROM pages WHERE slug IN (' . implode(', ', array_fill(0, count(TEXT_PAGES), '?')) . ') ORDER BY slug', TEXT_PAGES) as $page) $dynamicUrls[] = '/' . $page['slug'];
     if (shopEnabled()) {
@@ -138,6 +138,8 @@ $dynamicRoutes = [
     '~^/$~' => ['content.php', fn () => renderHome()],
     '~^/membership$~' => ['membership.php', fn () => renderMembershipPage()],
     '~^/members$~' => ['members.php', fn () => renderMembersIndex()],
+    '~^/fixtures$~' => ['fixtures.php', fn () => renderFixturesPage()],
+    '~^/fixtures/season/(\d+)$~' => ['fixtures.php', fn ($season) => renderFixturesPage($season)],
     '~^/member/([^/]+)$~' => ['members.php', fn ($slug) => renderMemberPage($slug)],
     '~^/member/([^/]+)/creative\.png$~' => ['member-creative.php', fn ($slug) => serveMemberCreative($slug)],
     '~^/membership/share/([a-f0-9]{32})$~' => ['member-share.php', fn ($token) => renderMembershipSharePage($token)],

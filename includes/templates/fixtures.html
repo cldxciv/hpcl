@@ -1,0 +1,80 @@
+@extends('layouts.app')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{{BASE}}/fixtures')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <script type="application/ld+json">{!! $schema !!}</script>
+    <style>
+        .fx-page .teams-linked-page__content { padding-bottom: 56px; }
+        .fx-page .team-breadcrumb .breadcrumb-item, .fx-page .team-breadcrumb .breadcrumb-item a, .fx-page .team-breadcrumb .breadcrumb-item + .breadcrumb-item::before { color: #0a1f44; }
+        .fx-title { margin: 6px 0 4px; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: clamp(2.4rem, 6vw, 3.6rem); letter-spacing: 0.02em; line-height: 1; color: #0a1f44; }
+        .fx-page .fx-meta, .fx-page .fx-meta span { color: #0a1f44 !important; }
+        .fx-meta { margin: 0 0 18px; font-family: Roboto, sans-serif; font-weight: 700; }
+        .fx-meta span + span::before { content: "·"; margin: 0 8px; }
+        .fx-card { background: #fff; border: 1px solid rgba(11, 80, 167, 0.14); border-radius: 16px; box-shadow: 0 10px 26px rgba(2, 6, 23, 0.12); padding: 18px 20px; font-family: Roboto, sans-serif; color: #0f172a; }
+        .fx-card h2, .fx-card h3 { margin: 0 0 10px; font-family: Barlow, sans-serif; font-weight: 800; font-size: 1.05rem; color: #0b50a7; letter-spacing: 0.02em; }
+        .fx-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0 0 22px; }
+        .fx-group__teams { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+        .fx-team { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; min-width: 0; line-height: 1.25; color: #0f172a; text-decoration: none; font-weight: 600; }
+        .fx-team:hover span { text-decoration: underline; color: #0b50a7; }
+        .fx-team__logo { width: 32px; height: 32px; object-fit: contain; flex: none; background: #fff; border-radius: 50%; border: 1px solid rgba(11, 80, 167, 0.14); }
+        .fx-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; font-family: Barlow, sans-serif; font-weight: 700; color: #0a1f44; }
+        .fx-jump a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #0a1f44; color: #fff; text-decoration: none; }
+        .fx-jump a:hover { background: #0b50a7; color: #fff; }
+        .fx-phase { margin: 26px 0 12px; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 0.03em; color: #0a1f44; scroll-margin-top: 90px; }
+        .fx-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+        .fx-matches { list-style: none; margin: 0; padding: 0; }
+        .fx-match { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "no pill" "teams teams"; align-items: center; gap: 4px 10px; padding: 10px 0; border-top: 1px solid rgba(11, 80, 167, 0.12); }
+        .fx-match:first-child { border-top: 0; }
+        .fx-match__no { grid-area: no; font-size: 0.78rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; }
+        .fx-match__teams { grid-area: teams; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 4px 10px; min-width: 0; }
+        .fx-match__teams--text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+        .fx-match__teams--text strong { color: #0b50a7; }
+        .fx-detail { font-size: 0.88rem; color: #334155; line-height: 1.4; }
+        .fx-vs { font-size: 0.78rem; font-weight: 800; color: #475569; text-transform: uppercase; }
+        .fx-pill { grid-area: pill; justify-self: end; display: inline-block; padding: 3px 10px; border-radius: 999px; font-family: Barlow, sans-serif; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; white-space: nowrap; }
+        .fx-pill--a { background: #0b50a7; }
+        .fx-pill--b { background: #a8390b; }
+        .fx-pill--ko { background: #0a1f44; }
+        .fx-match--break { display: block; }
+        .fx-break { display: block; padding: 6px 12px; border-radius: 10px; background: rgba(253, 111, 59, 0.14); color: #7a2e00; font-weight: 700; text-align: center; }
+        .fx-empty { text-align: center; padding: 28px; }
+        .fx-links { margin: 26px 0 0; }
+        .fx-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #fff; color: #0b50a7; font-weight: 700; text-decoration: none; border: 2px solid #0b50a7; }
+        .fx-links a:hover { background: #0b50a7; color: #fff; }
+        @media (max-width: 860px) {
+            .fx-groups, .fx-days { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 520px) {
+            .fx-group__teams { grid-template-columns: 1fr; }
+            .fx-team { min-width: 0; }
+        }
+    </style>
+@endsection
+
+@section('content')
+    <div class="teams-linked-page fx-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
+            <div class="container">
+                <nav aria-label="breadcrumb" class="my-1">
+                    <ol class="breadcrumb team-breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li>
+                        <li class="breadcrumb-item active fw-semibold" aria-current="page">Fixtures</li>
+                    </ol>
+                </nav>
+                <h1 class="fx-title">{!! $heading !!}</h1>
+                <p class="fx-meta"><span>{!! $range !!}</span><span>{!! $summary !!}</span></p>
+                <div class="fx-groups"{!! $groups_hidden !!}>
+{!! $groups !!}
+                </div>
+{!! $jump !!}
+{!! $schedule !!}
+                <p class="fx-links"><a href="{!! $season_teams_url !!}">View all teams and squads</a></p>
+            </div>
+        </div>
+    </div>
+@endsection

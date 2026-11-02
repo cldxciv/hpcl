@@ -33,7 +33,7 @@ function seasonByRouteKey(string $routeKey): ?array {
     return query('SELECT * FROM seasons WHERE route_key = ?', [$routeKey])[0] ?? null;
 }
 function seasonTeams(array $season): array {
-    return query('SELECT t.* FROM teams t JOIN season_teams st ON st.team_id = t.id WHERE st.season_id = ? AND t.deleted_at IS NULL ORDER BY t.name', [$season['id']]);
+    return query('SELECT t.*, st.pool FROM teams t JOIN season_teams st ON st.team_id = t.id WHERE st.season_id = ? AND t.deleted_at IS NULL ORDER BY t.name', [$season['id']]);
 }
 function playerInitials(string $name): string {
     $words = preg_split('~\s+~u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
@@ -50,15 +50,36 @@ function renderSeasonTeams(string $routeKey): ?string {
     if (!$season) return null;
     $teams = seasonTeams($season);
     $name = escape($season['name']);
-    $cards = '';
-    foreach ($teams as $index => $team) {
-        $cards .= '<a class="text-decoration-none" href="' . teamSeasonUrl($season, $team) . '" aria-label="' . escape($team['name']) . '"><article class="teams-section__card teams-section__card--' . TEAM_CARD_VARIANTS[$index % count(TEAM_CARD_VARIANTS)] . '">'
-            . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . mediaUrl($team['logo'], '/assets/media/logo.png') . '" alt=""></div>'
-            . '<h2 class="teams-section__name">' . escape($team['name']) . '</h2></article></a>';
+    $grouped = false;
+    try {
+        $grouped = (bool) query('SELECT 1 FROM season_fixtures WHERE season_id = ? LIMIT 1', [$season['id']]);
+    } catch (PDOException) {
+        // The fixtures table isn't created yet: show the plain list.
     }
+    $card = fn (array $team, int $index, string $tag) => '<a class="text-decoration-none" href="' . teamSeasonUrl($season, $team) . '" aria-label="' . escape($team['name']) . '"><article class="teams-section__card teams-section__card--' . TEAM_CARD_VARIANTS[$index % count(TEAM_CARD_VARIANTS)] . '">'
+        . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . mediaUrl($team['logo'], '/assets/media/logo.png') . '" alt=""></div>'
+        . '<' . $tag . ' class="teams-section__name">' . escape($team['name']) . '</' . $tag . '></article></a>';
+    $cards = '';
+    if ($grouped && array_filter(array_column($teams, 'pool'))) {
+        // A season with a schedule shows its groups (Group A, Group B) one after the other.
+        $byPool = [];
+        foreach ($teams as $team) $byPool[$team['pool'] ?: 'Other'][] = $team;
+        ksort($byPool);
+        $index = 0;
+        foreach ($byPool as $pool => $poolTeams) {
+            $cards .= '<h2 class="teams-section__group">' . ($pool === 'Other' ? 'Other teams' : 'Group ' . escape((string) $pool)) . '</h2><div class="teams-section__grid">';
+            foreach ($poolTeams as $team) $cards .= $card($team, $index++, 'h3');
+            $cards .= '</div>';
+        }
+        $cards = '<style>.teams-section__group { margin: 22px 0 6px; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 0.03em; color: #0a1f44; }</style>' . $cards;
+    } else {
+        foreach ($teams as $index => $team) $cards .= $card($team, $index, 'h2');
+        $cards = '<div class="teams-section__grid">' . ($cards ?: '<div class="alert alert-light border text-center w-100">No teams mapped for this season.</div>') . '</div>';
+    }
+    $fixturesLink = $grouped ? '<p class="mb-3"><a class="btn btn-light fw-bold" href="{{BASE}}/fixtures/season/' . $season['route_key'] . '">View ' . $name . ' fixtures</a></p>' : '';
     $content = '<section class="teams-section" aria-label="' . $name . ' Teams"><div class="teams-section__inner"><nav aria-label="breadcrumb" class="my-1"><ol class="breadcrumb team-breadcrumb mb-3">'
         . '<li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li><li class="breadcrumb-item"><a href="{{BASE}}/teams">Teams</a></li><li class="breadcrumb-item active fw-semibold" aria-current="page">' . $name . '</li></ol></nav>'
-        . '<h1 class="teams-section__title">' . $name . ' Teams</h1><div class="teams-section__grid">' . ($cards ?: '<div class="alert alert-light border text-center w-100">No teams mapped for this season.</div>') . '</div></div>'
+        . '<h1 class="teams-section__title">' . $name . ' Teams</h1>' . $fixturesLink . $cards . '</div>'
         . '<div class="teams-section__bottom-decor" aria-hidden="true"></div></section>';
     $url = '{{BASE}}/teams/season/' . $season['route_key'];
     $schema = ['@context' => 'https://schema.org', '@type' => 'CollectionPage', 'name' => $season['name'] . ' Teams', 'url' => $url,

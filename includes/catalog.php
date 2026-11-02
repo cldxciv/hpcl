@@ -34,7 +34,7 @@ function renderPlayerPage(string $slug): ?string {
     // Team history comes from the season rosters, which also cover players whose matches have no scored stats yet.
     $rosters = query('SELECT sp.season_id, s.name AS season_name, s.route_key, s.status AS season_status, s.start_date, t.id AS team_id, t.name AS team_name, t.slug AS team_slug, t.short_name, t.logo
         FROM season_players sp JOIN seasons s ON s.id = sp.season_id JOIN teams t ON t.id = sp.team_id
-        WHERE sp.player_id = ? AND t.deleted_at IS NULL ORDER BY s.start_date DESC, s.id DESC', [$player['id']]);
+        WHERE sp.player_id = ? AND t.deleted_at IS NULL AND EXISTS (SELECT 1 FROM season_teams st2 WHERE st2.season_id = sp.season_id AND st2.team_id = sp.team_id) ORDER BY s.start_date DESC, s.id DESC', [$player['id']]);
     // Stat rows with every counter at zero are placeholders, not results: they are left out of the totals and tables.
     $counters = array_flip(['matches', 'innings', 'runs', 'balls_faced', 'wickets', 'balls_bowled', 'catches', 'stumpings']);
     $played = array_values(array_filter($stats, fn (array $stat) => array_sum(array_map('intval', array_intersect_key($stat, $counters))) > 0));
@@ -153,7 +153,8 @@ function renderPlayerSearch(string $html, array $query): string {
     $season = (string) ($query['season'] ?? '');
     $team = (string) ($query['team'] ?? '');
     // Integer ids are inlined: the membership filter appears in several subqueries.
-    $membership = ($season !== '' ? ' AND sp.season_id = ' . (int) $season : '') . ($team !== '' ? ' AND sp.team_id = ' . (int) $team : '');
+    $membership = ($season !== '' ? ' AND sp.season_id = ' . (int) $season : '') . ($team !== '' ? ' AND sp.team_id = ' . (int) $team : '')
+        . ' AND EXISTS (SELECT 1 FROM season_teams st2 WHERE st2.season_id = sp.season_id AND st2.team_id = sp.team_id)';
     // Players in the admin's trash are left out.
     $where = ['p.deleted_at IS NULL'];
     $params = [];

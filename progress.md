@@ -79,6 +79,16 @@ Flow: choose tier, fill the join form (optional photo), pay. When a payment is c
 ### 4.8 CricHeroes profile links (2026-11-01, **not deployed**, waiting on data)
 CricHeroes has Pro HPCL player profiles. Built the plumbing: `database/cricheroes.sql` (`players.cricheroes_url`), `includes/cricheroes.php` (only `https://cricheroes.com|in` links accepted), a "CricHeroes profile" field in `/admin/players`, a "View on CricHeroes" button on `/player/<slug>`, and `bin/import-cricheroes.php links.csv [--apply]` (CSV columns `player,url`; match by slug or exact name; dry run by default). **The real profile URLs have not been provided**: guessed CricHeroes addresses (`/hpclpro` etc.) returned 404, a web search only found the unrelated Hindustan Petroleum HPCL pages. The season-4 registered-players PDF (footer link) has Player IDs `PHPCL/P/<id>` that equal our `players.id`, a usable match key, but no CricHeroes links. 15 players are named "CricHeroes deleted user" and cannot be matched by name.
 
+### 4.9 Season 4 fixtures and groups (2026-11-02, **LIVE**)
+The organisers' "PRO HPCL 2026 Fixtures" PDF is published at `/fixtures` (and `/fixtures/season/<n>`), linked from the main nav (FIXTURES), the footer and the Season 4 teams page.
+- Data: table `season_fixtures` (`database/fixtures.sql`; one row per match slot: date, slot 1 to 3 as in the PDF's Match 1/2/3 columns, stage, pool, two teams or a knockout label + detail, or a break day). The Season 4 rows come from `includes/fixtures-seed.php` (also `bin/seed-season4-fixtures.php`); it is the one place that holds the PDF's data and the name mapping below. Re-running it replaces Season 4's fixtures.
+- Groups: `season_teams.pool` is `A` or `B` for the 12 teams in the schedule. The Season Teams page shows "Group A / Group B" headings when the season has fixtures (`includes/teams.php`).
+- PDF name to site team: Cyberbell Tech = "CYBERBELLS TECH TITANS KOTKHAI", Rohru Knight Hawks = "Knight Hawks", Indian Saga = "Indian Saga Royals Shimla", Shilon Bagh Royals = "Shilonbagh Royals", Chudeshwar Legends = "Chudeshwar Legends Sirmaur"; the rest match exactly. The site's own team names are shown (all-capitals names are title-cased); team records were **not** renamed because teams are shared by all seasons.
+- Schedule reading: Group A 17 to 21 Nov, 22 Nov pitch preparation, Group B 23 to 27 Nov, 28 Nov pitch preparation, quarter-finals 29 Nov (QF 1 to 3) and 30 Nov (QF 4), SF 1 on 30 Nov, SF 2 and the **Final both on 1 Dec**. The PDF has no times or venues, so none are shown. The Final on 1 Dec is read from the table layout (Match 2 column of the 1 Dec row): worth confirming with the organisers.
+- `catalog.php` now counts a squad only while its team is in that season (`season_teams` check in the player page and the player search), so taking a team out of a season leaves no dead team links.
+- **Deployed as an isolated release**: only `index.php`, `includes/teams.php`, `includes/catalog.php`, `header.html`, `footer.html` plus the new `includes/fixtures.php` and `includes/templates/fixtures.html` were changed on the server (the same edit script was applied to fresh copies of the live files, so none of the other pending work shipped). Pre-change copies of the five files are in the session backup `live_backup_20261102_fixtures`.
+- **Pending approval**: the 8 Season 4 teams that are not in the schedule (Bat Breaker Rampur, Boom Shiva, Commando The Rising Star Solan, Mountain Army by TGW, Sidhpur Warriors, Silent Killer Bilaspur, Valley Victor Jubbal, Wine Association) are still listed on the live Season 4 teams page under "Other teams". `php bin/seed-season4-fixtures.php --remove-others` (or the runner method, `seedSeason4Fixtures(true)`) takes them out of Season 4 while keeping their squads, and prints the SQL that restores them. The production permission check blocked that DB delete until the owner confirms it.
+
 ## 5. What is live and what is not
 
 | Area | On prohpcl.com | In this repo |
@@ -89,12 +99,15 @@ CricHeroes has Pro HPCL player profiles. Built the plumbing: `database/cricheroe
 | Absolute canonical/og URLs | **no** | yes |
 | Member photo, share kit, creative, admin changes | **no** | yes |
 | CricHeroes link field/button/importer | **no** | yes |
+| Season 4 fixtures page, groups, nav/footer links | yes (2026-11-02) | yes |
+| Removing the 8 non-fixture teams from Season 4 | **no** (awaiting approval) | script ready |
 
 To ship the "no" rows: follow section 3. Needed: new files (`includes/member-*.php`, `includes/cricheroes.php`, `assets/fonts/*`, `assets/creative/*`, `assets/js/membership-popup.js`, `includes/partials/membership-popup.html`, `includes/templates/member-share.html`), then the three membership columns and `players.cricheroes_url` on the live DB (temp runner; the `bin/migrate-membership-share.php` checks are the model), then the modified files (`index.php` and layouts last). After deploying, confirm the server can draw creatives (GD with FreeType) by opening a member's `/member/<slug>/creative.png`.
 
 ## 6. Known gaps and next steps
 
 1. **Deploy** section 4.5 to 4.8 (needs the owner's go-ahead).
+   Note: the live site now has the fixtures release (4.9) on top of the 2026-10-31 code, so when deploying the rest, take fresh copies of `index.php`, `includes/teams.php`, `includes/catalog.php`, `header.html` and `footer.html` from the repo (they include the fixtures edits). The `season_fixtures` table already exists on the live database.
 2. **CricHeroes**: get the real profile links (CSV of player/ID and link) and run the importer; or add one tournament-level link if per-player links are not available.
 3. **Razorpay is not configured on production**, so the paid path can only be exercised by admin activation until the keys and `membership_payment_enabled` are set (Admin, Settings, Integrations). Test mode first.
 4. **SMTP password is empty on production**: the share-kit email will fail (logged) until set; the kit link is still shown in admin and after payment.
