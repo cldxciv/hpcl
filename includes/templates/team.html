@@ -367,6 +367,43 @@
             padding: 0 12px;
         }
     }
+    /* The text column sits beside the photo, never over it: the photo takes up to 42% of the card
+       (146 px at most) and the name, place and Bat/Bowl pills share the rest. The size follows the
+       card's own width; browsers without container units keep the fixed sizes above. */
+    .team-player-performer {
+        container-type: inline-size;
+        height: 100%;
+    }
+    a:has(> .team-player-performer) {
+        display: block;
+        height: 100%;
+    }
+    .team-player-performer .tpv2-card__player {
+        width: clamp(86px, 42cqw, 146px);
+        height: calc(clamp(86px, 42cqw, 146px) * 1.384);
+    }
+    .team-player-performer .tpv2-card__meta {
+        /* In the flow, so a long name makes the card taller instead of being squeezed. */
+        position: static;
+        width: auto;
+        margin: 14px 12px 14px calc(12px + clamp(86px, 42cqw, 146px) + 10px);
+    }
+    .team-player-performer .tpv2-card__meta > * {
+        flex-shrink: 0;
+    }
+    .team-player-performer .tpv2-card__name {
+        max-width: 100%;
+        font-size: clamp(18px, 8.6cqw, 36px);
+        -webkit-line-clamp: 4;
+        overflow-wrap: anywhere;
+    }
+    .team-player-performer .team-player-details span,
+    .team-player-performer .tpv2-card__metric-label {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: right;
+        border-radius: 12px;
+    }
 </style>
                             <script type="application/ld+json">
             {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{BASE}}"},{"@type":"ListItem","position":2,"name":"Seasons","item":"{{BASE}}/teams"},{"@type":"ListItem","position":3,"name":"Season 4","item":"{{BASE}}/teams/season/4"},{"@type":"ListItem","position":4,"name":"Aspire 11","item":"{{BASE}}/teams/season/4/aspire-11"}]}
