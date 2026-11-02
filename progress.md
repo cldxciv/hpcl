@@ -59,14 +59,14 @@ No broken internal links (277 crawled), no horizontal overflow at 360/768/1024/1
 - `includes/whatsapp.php` (`/whatsapp/webhook`) is deployed but inert: no WhatsApp tokens are set on production.
 - **Deployed to prohpcl.com on 2026-10-31**: all of 4.2, 4.3 and 4.4 (39 modified and 5 new files), the two agent tables, and the API key added to the live `.env`. Verified live: 18 pages 200, WebP thumbs served, chat replies, `.env` 403.
 
-### 4.5 Membership popup (2026-11-01, **not deployed**)
+### 4.5 Membership popup (2026-11-01, **LIVE since 2026-11-02**)
 - `partials/membership-popup.html` + `assets/js/membership-popup.js` (markup from `membershipPopupHtml()` in `includes/membership.php`, wired through a view composer in `includes/content.php`). Opens 5 s after `window.load`; quiet for 7 days after being shown and 30 days after a request; skipped on `/membership*`, `/join-committee`, signup/login/account/admin/shop pages and while the chat panel is open. Esc, backdrop and X close it; focus is trapped and restored.
 - Fields: tier, name, email, mobile. POST `/membership/quick` (`handleMembershipQuick()`) saves into `membership_applications` with business name "Not provided" and a note that it came from the popup. No payment. Same validation, honeypot and 6/hour/IP limit as the full form.
 
-### 4.6 Absolute canonical / social URLs (2026-11-01, **not deployed**)
+### 4.6 Absolute canonical / social URLs (2026-11-01, **LIVE since 2026-11-02**)
 Canonical, `og:url`, `og:image`, `twitter:image` and JSON-LD URLs were relative (`/membership`) on every page; `render()` in `index.php` now makes them `https://prohpcl.com/...` (from `SITE_URL`).
 
-### 4.7 Member photo, payment completion and share kit (2026-11-01, **not deployed**)
+### 4.7 Member photo, payment completion and share kit (2026-11-01, **LIVE since 2026-11-02**)
 Flow: choose tier, fill the join form (optional photo), pay. When a payment is confirmed (browser callback, Razorpay webhook or the admin "Check payment" button, all through `membershipPaymentReceived()` in `includes/membership-join.php`) the code calls `membershipActivateMember()` (`includes/member-share.php`): it creates a **published** `members` row from the application (name, tier, city, website, contact, photo; the applicant's private message is not copied), a private `share_token`, approves the application and emails the kit (`membershipSendShareKit()`). A team-unpublished profile stays unpublished.
 - Photo: `includes/member-photo.php` checks type and size by content, rotates by EXIF, resizes to 1200 px and saves a clean JPEG in `storage/uploads/members/photos`.
 - Creative: `includes/member-creative.php` draws a 1080x1080 PNG with GD + FreeType (fonts in `assets/fonts`, Bebas Neue and Barlow, OFL). Served at `/member/<slug>/creative.png` (`?download=1` to save), cached in `storage/cache/creatives`, and used as the profile's `og:image`. **Canva is not connected to Claude sessions**, so the design is an editable background (`assets/creative/bg-square.png`) plus a layout array `memberCreativeLayout()`: see `assets/creative/README.md`. `bin/build-creative-assets.php` rewrites the default background and `sample.png`.
@@ -76,7 +76,7 @@ Flow: choose tier, fill the join form (optional photo), pay. When a payment is c
 - DB columns (`database/membership-share.sql`; `php bin/migrate-membership-share.php` adds them idempotently): `membership_applications.photo`, `.share_token` (unique), `members.photo`.
 - Tested locally end to end with a simulated payment: one profile and one token even if the payment is recorded twice, page/creative/email/admin all correct, axe 0, no overflow.
 
-### 4.8 CricHeroes profile links (2026-11-01, **not deployed**, waiting on data)
+### 4.8 CricHeroes profile links (2026-11-01, **LIVE since 2026-11-02**, waiting on data)
 CricHeroes has Pro HPCL player profiles. Built the plumbing: `database/cricheroes.sql` (`players.cricheroes_url`), `includes/cricheroes.php` (only `https://cricheroes.com|in` links accepted), a "CricHeroes profile" field in `/admin/players`, a "View on CricHeroes" button on `/player/<slug>`, and `bin/import-cricheroes.php links.csv [--apply]` (CSV columns `player,url`; match by slug or exact name; dry run by default). **The real profile URLs have not been provided**: guessed CricHeroes addresses (`/hpclpro` etc.) returned 404, a web search only found the unrelated Hindustan Petroleum HPCL pages. The season-4 registered-players PDF (footer link) has Player IDs `PHPCL/P/<id>` that equal our `players.id`, a usable match key, but no CricHeroes links. 15 players are named "CricHeroes deleted user" and cannot be matched by name.
 
 ### 4.9 Season 4 fixtures and groups (2026-11-02, **LIVE**)
@@ -91,23 +91,23 @@ The organisers' "PRO HPCL 2026 Fixtures" PDF is published at `/fixtures` (and `/
 
 ## 5. What is live and what is not
 
-| Area | On prohpcl.com | In this repo |
-|---|---|---|
-| UI/UX sprint, thumbnails, a11y, perf | yes (2026-10-31) | yes |
-| Chat widget + per-IP cap + DB tables + API key | yes | yes (key only in the live `.env`) |
-| Membership popup, `/membership/quick` | **no** | yes |
-| Absolute canonical/og URLs | **no** | yes |
-| Member photo, share kit, creative, admin changes | **no** | yes |
-| CricHeroes link field/button/importer | **no** | yes |
-| Season 4 fixtures page, groups, nav/footer links | yes (2026-11-02) | yes |
-| Removing the 8 non-fixture teams from Season 4 | **no** (awaiting approval) | script ready |
+Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus the Season 4 team removal, which is a data change). The 14 new files, the 17 changed files and the database columns (`membership_applications.photo`, `.share_token`, `members.photo`, `players.cricheroes_url`, `users.team_prompted_at`) were deployed that day; the live copies replaced by the last release are in the session scratchpad (`live_backup_20261102_*`).
 
-To ship the "no" rows: follow section 3. Needed: new files (`includes/member-*.php`, `includes/cricheroes.php`, `assets/fonts/*`, `assets/creative/*`, `assets/js/membership-popup.js`, `includes/partials/membership-popup.html`, `includes/templates/member-share.html`), then the three membership columns and `players.cricheroes_url` on the live DB (temp runner; the `bin/migrate-membership-share.php` checks are the model), then the modified files (`index.php` and layouts last). After deploying, confirm the server can draw creatives (GD with FreeType) by opening a member's `/member/<slug>/creative.png`.
+| Area | On prohpcl.com |
+|---|---|
+| UI/UX sprint, thumbnails, a11y, perf, chat widget | yes |
+| Membership popup (`/membership/quick`), absolute canonical/og URLs | yes |
+| Member photo, share kit, creative (GD + FreeType confirmed on the server), admin changes | yes, but the paid path needs Razorpay and the share-kit mail needs SMTP (below) |
+| CricHeroes link field/button/importer | yes, no URLs loaded yet |
+| Season 4 fixtures, groups, nav/footer links | yes |
+| The 8 non-fixture teams removed from Season 4 (squads kept) | yes (2026-11-02); restore SQL: `INSERT INTO season_teams (season_id, team_id, pool) VALUES (4, <id>, NULL)` for ids 44, 42, 50, 43, 31, 40, 46, 17 |
+| Season 4 shows 12 teams (`seasonPlayingTeamSql()` in `includes/site.php`: fixture teams only while a season has fixtures) | yes |
+| Homepage/season/team card refinements, player-card overlap fixes, centred owners, membership card text and slider | yes |
+| Favourite-team prompt after first login (`/account/team`, `users.team_prompted_at`) and the HTML welcome email (`includes/account-mail.php`) | yes; the email needs SMTP |
 
 ## 6. Known gaps and next steps
 
-1. **Deploy** section 4.5 to 4.8 (needs the owner's go-ahead).
-   Note: the live site now has the fixtures release (4.9) on top of the 2026-10-31 code, so when deploying the rest, take fresh copies of `index.php`, `includes/teams.php`, `includes/catalog.php`, `header.html` and `footer.html` from the repo (they include the fixtures edits). The `season_fixtures` table already exists on the live database.
+1. Nothing is waiting to deploy. Always compare the live files with the repo before the next release (size check over FTP, then a normalised diff).
 2. **CricHeroes**: get the real profile links (CSV of player/ID and link) and run the importer; or add one tournament-level link if per-player links are not available.
 3. **Razorpay is not configured on production**, so the paid path can only be exercised by admin activation until the keys and `membership_payment_enabled` are set (Admin, Settings, Integrations). Test mode first.
 4. **SMTP password is empty on production**: the share-kit email will fail (logged) until set; the kit link is still shown in admin and after payment.
