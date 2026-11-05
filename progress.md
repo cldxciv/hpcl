@@ -98,6 +98,18 @@ Full shop with cart, Razorpay checkout, orders and admin; the code is live but t
 - To open the shop: add real products (import the owner's list; copy the photos to `storage/uploads/shop/products/` on the server), save Razorpay keys (test first) and the SMTP password, set shipping and the notification email in Shop > Settings, place a test order, then switch the shop on.
 - Pre-change copies of the 16 replaced files: session scratchpad `live_backup_20261105_shop`.
 
+### 4.11 Ground booking (2026-11-06, **deployed, hidden until switched on**)
+Requests for Shimla Cricket Ground, approved by an admin, then paid. Public: `/book` (form), `/booking/<token>` (status), `/booking/<token>/pay`, `/account/bookings`. Switch on at Admin > Bookings > Settings (`site_settings.booking_enabled = 1`, or `BOOKING_ENABLED=true` in `.env`).
+- Rate card (from the owner's poster, seeded in `booking_rates`): single match Rs 7,500 per team (3 h, 20 overs); two matches Rs 12,650 per team (6 h + 20 min break); full-day package Rs 30,000 flat (9 h). Includes ground, 2 umpires + scorer, white leather balls, POTM + Fighter of the Match trophies, lunch and tea. 50% advance confirms; balance at the ground. Rates are for 11 players. Lunch/tea can be skipped: Rs 150 off per meal per team per day (`booking_meal_deduction`). Residential stay Rs 1,000 per person per night incl. three meals and refreshments (`booking_stay_rate`), quoted at request, adjustable by the approver. 1 to 7 consecutive days. Member tier discount applies to the (meal-adjusted) total.
+- Slots are three 3-to-5-hour windows; labels in settings (seeded 7:30-11:30, 12:00-4:00, 4:30-7:30). Single match = one slot, two matches = two consecutive slots (start morning or afternoon), full day = all three. Requests never block; approved-unpaid slots are held `booking_hold_hours` (48); confirmed slots are booked.
+- Code: `includes/booking.php` (rules, pricing `bookingPriceBreakdown()`, availability, state machine `bookingApprove/Reject/Cancel/MarkPaid/UpdateRequirements`), `booking-pages.php`, `booking-mail.php`, `booking-pay.php` (Razorpay advance, webhook `bookingPaymentReceived()`, offline-payment fallback), admin `admin-bookings.php` + calendar + settings + blocks (permission `bookings`). Tables `bookings`, `booking_events`, `booking_blocks`, `booking_rates`; `database/booking.sql`, `bin/migrate-booking.php`.
+- Bank details, phone numbers, slot labels and the payment note live ONLY in `site_settings` (seeded on production by the deploy runner from a scratch file; never in the repo). Edit them in Admin > Bookings > Settings.
+- Tests: `bin/test-booking.php` (139 checks), `bin/test-booking-pay.php/.py` (67 browser checks; remove users `*@bookingtest.local` between runs). Local fake-payment seam as for the shop (`appEnv() === 'local'` + `shop_fake_razorpay`).
+
+### 4.12 Real ground photos, season cards (2026-11-06, **LIVE**)
+- `assets/ground/` holds the client's real photos of Shimla Cricket Ground (slots, gallery events/scenic/press, thumbs; source: `web-lite/` in the owner's folder). Used on the homepage "Shimla Cricket Ground" section and on /book.
+- All season pages (1 to 4) use one card grid (6 across); teams without a logo get an initials badge (`includes/team-card.php`); Season 4 lists the 8 non-playing teams under "Other Teams (Not Participating)" (they are attached with `pool NULL`; `seasonPlayingTeamSql()` keeps the Season 4 count at 12).
+
 ## 5. What is live and what is not
 
 Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus the Season 4 team removal, which is a data change). The 14 new files, the 17 changed files and the database columns (`membership_applications.photo`, `.share_token`, `members.photo`, `players.cricheroes_url`, `users.team_prompted_at`) were deployed that day; the live copies replaced by the last release are in the session scratchpad (`live_backup_20261102_*`).
@@ -112,6 +124,8 @@ Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus 
 | The 8 non-fixture teams removed from Season 4 (squads kept) | yes (2026-11-02); restore SQL: `INSERT INTO season_teams (season_id, team_id, pool) VALUES (4, <id>, NULL)` for ids 44, 42, 50, 43, 31, 40, 46, 17 |
 | Season 4 shows 12 teams (`seasonPlayingTeamSql()` in `includes/site.php`: fixture teams only while a season has fixtures) | yes |
 | Homepage/season/team card refinements, player-card overlap fixes, centred owners, membership card text and slider | yes |
+| Ground booking (`/book`, admin, payment) | code live, hidden (404) until switched on; settings and rate card seeded |
+| Real ground photos, unified season cards, Other Teams (Not Participating) | yes (2026-11-06) |
 | The shop (cart, Razorpay checkout, orders, admin) | code live, shop hidden (404) until switched on; no products or Razorpay keys yet |
 | Favourite-team prompt after first login (`/account/team`, `users.team_prompted_at`) and the HTML welcome email (`includes/account-mail.php`) | yes; the email needs SMTP |
 
