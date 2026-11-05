@@ -19,6 +19,22 @@
             .teams-section__card--gold .teams-section__count, .teams-section__card--teal .teams-section__count,
             .teams-section__card--orange .teams-section__count, .teams-section__card--yellow .teams-section__count { color: #1c1204 !important; }
             @media (min-width: 1281px) { .teams-section__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+            /* Home ground showcase: real photos of Shimla Cricket Ground (assets/ground). */
+            .ground-home { background: #0b2a5b; color: #fff; padding: 56px 16px; }
+            .ground-home__inner { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 36px; align-items: center; }
+            .ground-home__kicker { font: 700 0.85rem/1 Barlow, sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #ff7a18; margin: 0 0 12px; }
+            .ground-home__title { font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1; margin: 0 0 14px; color: #fff; }
+            .ground-home__text { font: 400 1.05rem/1.65 Roboto, sans-serif; color: rgba(255, 255, 255, 0.92) !important; margin: 0 0 12px; max-width: 46ch; }
+            .ground-home__meta { font: 700 0.95rem/1.4 Barlow, sans-serif; color: #ffb27a !important; margin: 0 0 22px; }
+            .ground-home__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+            .ground-home__btn { display: inline-block; padding: 12px 26px; border-radius: 999px; font: 800 1rem/1 Barlow, sans-serif; letter-spacing: 0.02em; text-decoration: none; border: 2px solid #fff; color: #fff; }
+            .ground-home__btn:hover { background: #fff; color: #0b2a5b; }
+            .ground-home__btn--primary { background: #ff7a18; border-color: #ff7a18; color: #0b2a5b; }
+            .ground-home__btn--primary:hover { background: #ff8c38; border-color: #ff8c38; color: #0b2a5b; }
+            .ground-home__photos { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; }
+            .ground-home__photos img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; }
+            .ground-home__photos .ground-home__main { grid-row: 1 / span 2; min-height: 320px; }
+            @media (max-width: 860px) { .ground-home__inner { grid-template-columns: 1fr; } .ground-home__photos .ground-home__main { min-height: 240px; } }
             .hero-carousel-pause__icon--play { display: none; }
             .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--play { display: block; }
             .hero-carousel-pause[aria-pressed="true"] .hero-carousel-pause__icon--pause { display: none; }
@@ -71,6 +87,25 @@
             </div>
     <div class="teams-section__bottom-decor" aria-hidden="true"></div>
 </section>
+    <section class="ground-home" aria-labelledby="ground-home-title">
+        <div class="ground-home__inner">
+            <div class="ground-home__copy">
+                <p class="ground-home__kicker">Play cricket. Enjoy nature.</p>
+                <h2 class="ground-home__title" id="ground-home-title">Shimla Cricket Ground</h2>
+                <p class="ground-home__text">A cricket ground set among the hills of Shimla. Bring your team for a single match, two matches or a full day, with umpires, scorer, balls, trophies and lunch and tea included.</p>
+                <p class="ground-home__meta">11 km from Mehli, Shimla</p>
+                <div class="ground-home__actions">
+{!! $ground_book !!}
+                    <a class="ground-home__btn" href="{{BASE}}/fixtures">Season 4 fixtures</a>
+                </div>
+            </div>
+            <div class="ground-home__photos">
+                <img class="ground-home__main" src="{{BASE}}/assets/ground/slots/ground-hero-aerial.webp" width="1920" height="941" loading="lazy" decoding="async" alt="Aerial view of Shimla Cricket Ground, with the pitch in the middle and the forested hills around it">
+                <img src="{{BASE}}/assets/ground/slots/landmark-master-pitch.webp" width="800" height="533" loading="lazy" decoding="async" alt="Players on the pitch at Shimla Cricket Ground during a match">
+                <img src="{{BASE}}/assets/ground/slots/gallery-morning-dew.webp" width="680" height="510" loading="lazy" decoding="async" alt="Two white leather cricket balls resting in the grass with the hills behind">
+            </div>
+        </div>
+    </section>
     <section class="top-performers-v2">
     <div class="top-performers-v2__inner">
         <h2 class="top-performers-v2__title">Top Performers <span style="font-size: 14px">{!! $highlights_season !!}</span></h2>

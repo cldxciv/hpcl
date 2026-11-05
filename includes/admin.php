@@ -35,6 +35,7 @@ const ADMIN_PERMISSIONS = [
     'membership' => ['Membership', 'Review membership requests and manage public member business profiles.'],
     'site_users' => ['Site users', 'See who has signed up for a website account, and deactivate or reactivate accounts.'],
     'shop' => ['Shop', 'Manage the shop: its settings, categories, products and orders (packing, shipping and refunds).'],
+    'bookings' => ['Bookings', 'Review ground booking requests, approve them with a price and payment details, and manage the booking calendar, rates and blocked dates.'],
     'settings' => ['Site settings', 'Manage the hero slider, contact details, social links and home page highlights season.'],
     'delete' => ['Delete records', 'Delete teams, players and owners, in the areas the role can use. (Deleted records go to your Trash, where you can restore them.)'],
 ];
@@ -55,6 +56,10 @@ const ADMIN_MENU = [
     '/admin/shop/products' => ['Shop products', '<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>', 'shop', 'shop'],
     '/admin/shop/categories' => ['Shop categories', '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>', 'shop', 'shop'],
     '/admin/shop/settings' => ['Shop settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'shop', 'shop'],
+    '/admin/bookings' => ['Booking requests', '<path d="M5 4h14a1 1 0 0 1 1 1v15l-4-3H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 9h8M8 13h5"/>', 'bookings', 'bookings'],
+    '/admin/bookings/calendar' => ['Booking calendar', '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>', 'bookings', 'bookings'],
+    '/admin/bookings/blocks' => ['Blocked dates', '<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>', 'bookings', 'bookings'],
+    '/admin/bookings/settings' => ['Booking settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'bookings', 'bookings'],
     '/admin/hero' => ['Hero slider', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 4-6 5 7"/>', 'settings', 'settings'],
     '/admin/settings' => ['Site settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'settings', 'settings'],
     '/admin/integrations' => ['Integrations', '<path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5"/>', 'root', 'settings'],
@@ -64,6 +69,7 @@ const ADMIN_MENU = [
 const ADMIN_MENU_GROUPS = [
     'people' => ['People', '<circle cx="12" cy="7" r="3"/><circle cx="5" cy="9" r="2.2"/><circle cx="19" cy="9" r="2.2"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M1.5 18c0-2 1.6-3.6 3.5-3.6M22.5 18c0-2-1.6-3.6-3.5-3.6"/>'],
     'shop' => ['Shop', '<path d="M6 7h13l-1.5 8H8L6 4H3"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>'],
+    'bookings' => ['Bookings', '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
     'settings' => ['Settings', '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
 ];
 
@@ -301,6 +307,12 @@ function adminPages(): array {
         '~^/admin/owners/new$~' => [$write, 'admin-owners.php', fn ($admin) => renderOwnerForm($admin, null), ['owners']],
         '~^/admin/owners/(\d+)$~' => [$write, 'admin-owners.php', fn ($admin, $id) => renderOwnerForm($admin, (int) $id), ['owners']],
         '~^/admin/owners/(\d+)/delete$~' => [$write, 'admin-owners.php', fn ($admin, $id) => renderOwnerDelete($admin, (int) $id), ['owners', 'delete']],
+        '~^/admin/bookings$~' => [$read, 'admin-bookings.php', fn ($admin) => renderAdminBookings($admin), ['bookings']],
+        '~^/admin/bookings/export\.csv$~' => [$read, 'admin-bookings.php', fn ($admin) => sendAdminBookingsCsv($admin), ['bookings']],
+        '~^/admin/bookings/calendar$~' => [$read, 'admin-booking-calendar.php', fn ($admin) => renderAdminBookingCalendar($admin), ['bookings']],
+        '~^/admin/bookings/settings$~' => [$write, 'admin-booking-settings.php', fn ($admin) => renderAdminBookingSettings($admin), ['bookings']],
+        '~^/admin/bookings/blocks$~' => [$write, 'admin-booking-settings.php', fn ($admin) => renderAdminBookingBlocks($admin), ['bookings']],
+        '~^/admin/bookings/(\d+)$~' => [$write, 'admin-bookings.php', fn ($admin, $id) => renderAdminBooking($admin, (int) $id), ['bookings']],
         '~^/admin/shop$~' => [$read, 'admin-shop.php', fn ($admin) => shopAdminHome($admin), ['shop']],
         '~^/admin/shop/settings$~' => [$write, 'admin-shop.php', fn ($admin) => renderAdminShopSettings($admin), ['shop']],
         '~^/admin/shop/categories$~' => [$read, 'admin-shop.php', fn ($admin) => renderAdminShopCategories($admin), ['shop']],

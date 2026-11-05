@@ -7,7 +7,7 @@
     var QUIET_AFTER_SENT = 30 * 24 * 3600 * 1000;
     var KEY = 'hpcl_mpop_until';
     // Pages with their own sign-up or account forms, and pages where a popup would be in the way.
-    var SKIP = /^\/(membership|join-committee|signup|login|forgot-password|reset-password|account|admin|agent|shop)(\/|$)/;
+    var SKIP = /^\/(membership|join-committee|signup|login|forgot-password|reset-password|account|admin|agent|shop|book|booking)(\/|$)/;
 
     var root = document.getElementById('mpop');
     if (!root) return;

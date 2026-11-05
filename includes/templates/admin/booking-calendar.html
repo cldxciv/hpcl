@@ -1,0 +1,27 @@
+@extends('layouts.admin')
+
+@section('title', 'Booking calendar')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Booking calendar</h1>
+                <p>{!! $month_label !!}</p>
+            </div>
+            <nav class="admin-cal__nav" aria-label="Change month">
+                <a class="admin-button-secondary" href="{!! $prev !!}" rel="prev">&larr; Previous</a>
+                <a class="admin-button-secondary" href="{!! $today !!}">Today</a>
+                <a class="admin-button-secondary" href="{!! $next !!}" rel="next">Next &rarr;</a>
+            </nav>
+        </div>
+{!! $legend !!}
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+{!! $day_panel !!}
+    </main>
+@include('partials.admin-footer')
+@endsection

@@ -1,0 +1,43 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', 'Your Pro HPCL ground booking: status, price and payment details.')
+@section('canonical', '{{BASE}}/book')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <link rel="stylesheet" href="{{BASE}}/assets/css/booking.css?v={!! $css_version !!}">
+@endsection
+
+@section('content')
+    <div class="bk-page">
+        <header class="bk-hero bk-hero--compact">
+            <div class="bk-container">
+                <h1 class="bk-hero__title">Booking {!! $reference !!}</h1>
+            </div>
+        </header>
+        <div class="bk-container bk-container--narrow">
+{!! $breadcrumb !!}
+            <article class="bk-card bk-status bk-status--{!! $status !!}">
+                <p class="bk-status__pill"><span class="bk-pill bk-pill--{!! $status !!}">{!! $status_label !!}</span></p>
+                <h2 class="bk-status__headline">{!! $headline !!}</h2>
+                <p class="bk-status__lead">{!! $lead !!}</p>
+{!! $actions !!}
+{!! $money !!}
+{!! $extra !!}
+                <h3 class="bk-h3">Your booking</h3>
+{!! $facts !!}
+{!! $timeline !!}
+                <h3 class="bk-h3">Terms</h3>
+{!! $terms !!}
+{!! $help !!}
+                <p class="bk-hint bk-noprint">Keep this page's link: it is the private link to your booking.</p>
+            </article>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script src="{{BASE}}/assets/js/booking.js?v={!! $css_version !!}" defer></script>
+@endsection

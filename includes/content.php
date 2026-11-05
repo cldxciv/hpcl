@@ -4,6 +4,7 @@ declare(strict_types=1);
 // Pages whose content is edited in the database (database/schema.sql, "Content edited
 // directly in the database"): the home page, the text pages and the shared footer.
 require_once __DIR__ . '/site.php';
+require_once __DIR__ . '/team-card.php'; // teamLogoHtml(): the team logo circle with an initials badge
 require_once __DIR__ . '/videos.php';
 require_once __DIR__ . '/hero.php';
 require_once __DIR__ . '/membership.php';
@@ -53,7 +54,7 @@ viewComposer('partials.footer', function (): array {
         'email' => escape(setting('contact_email')),
         'phones' => implode("\n", array_map('phoneLink', settingLines('contact_phones'))),
         'social_links' => $social,
-        'shop_link' => shopEnabled() ? '<a href="{{BASE}}/shop">Shop</a>' : '',
+        'shop_link' => (shopEnabled() ? '<a href="{{BASE}}/shop">Shop</a>' : '') . (bookingEnabled() ? '<a href="{{BASE}}/book">Book the ground</a>' : ''),
         'important_links' => implode("\n", array_map(fn ($link) => '<a href="' . escape(linkUrl($link['url'])) . '" target="_blank" rel="noopener noreferrer">' . escape($link['label']) . '</a>',
             query('SELECT * FROM footer_links ORDER BY position, id'))),
     ];
@@ -62,14 +63,18 @@ viewComposer('partials.footer', function (): array {
 // The shop's menu items (SHOP and CART with the number of items), shown when the shop is on. The count is only
 // read when the visitor already has the session cookie, so other visitors are not given one.
 viewComposer('partials.header', function (): array {
+    // The ground booking menu item (BOOK), shown when booking is on.
+    // One more item makes the menu too wide between 992 and 1099px, so it is tightened there (rules travel with the item).
+    $book = bookingEnabled() ? '<li class="nav-item"><style>@media (min-width:992px) and (max-width:1099px){.navbar-nav .nav-link{padding-left:.3rem!important;padding-right:.3rem!important;font-size:.82em}.navbar-nav{gap:0!important}}</style>'
+        . '<a class="nav-link " href="{{BASE}}/book">BOOK</a></li>' : '';
     try {
-        if (!shopEnabled()) return ['shop_nav' => ''];
+        if (!shopEnabled()) return ['shop_nav' => $book];
         require_once __DIR__ . '/shop-cart.php';
         $count = shopCartCount();
     } catch (Throwable) {
-        return ['shop_nav' => ''];
+        return ['shop_nav' => $book];
     }
-    return ['shop_nav' => '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop">SHOP</a></li>'
+    return ['shop_nav' => $book . '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop">SHOP</a></li>'
         . '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop/cart" data-shop-cart-link aria-label="Cart, ' . $count . ' item' . ($count === 1 ? '' : 's') . '">CART'
         . '<span data-cart-count aria-hidden="true" style="display:' . ($count > 0 ? 'inline-block' : 'none') . ';min-width:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:#ff7a18;color:#0b2a5b;font:700 11px/18px Barlow,sans-serif;text-align:center;vertical-align:top">' . $count . '</span></a></li>'];
 });
@@ -175,7 +180,7 @@ function renderHome(): string {
         foreach (query('SELECT t.name, t.slug, t.logo, (SELECT COUNT(*) FROM season_players sp2 WHERE sp2.season_id = st.season_id AND sp2.team_id = t.id) AS player_count FROM season_teams st JOIN teams t ON t.id = st.team_id WHERE st.season_id = ? AND t.deleted_at IS NULL AND ' . seasonPlayingTeamSql() . ' ORDER BY t.name', [$season['id']]) as $index => $team) {
             $teams .= '<a class="text-decoration-none d-block" href="{{BASE}}/teams/season/' . $season['route_key'] . '/' . rawurlencode($team['slug']) . '">'
                 . '<article class="teams-section__card js-reveal-card teams-section__card--' . HOME_TEAM_COLOURS[$index % count(HOME_TEAM_COLOURS)] . '">'
-                . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . escape(mediaUrl($team['logo'], '/logo.png')) . '" alt="" onerror="this.onerror=null;this.src=\'{{BASE}}/logo.png\';"></div>'
+                . teamLogoHtml($team)
                 . '<h3 class="teams-section__name">' . escape($team['name']) . '</h3>'
                 . ($team['player_count'] ? '<p class="teams-section__count">' . (int) $team['player_count'] . ' players</p>' : '') . "</article></a>\n";
         }
@@ -212,9 +217,10 @@ function renderHome(): string {
             . "</div></article>\n";
     }
 
+    if ($teams !== '') $teams = '<style>' . teamCardCss() . '</style>' . $teams;
     $seasonName = $season ? 'Season ' . $season['route_key'] : '';
     return view('templates.home', [
-        'slides' => $slides, 'carousel_attributes' => $carouselAttributes, 'carousel_class' => $carouselClass, 'carousel_indicators' => $carouselIndicators, 'carousel_controls' => $carouselControls, 'carousel_pause' => $carouselPause, 'retained_season' => $seasonName, 'retained_players' => $retained, 'teams_season' => $seasonName, 'teams' => $teams,
+        'slides' => $slides, 'carousel_attributes' => $carouselAttributes, 'carousel_class' => $carouselClass, 'carousel_indicators' => $carouselIndicators, 'carousel_controls' => $carouselControls, 'carousel_pause' => $carouselPause, 'retained_season' => $seasonName, 'retained_players' => $retained, 'teams_season' => $seasonName, 'teams' => $teams, 'ground_book' => bookingEnabled() ? '<a class="ground-home__btn ground-home__btn--primary" href="{{BASE}}/book">Book the ground</a>' : '',
         'highlights_season' => escape(setting('home_highlights_season')), 'top_performers' => $performers, 'stats' => $stats, 'stat_highlights' => $highlights, 'videos' => $videos,
     ]);
 }

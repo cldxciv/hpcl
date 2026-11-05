@@ -1,0 +1,42 @@
+@extends('layouts.page')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{!! $url !!}')
+@section('body_class', 'home-unified-theme')
+@section('image', '{!! $og_image !!}')
+@section('image_type', 'image/webp')
+@section('image_width', '1920')
+@section('image_height', '941')
+@section('image_alt', '{!! $hero_alt !!}')
+
+@section('head')
+    <link rel="preload" as="image" href="{!! $hero_image !!}" fetchpriority="high">
+    <link rel="stylesheet" href="{{BASE}}/assets/css/booking.css?v={!! $css_version !!}">
+@endsection
+
+@section('content')
+    <div class="bk-page">
+        <header class="bk-hero bk-hero--photo">
+            <img class="bk-hero__img" src="{!! $hero_image !!}" width="1920" height="941" alt="{!! $hero_alt !!}" decoding="async" fetchpriority="high">
+            <div class="bk-container bk-hero__inner">
+                <h1 class="bk-hero__title">Book the ground</h1>
+                <p class="bk-hero__lead">{!! $ground_name !!}, {!! $ground_address !!}. Choose a package, a date and a time. We review every request, then email you the payment details.</p>
+            </div>
+        </header>
+        <div class="bk-container">
+{!! $breadcrumb !!}
+            <div class="bk-layout">
+                <div class="bk-main">
+{!! $form !!}
+                </div>
+{!! $summary !!}
+            </div>
+{!! $ground !!}
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script src="{{BASE}}/assets/js/booking.js?v={!! $css_version !!}" defer></script>
+@endsection

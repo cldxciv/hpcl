@@ -1,0 +1,33 @@
+@extends('layouts.app')
+
+@section('title', '{!! $title !!} | Pro HPCL')
+@section('description', 'Your Pro HPCL ground bookings.')
+@section('canonical', '{{BASE}}/account/bookings')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+@section('crumb', 'My bookings')
+@section('crumb_account', 'yes')
+
+@section('head')
+@include('partials.account-styles')
+    <link rel="stylesheet" href="{{BASE}}/assets/css/shop-checkout.css?v={!! $js_version !!}">
+    <link rel="stylesheet" href="{{BASE}}/assets/css/booking-pay.css?v={!! $js_version !!}">
+@endsection
+
+@section('content')
+    <div class="teams-linked-page acct-page">
+@include('partials.account-backdrop')
+        <div class="teams-linked-page__content">
+        <div class="container">
+@include('partials.account-breadcrumb')
+            <section class="acct-card acct-card--wide sco-account">
+{!! $body !!}
+            </section>
+        </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script src="{{BASE}}/assets/js/booking-pay.js?v={!! $js_version !!}" defer></script>
+@endsection

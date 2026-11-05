@@ -1,0 +1,63 @@
+@extends('layouts.admin')
+
+@section('title', 'Booking settings')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Booking settings</h1>
+            <p>The public booking page is at <a href="{!! $booking_url !!}">{!! $booking_url !!}</a>.</p>
+        </div>
+{!! $payments !!}
+{!! $summary !!}
+        <form class="admin-form admin-booking-form" method="post" action="{{BASE}}/admin/bookings/settings">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <section class="admin-panel" aria-labelledby="bs-open">
+                <h2 id="bs-open">Booking page</h2>
+                <div class="admin-field">
+                    <label class="admin-check"><input type="checkbox" name="booking_enabled" value="1"{!! $enabled !!}>Booking is open to the public</label>
+                    <p class="admin-hint">When it is off, the booking page and its links are hidden and return “not found”.</p>
+{!! $env_note !!}
+                </div>
+{!! $ground !!}
+            </section>
+
+            <section class="admin-panel" aria-labelledby="bs-slots">
+                <h2 id="bs-slots">Slots and rules</h2>
+{!! $slots !!}
+{!! $rules !!}
+            </section>
+
+            <section class="admin-panel" aria-labelledby="bs-extras">
+                <h2 id="bs-extras">Meals and accommodation</h2>
+{!! $extras !!}
+            </section>
+
+            <section aria-labelledby="bs-packages">
+                <h2 id="bs-packages" class="admin-booking-heading">Packages and rates</h2>
+                <p class="admin-hint">A single match or two matches is priced per team; the full-day package is a flat price. Rates cover 11 players a side: extra players are charged separately when you approve a request. Members get their tier’s ground-fee discount automatically.</p>
+{!! $packages !!}
+            </section>
+
+            <section class="admin-panel" aria-labelledby="bs-contact">
+                <h2 id="bs-contact">Contact, bank details and terms</h2>
+{!! $contact !!}
+{!! $payment_note !!}
+{!! $terms !!}
+            </section>
+
+            <div class="admin-form-actions">
+                <button type="submit">Save settings</button>
+            </div>
+        </form>
+
+        <section class="admin-panel admin-section" aria-labelledby="bs-ready">
+            <h2 id="bs-ready">Before you open booking</h2>
+{!! $checklist !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

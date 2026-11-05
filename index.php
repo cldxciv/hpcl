@@ -99,6 +99,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && preg_match('~^/shop/(?:c
     require_once __DIR__ . '/includes/shop-checkout.php';
     handleShopCheckoutStep($shopPost[2]);
 }
+// Ground booking POST endpoints (includes/booking.php, includes/booking-pay.php); they exist only while booking is on.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && bookingEnabled()) {
+    if ($path === '/book') {
+        require_once __DIR__ . '/includes/booking.php';
+        handleBookingRequest();
+    }
+    if (preg_match('~^/booking/([a-f0-9]{32})/pay/(create|verify)$~', $path, $bookingPost)) {
+        require_once __DIR__ . '/includes/booking-pay.php';
+        handleBookingPayStep($bookingPost[1], $bookingPost[2]);
+    }
+}
 if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) {
     errorPage(405);
 }
@@ -118,6 +129,7 @@ if ($path === '/sitemap.xml') {
         foreach (shopCategories() as $category) $dynamicUrls[] = substr(categoryUrl($category, shopCategories()), strlen('{{BASE}}'));
         foreach (shopProducts() as $product) $dynamicUrls[] = substr(productUrl($product), strlen('{{BASE}}'));
     }
+    if (bookingEnabled()) $dynamicUrls[] = '/book';
     foreach (query('SELECT route_key FROM seasons ORDER BY route_key') as $season) $dynamicUrls[] = '/stats/season/' . $season['route_key'];
     foreach (query('SELECT slug FROM blog_posts ORDER BY position') as $post) $dynamicUrls[] = '/blogs/' . rawurlencode($post['slug']);
     foreach (query('SELECT slug FROM video_categories ORDER BY position') as $category) $dynamicUrls[] = '/videos/category/' . rawurlencode($category['slug']);
@@ -163,6 +175,13 @@ $dynamicRoutes = [
     '~^/videos/([^/]+)$~' => ['videos.php', fn ($slug) => renderVideoPage($slug)],
     '~^/blogs$~' => ['blogs.php', fn () => renderBlogIndex($query)],
     '~^/blogs/([^/]+)$~' => ['blogs.php', fn ($slug) => renderBlogPost($slug)],
+];
+// Ground booking pages answer only when booking is on; otherwise they are 404.
+if (bookingEnabled()) $dynamicRoutes += [
+    '~^/book$~' => ['booking.php', fn () => renderBookingForm()],
+    '~^/book/availability$~' => ['booking.php', fn () => handleBookingAvailability()],
+    '~^/booking/([a-f0-9]{32})$~' => ['booking.php', fn ($token) => renderBookingStatus($token)],
+    '~^/booking/([a-f0-9]{32})/pay$~' => ['booking-pay.php', fn ($token) => renderBookingPay($token)],
 ];
 // The shop answers only when SHOP_ENABLED is on; otherwise its pages are 404.
 if (shopEnabled()) $dynamicRoutes += [

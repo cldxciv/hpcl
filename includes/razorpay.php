@@ -94,7 +94,12 @@ function handleRazorpayWebhook(): never {
             // Neither a committee nor a membership payment: it may be a shop order (includes/shop-checkout.php).
             if (is_file(__DIR__ . '/shop-checkout.php')) {
                 require_once __DIR__ . '/shop-checkout.php';
-                shopPaymentReceived($payment['order_id'], $payment['id'], $paise);
+                if (shopPaymentReceived($payment['order_id'], $payment['id'], $paise)) { http_response_code(200); exit; }
+            }
+            // Or a ground booking payment (includes/booking-pay.php).
+            if (is_file(__DIR__ . '/booking-pay.php')) {
+                require_once __DIR__ . '/booking-pay.php';
+                bookingPaymentReceived($payment['order_id'], $payment['id'], $paise);
             }
         }
     }

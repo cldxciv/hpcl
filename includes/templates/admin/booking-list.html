@@ -1,0 +1,34 @@
+@extends('layouts.admin')
+
+@section('title', 'Bookings')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Ground bookings</h1>
+                <p>{!! $summary !!}</p>
+            </div>
+            <a class="admin-button-secondary" href="{!! $export !!}">Download as CSV</a>
+        </div>
+{!! $enabled_note !!}
+{!! $tabs !!}
+        <form class="admin-search admin-search--shop" method="get" action="{{BASE}}/admin/bookings" role="search">
+            <input type="hidden" name="status" value="{!! $status !!}">
+            <label class="admin-visually-hidden" for="q">Search bookings</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Reference, name, team, email or phone">
+            <label for="from">Played from</label>
+            <input id="from" name="from" type="date" value="{!! $from !!}">
+            <label for="to">to</label>
+            <input id="to" name="to" type="date" value="{!! $to !!}">
+            <button type="submit" class="admin-button-secondary">Search</button>
+        </form>
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+{!! $pager !!}
+    </main>
+@include('partials.admin-footer')
+@endsection

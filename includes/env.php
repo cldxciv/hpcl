@@ -26,6 +26,18 @@ function appDebug(): bool {
     $debug = getenv('APP_DEBUG');
     return $debug === false || $debug === '' ? appEnv() !== 'production' : filter_var($debug, FILTER_VALIDATE_BOOLEAN);
 }
+/** Ground booking is public when the admin switched it on (site_settings.booking_enabled = 1) or BOOKING_ENABLED=true in .env. Off by default. */
+function bookingEnabled(): bool {
+    static $on = null;
+    if ($on !== null) return $on;
+    if (filter_var(getenv('BOOKING_ENABLED') ?: 'false', FILTER_VALIDATE_BOOLEAN)) return $on = true;
+    if (!function_exists('query')) return false;
+    try {
+        return $on = (query("SELECT value FROM site_settings WHERE name = 'booking_enabled'")[0]['value'] ?? '') === '1';
+    } catch (Throwable) {
+        return $on = false;
+    }
+}
 /** The shop is public when SHOP_ENABLED is on in .env or the admin switched it on (site_settings.shop_enabled = 1). Off by default. */
 function shopEnabled(): bool {
     static $on = null;

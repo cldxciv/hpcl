@@ -1,0 +1,34 @@
+@extends('layouts.page')
+
+@section('title', 'Booking {!! $reference !!} | Pro HPCL Ground Booking')
+@section('description', 'Your Pro HPCL ground booking: status, details and payment.')
+@section('canonical', '{{BASE}}/book')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <link rel="stylesheet" href="{{BASE}}/assets/css/shop-checkout.css?v={!! $js_version !!}">
+    <link rel="stylesheet" href="{{BASE}}/assets/css/booking-pay.css?v={!! $js_version !!}">
+@endsection
+
+@section('content')
+    <div class="sco-page sco-page--order bkp-page">
+        <div class="container">
+            <article class="sco-card sco-order">
+{!! $detail !!}
+{!! $state !!}
+{!! $terms !!}
+                <p class="sco-actions sco-noprint">
+                    <a class="sco-btn sco-btn--ghost" href="{{BASE}}/account/bookings">My bookings</a>
+                </p>
+{!! $support !!}
+                <p class="sco-small sco-muted sco-noprint">Keep this page’s link: it is the private link to your booking.</p>
+            </article>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+{!! $razorpay_scripts !!}
+    <script src="{{BASE}}/assets/js/booking-pay.js?v={!! $js_version !!}" defer></script>
+@endsection

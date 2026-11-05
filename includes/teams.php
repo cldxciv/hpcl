@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 // Teams overview, season team lists and team pages, rendered from the database.
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/team-card.php'; // teamLogoHtml(): the logo circle, with an initials badge for a team without a logo
 
 /** /teams: one card per season. Port of resources/views/public/teams/index.blade.php. */
 function renderTeamsIndex(string $html): string {
@@ -57,27 +58,35 @@ function renderSeasonTeams(string $routeKey): ?string {
     } catch (PDOException) {
         // The fixtures table isn't created yet: show the plain list.
     }
-    $card = fn (array $team, int $index, string $tag) => '<a class="text-decoration-none" href="' . teamSeasonUrl($season, $team) . '"><article class="teams-section__card teams-section__card--' . TEAM_CARD_VARIANTS[$index % count(TEAM_CARD_VARIANTS)] . '">'
-        . '<div class="teams-section__logo-wrap"><img class="teams-section__logo" src="' . mediaUrl($team['logo'], '/assets/media/logo.png') . '" alt=""></div>'
+    // $muted: a team attached to the season that is not in its fixtures ("not participating").
+    $card = fn (array $team, int $index, string $tag, bool $muted = false) => '<a class="text-decoration-none" href="' . teamSeasonUrl($season, $team) . '"><article class="teams-section__card '
+        . ($muted ? 'teams-section__card--muted' : 'teams-section__card--' . TEAM_CARD_VARIANTS[$index % count(TEAM_CARD_VARIANTS)]) . '">'
+        . teamLogoHtml($team)
         . '<' . $tag . ' class="teams-section__name">' . escape($team['name']) . '</' . $tag . '>'
-        . ($team['player_count'] ? '<p class="teams-section__count">' . (int) $team['player_count'] . ' players</p>' : '') . '</article></a>';
+        . ($muted ? '<p class="teams-section__count teams-section__count--note">Not participating</p>'
+            : ($team['player_count'] ? '<p class="teams-section__count">' . (int) $team['player_count'] . ' players</p>' : '')) . '</article></a>';
     $cards = '';
+    $heading = fn (string $text, string $note = '') => '<h2 class="teams-section__group">' . $text . '</h2>' . ($note !== '' ? '<p class="teams-section__group-note">' . $note . '</p>' : '');
     if ($grouped && array_filter(array_column($teams, 'pool'))) {
-        // A season with a schedule shows its groups (Group A, Group B) one after the other.
+        // A season with a schedule shows its groups (Group A, Group B) one after the other, then the teams that are not in it.
         $byPool = [];
         foreach ($teams as $team) $byPool[$team['pool'] ?: 'Other'][] = $team;
         ksort($byPool);
         $index = 0;
         foreach ($byPool as $pool => $poolTeams) {
-            $cards .= '<h2 class="teams-section__group">' . ($pool === 'Other' ? 'Other teams' : 'Group ' . escape((string) $pool)) . '</h2><div class="teams-section__grid teams-section__grid--group">';
-            foreach ($poolTeams as $team) $cards .= $card($team, $index++, 'h3');
+            $other = $pool === 'Other';
+            $cards .= $other ? $heading('Other Teams (Not Participating)', 'These teams are not playing in ' . $name . '.') : $heading('Group ' . escape((string) $pool));
+            $cards .= '<div class="teams-section__grid teams-section__grid--group' . ($other ? ' teams-section__grid--other' : '') . '">';
+            foreach ($poolTeams as $team) $cards .= $card($team, $index++, 'h3', $other);
             $cards .= '</div>';
         }
-        $cards = '<style>.teams-section__group { margin: 22px 0 6px; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 0.03em; color: #0a1f44; }</style>' . $cards;
     } else {
-        foreach ($teams as $index => $team) $cards .= $card($team, $index, 'h2');
-        $cards = '<div class="teams-section__grid">' . ($cards ?: '<div class="alert alert-light border text-center w-100">No teams mapped for this season.</div>') . '</div>';
+        foreach ($teams as $index => $team) $cards .= $card($team, $index, 'h3');
+        $cards = $cards !== '' ? $heading('All teams') . '<div class="teams-section__grid teams-section__grid--group">' . $cards . '</div>'
+            : '<div class="teams-section__grid"><div class="alert alert-light border text-center w-100">No teams mapped for this season.</div></div>';
     }
+    $cards = '<style>' . teamCardCss() . '.teams-section__group { margin: 22px 0 6px; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 0.03em; color: #0a1f44; }'
+        . 'body.home-unified-theme .teams-section__group-note { margin: 0 0 12px; font-size: 0.95rem; font-weight: 500; color: #0a1f44; }</style>' . $cards;
     $fixturesLink = $grouped ? '<p class="mb-3"><a class="btn btn-light fw-bold" href="{{BASE}}/fixtures/season/' . $season['route_key'] . '">View ' . $name . ' fixtures</a></p>' : '';
     $content = '<section class="teams-section" aria-label="' . $name . ' Teams"><div class="teams-section__inner"><nav aria-label="breadcrumb" class="my-1"><ol class="breadcrumb team-breadcrumb mb-3">'
         . '<li class="breadcrumb-item"><a href="{{BASE}}">Home</a></li><li class="breadcrumb-item"><a href="{{BASE}}/teams">Teams</a></li><li class="breadcrumb-item active fw-semibold" aria-current="page">' . $name . '</li></ol></nav>'

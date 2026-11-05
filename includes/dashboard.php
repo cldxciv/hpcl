@@ -54,11 +54,28 @@ function renderDashboard(array $admin, ?string $previousLogin): string {
             $shopTiles = '';
         }
     }
+    // The booking queue, for admins who manage bookings. The tables may not exist until the booking migration has run.
+    $bookingTiles = '';
+    if (adminCan('bookings')) {
+        try {
+            $bk = query("SELECT (SELECT COUNT(*) FROM bookings WHERE status = 'requested') AS requests, (SELECT COUNT(*) FROM bookings WHERE status = 'approved') AS awaiting,
+                (SELECT COUNT(*) FROM bookings WHERE status = 'confirmed' AND booking_date >= CURDATE()) AS upcoming")[0];
+            $bookingTiles = '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/bookings?status=requests"><p class="admin-tile__label">Booking requests to review</p><p class="admin-tile__value">' . dashboardNumber($bk['requests'])
+                . '</p><p class="admin-tile__hint">Waiting for approval</p></a>'
+                . '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/bookings?status=awaiting"><p class="admin-tile__label">Approved, awaiting payment</p><p class="admin-tile__value">' . dashboardNumber($bk['awaiting'])
+                . '</p><p class="admin-tile__hint">Slots on hold</p></a>'
+                . '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/bookings?status=confirmed"><p class="admin-tile__label">Upcoming confirmed bookings</p><p class="admin-tile__value">' . dashboardNumber($bk['upcoming'])
+                . '</p><p class="admin-tile__hint">Advance paid</p></a>';
+        } catch (Throwable) {
+            $bookingTiles = '';
+        }
+    }
     $tiles = dashboardTile('Players', $totals['players']) . dashboardTile('Teams', $totals['teams']) . dashboardTile('Seasons', $totals['seasons'])
         . dashboardTile('Owners', $totals['owners']) . dashboardTile('Videos', $totals['videos']) . dashboardTile('Blog posts', $totals['blog_posts'])
         . dashboardTile('Sponsors', $totals['sponsors'])
         . (shopEnabled() ? dashboardTile('Shop products', $totals['products']) : dashboardTile('Shop products', $totals['products'], 'Shop is hidden'))
         . $shopTiles
+        . $bookingTiles
         // Website accounts made at /signup, for admins who can see them.
         . ($siteUsers ? '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/site-users"><p class="admin-tile__label">Site users</p><p class="admin-tile__value">'
             . dashboardNumber($siteUsers['total']) . '</p><p class="admin-tile__hint">' . dashboardNumber($siteUsers['recent']) . ' joined in the last 7 days</p></a>' : '')

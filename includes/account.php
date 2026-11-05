@@ -36,6 +36,7 @@ const ACCOUNT_ROUTES = [
     '/account/edit' => ['account-profile.php', 'handleAccountEdit'],
     '/account/team' => ['account-profile.php', 'handleAccountTeam'],
     '/account/orders' => ['shop-checkout.php', 'handleAccountOrders'],
+    '/account/bookings' => ['booking-pay.php', 'handleAccountBookings'],
     '/account/password' => ['account-profile.php', 'handleAccountPassword'],
 ];
 

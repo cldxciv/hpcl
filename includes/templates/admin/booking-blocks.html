@@ -1,0 +1,41 @@
+@extends('layouts.admin')
+
+@section('title', 'Blocked dates')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Blocked dates</h1>
+            <p>Days or slots when the ground can’t be booked: maintenance, tournaments, private events.</p>
+        </div>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{{BASE}}/admin/bookings/blocks">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <input type="hidden" name="action" value="add">
+            <h2>Block dates</h2>
+            <div class="admin-fields-2">
+{!! $start !!}
+{!! $end !!}
+            </div>
+{!! $slot !!}
+{!! $reason !!}
+            <div class="admin-form-actions"><button type="submit">Block these dates</button></div>
+        </form>
+        <section class="admin-panel admin-section" aria-labelledby="bb-season">
+            <h2 id="bb-season">Season 4</h2>
+            <p class="admin-muted">Block every day of the Season 4 matches, 17 November to 1 December 2026, in one click.</p>
+            <form class="admin-form" method="post" action="{{BASE}}/admin/bookings/blocks">
+                <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                <input type="hidden" name="action" value="season4">
+                <div class="admin-form-actions"><button type="submit" class="admin-button-secondary">Block the Season 4 match days</button></div>
+            </form>
+        </section>
+        <section class="admin-panel admin-section" aria-labelledby="bb-list">
+            <h2 id="bb-list">Current blocks</h2>
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

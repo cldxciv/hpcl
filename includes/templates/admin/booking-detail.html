@@ -1,0 +1,61 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/bookings">&larr; All bookings</a></p>
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>{!! $title !!} {!! $status_badge !!}</h1>
+                <p>Requested {!! $requested !!}</p>
+            </div>
+            <a class="admin-button-secondary" href="{!! $calendar_url !!}">See it on the calendar</a>
+        </div>
+{!! $warnings !!}
+        <div class="admin-columns">
+            <section class="admin-panel" aria-labelledby="b-who">
+                <h2 id="b-who">Requester</h2>
+                <p><strong>{!! $name !!}</strong>{!! $organisation !!}<br><a href="mailto:{!! $email !!}">{!! $email !!}</a><br>{!! $phone !!}</p>
+{!! $message !!}
+{!! $note_to_requester !!}
+            </section>
+            <section class="admin-panel" aria-labelledby="b-what">
+                <h2 id="b-what">The booking</h2>
+{!! $details !!}
+{!! $pending !!}
+            </section>
+        </div>
+
+        <section class="admin-panel admin-section" aria-labelledby="b-money">
+            <h2 id="b-money">Price and payment</h2>
+{!! $money !!}
+        </section>
+
+        <div class="admin-columns admin-columns--actions">
+{!! $panels !!}
+            <section class="admin-panel" aria-labelledby="b-history">
+                <h2 id="b-history">History</h2>
+{!! $timeline !!}
+                <p class="admin-links">Requester’s page: <a href="{!! $status_url !!}">booking status</a> {!! $pay_url !!}</p>
+            </section>
+        </div>
+
+        <section class="admin-panel admin-section" aria-labelledby="b-note">
+            <h2 id="b-note">Internal note</h2>
+            <form class="admin-form" method="post" action="{!! $order_url !!}">
+                <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                <input type="hidden" name="action" value="note">
+                <div class="admin-field">
+                    <label for="admin_note">Only the team sees this</label>
+                    <textarea id="admin_note" name="admin_note" rows="3" maxlength="2000">{!! $admin_note !!}</textarea>
+                </div>
+                <div class="admin-form-actions"><button type="submit" class="admin-button-secondary">Save note</button></div>
+            </form>
+        </section>
+    </main>
+    <script src="{{BASE}}/assets/js/admin-booking.js?v=1"></script>
+@include('partials.admin-footer')
+@endsection

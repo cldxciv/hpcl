@@ -38,8 +38,19 @@ function handleAccountHome(): never {
         'team' => $team ? profileTeamHtml($team) : '<span class="acct-details__missing">Not chosen</span> · <a class="acct-team-link" href="{{BASE}}/account/team">Choose your team</a>',
         'member_since' => date('j M Y', strtotime($user['created_at'])),
         'orders_link' => profileOrdersLink($user),
+        'bookings_link' => profileBookingsLink($user),
         'csrf' => accountCsrfToken(),
     ]));
+}
+
+/** The "My bookings" button of /account: shown when ground booking is open or the customer has bookings (none of this breaks before the booking tables exist). */
+function profileBookingsLink(array $user): string {
+    try {
+        $has = bookingEnabled() || query('SELECT 1 FROM bookings WHERE user_id = ? OR email = ? LIMIT 1', [$user['id'], $user['email']]);
+    } catch (Throwable) {
+        $has = false;
+    }
+    return $has ? '<a class="acct-secondary" href="{{BASE}}/account/bookings">My bookings</a>' : '';
 }
 
 /** The "My orders" button of /account: shown when the shop is open or the customer has orders (none of this breaks before the shop tables exist). */
