@@ -90,6 +90,15 @@ if ($path === '/whatsapp/webhook') {
     require_once __DIR__ . '/includes/whatsapp.php';
     handleWhatsappWebhook();
 }
+// The shop's POST endpoints (cart: includes/shop-cart.php, checkout: includes/shop-checkout.php); they exist only while the shop is on.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && preg_match('~^/shop/(?:cart/(add|update|remove)|checkout/(place|verify))$~', $path, $shopPost) && shopEnabled()) {
+    if ($shopPost[1] !== '') {
+        require_once __DIR__ . '/includes/shop-cart.php';
+        handleShopCartAction($shopPost[1]);
+    }
+    require_once __DIR__ . '/includes/shop-checkout.php';
+    handleShopCheckoutStep($shopPost[2]);
+}
 if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) {
     errorPage(405);
 }
@@ -157,6 +166,12 @@ $dynamicRoutes = [
 ];
 // The shop answers only when SHOP_ENABLED is on; otherwise its pages are 404.
 if (shopEnabled()) $dynamicRoutes += [
+    // Cart and checkout (includes/shop-cart.php, includes/shop-checkout.php): these must stay above the product-slug route.
+    '~^/shop/cart$~' => ['shop-cart.php', fn () => renderShopCart()],
+    '~^/shop/cart/(add|update|remove)$~' => ['shop-cart.php', fn ($action) => handleShopCartAction($action)],
+    '~^/shop/checkout$~' => ['shop-checkout.php', fn () => renderShopCheckout()],
+    '~^/shop/checkout/(place|verify)$~' => ['shop-checkout.php', fn ($step) => handleShopCheckoutStep($step)],
+    '~^/shop/order/([a-f0-9]{32})$~' => ['shop-checkout.php', fn ($token) => renderShopOrder($token)],
     '~^/shop$~' => ['shop.php', fn () => renderShopIndex()],
     '~^/shop/category/([^/]+)$~' => ['shop.php', fn ($category) => renderShopIndex($category)],
     '~^/shop/category/([^/]+)/([^/]+)$~' => ['shop.php', fn ($parent, $category) => renderShopIndex($parent, $category)],

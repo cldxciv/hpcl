@@ -1,0 +1,35 @@
+@extends('layouts.app')
+
+@section('title', '{!! $title !!}')
+@section('description', '{!! $description !!}')
+@section('canonical', '{!! $url !!}')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <meta name="robots" content="noindex, follow">
+    <link rel="stylesheet" href="{{BASE}}/assets/css/shop.css?v={!! $css_version !!}">
+@endsection
+
+@section('content')
+    <div class="shop-page">
+        <header class="shop-hero shop-hero--compact">
+            <div class="shop-container">
+                <h1 class="shop-hero__title">Your cart</h1>
+            </div>
+        </header>
+        <div class="shop-container">
+{!! $breadcrumb !!}
+{!! $flash !!}
+            <div class="shop-cart {!! $has_lines !!}">
+                <div class="shop-cart__lines">
+{!! $lines !!}
+                </div>
+{!! $summary !!}
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script src="{{BASE}}/assets/js/shop.js?v={!! $css_version !!}" defer></script>
+@endsection

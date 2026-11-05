@@ -26,7 +26,15 @@ function appDebug(): bool {
     $debug = getenv('APP_DEBUG');
     return $debug === false || $debug === '' ? appEnv() !== 'production' : filter_var($debug, FILTER_VALIDATE_BOOLEAN);
 }
-/** SHOP_ENABLED: show the shop (its pages and the menu and footer links). Off by default. */
+/** The shop is public when SHOP_ENABLED is on in .env or the admin switched it on (site_settings.shop_enabled = 1). Off by default. */
 function shopEnabled(): bool {
-    return filter_var(getenv('SHOP_ENABLED') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+    static $on = null;
+    if ($on !== null) return $on;
+    if (filter_var(getenv('SHOP_ENABLED') ?: 'false', FILTER_VALIDATE_BOOLEAN)) return $on = true;
+    if (!function_exists('query')) return false;
+    try {
+        return $on = (query("SELECT value FROM site_settings WHERE name = 'shop_enabled'")[0]['value'] ?? '') === '1';
+    } catch (Throwable) {
+        return $on = false;
+    }
 }

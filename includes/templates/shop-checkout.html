@@ -1,0 +1,103 @@
+@extends('layouts.page')
+
+@section('title', 'Checkout | Pro HPCL Shop')
+@section('description', 'Check out: delivery details and secure online payment for your Pro HPCL shop order.')
+@section('canonical', '{{BASE}}/shop/checkout')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <link rel="stylesheet" href="{{BASE}}/assets/css/shop-checkout.css?v={!! $js_version !!}">
+@endsection
+
+@section('content')
+    <div class="sco-page">
+        <div class="container">
+            <nav aria-label="breadcrumb"><ol class="sco-crumbs"><li><a href="{{BASE}}/shop">Shop</a></li><li><a href="{{BASE}}/shop/cart">Cart</a></li><li aria-current="page">Checkout</li></ol></nav>
+            <section class="sco-card sco-empty"{!! $empty_hidden !!}>
+                <h1>Your cart is empty</h1>
+                <p class="sco-muted">Add something from the shop to check out.</p>
+                <p><a class="sco-btn" href="{{BASE}}/shop">Go to the shop</a></p>
+            </section>
+            <h1 class="sco-title"{!! $form_hidden !!}>Checkout</h1>
+            <form id="sco-form" class="sco-grid" method="post" action="{{BASE}}/shop/checkout/place" novalidate data-pay-ready="{!! $pay_ready !!}"{!! $form_hidden !!}>
+                <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                <div class="sco-honeypot" aria-hidden="true"><label>Leave this empty <input type="text" name="company_url" tabindex="-1" autocomplete="off"></label></div>
+
+                <div class="sco-card">
+                    <h2>Delivery details</h2>
+                    <div id="sco-alert" class="sco-alert" role="alert" tabindex="-1"{!! $summary_hidden !!}>{!! $summary !!}</div>
+                    <div class="sco-fields">
+                        <div class="sco-field sco-field--wide">
+                            <label for="name">Full name</label>
+                            <input id="name" name="name" type="text" autocomplete="name" maxlength="100" required value="{!! $name_value !!}" class="{!! $name_invalid !!}"{!! $name_aria !!} aria-describedby="name-error">
+{!! $name_error !!}
+                        </div>
+                        <div class="sco-field">
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" autocomplete="email" maxlength="190" required value="{!! $email_value !!}" class="{!! $email_invalid !!}"{!! $email_aria !!} aria-describedby="email-error">
+{!! $email_error !!}
+                        </div>
+                        <div class="sco-field">
+                            <label for="phone">Mobile number</label>
+                            <input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="16" required value="{!! $phone_value !!}" class="{!! $phone_invalid !!}"{!! $phone_aria !!} aria-describedby="phone-error">
+{!! $phone_error !!}
+                        </div>
+                        <div class="sco-field sco-field--wide">
+                            <label for="address_line1">Address</label>
+                            <input id="address_line1" name="address_line1" type="text" autocomplete="address-line1" maxlength="200" required placeholder="House number and street" value="{!! $address_line1_value !!}" class="{!! $address_line1_invalid !!}"{!! $address_line1_aria !!} aria-describedby="address_line1-error">
+{!! $address_line1_error !!}
+                        </div>
+                        <div class="sco-field sco-field--wide">
+                            <label for="address_line2">Apartment, area or landmark <span class="sco-optional">(optional)</span></label>
+                            <input id="address_line2" name="address_line2" type="text" autocomplete="address-line2" maxlength="200" value="{!! $address_line2_value !!}" class="{!! $address_line2_invalid !!}"{!! $address_line2_aria !!} aria-describedby="address_line2-error">
+{!! $address_line2_error !!}
+                        </div>
+                        <div class="sco-field">
+                            <label for="city">City or town</label>
+                            <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="100" required value="{!! $city_value !!}" class="{!! $city_invalid !!}"{!! $city_aria !!} aria-describedby="city-error">
+{!! $city_error !!}
+                        </div>
+                        <div class="sco-field">
+                            <label for="pincode">PIN code</label>
+                            <input id="pincode" name="pincode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="6" required value="{!! $pincode_value !!}" class="{!! $pincode_invalid !!}"{!! $pincode_aria !!} aria-describedby="pincode-error">
+{!! $pincode_error !!}
+                        </div>
+                        <div class="sco-field sco-field--wide">
+                            <label for="state">State</label>
+                            <select id="state" name="state" autocomplete="address-level1" required class="{!! $state_invalid !!}"{!! $state_aria !!} aria-describedby="state-error">{!! $state_options !!}</select>
+{!! $state_error !!}
+                        </div>
+                        <div class="sco-field sco-field--wide">
+                            <label for="notes">Note for the team <span class="sco-optional">(optional)</span></label>
+                            <textarea id="notes" name="notes" rows="3" maxlength="300" placeholder="For a custom jersey, the name and number to print" class="{!! $notes_invalid !!}"{!! $notes_aria !!} aria-describedby="notes-error">{!! $notes_value !!}</textarea>
+{!! $notes_error !!}
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="sco-card sco-summary" aria-labelledby="sco-summary-title">
+                    <h2 id="sco-summary-title">Order summary</h2>
+                    <ul class="sco-lines">{!! $items !!}</ul>
+                    <dl class="sco-totals">
+                        <dt>Subtotal ({!! $count !!} {!! $items_word !!})</dt><dd>{!! $subtotal !!}</dd>
+                        <dt>Shipping</dt><dd>{!! $shipping !!}</dd>
+                        <dt class="sco-totals__grand">Total</dt><dd class="sco-totals__grand">{!! $total !!}</dd>
+                    </dl>
+                    <p class="sco-muted sco-small">All prices include GST.</p>
+{!! $pay_note !!}
+                    <button type="submit" id="sco-pay" class="sco-btn sco-btn--block"{!! $pay_disabled !!}>Pay {!! $total !!} securely</button>
+                    <p class="sco-small sco-muted sco-secure">Secure payment by Razorpay: UPI, cards, net banking and wallets.</p>
+                    <noscript><p class="sco-note sco-note--bad">Please turn on JavaScript to pay online.</p></noscript>
+{!! $support !!}
+                    <p class="sco-small"><a href="{{BASE}}/shop/cart">← Back to cart</a></p>
+                </aside>
+            </form>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+{!! $razorpay_scripts !!}
+    <script src="{{BASE}}/assets/js/shop-checkout.js?v={!! $js_version !!}" defer></script>
+@endsection

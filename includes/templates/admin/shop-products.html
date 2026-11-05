@@ -1,0 +1,39 @@
+@extends('layouts.admin')
+
+@section('title', 'Shop products')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Shop products</h1>
+                <p>{!! $summary !!}</p>
+            </div>
+            <a class="admin-button" href="{{BASE}}/admin/shop/products/new">Add product</a>
+        </div>
+
+        <form class="admin-search admin-search--shop" method="get" action="{{BASE}}/admin/shop/products" role="search">
+            <label class="admin-visually-hidden" for="q">Search products</label>
+            <input id="q" name="q" type="search" value="{!! $search !!}" placeholder="Search by name or brand">
+            <label class="admin-visually-hidden" for="category">Category</label>
+            <select id="category" name="category">{!! $category_options !!}</select>
+            <label class="admin-visually-hidden" for="status">Status</label>
+            <select id="status" name="status">{!! $status_options !!}</select>
+            <button type="submit" class="admin-button-secondary">Filter</button>
+        </form>
+
+        <form method="post" action="{{BASE}}/admin/shop/products">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+            <input type="hidden" name="return" value="{!! $return !!}">
+            <section class="admin-panel admin-section">
+{!! $table !!}
+{!! $bulk !!}
+            </section>
+        </form>
+{!! $pager !!}
+    </main>
+    <script src="{{BASE}}/assets/js/admin-shop.js?v=1"></script>
+@include('partials.admin-footer')
+@endsection

@@ -34,6 +34,7 @@ const ADMIN_PERMISSIONS = [
     'committee' => ['Committee applications', 'Read committee member applications with their Aadhaar card, and approve or reject them.'],
     'membership' => ['Membership', 'Review membership requests and manage public member business profiles.'],
     'site_users' => ['Site users', 'See who has signed up for a website account, and deactivate or reactivate accounts.'],
+    'shop' => ['Shop', 'Manage the shop: its settings, categories, products and orders (packing, shipping and refunds).'],
     'settings' => ['Site settings', 'Manage the hero slider, contact details, social links and home page highlights season.'],
     'delete' => ['Delete records', 'Delete teams, players and owners, in the areas the role can use. (Deleted records go to your Trash, where you can restore them.)'],
 ];
@@ -50,6 +51,10 @@ const ADMIN_MENU = [
     '/admin/membership' => ['Membership', '<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/>', 'membership', 'people'],
     '/admin/members' => ['Members', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>', 'membership', 'people'],
     '/admin/site-users' => ['Site users', '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10.5" r="2.5"/><path d="M5.5 16.5c.5-1.7 1.9-2.6 3.5-2.6s3 .9 3.5 2.6M15 9.5h4M15 13.5h3"/>', 'site_users', 'people'],
+    '/admin/shop/orders' => ['Shop orders', '<path d="M6 7h13l-1.5 8H8L6 4H3"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>', 'shop', 'shop'],
+    '/admin/shop/products' => ['Shop products', '<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>', 'shop', 'shop'],
+    '/admin/shop/categories' => ['Shop categories', '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>', 'shop', 'shop'],
+    '/admin/shop/settings' => ['Shop settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'shop', 'shop'],
     '/admin/hero' => ['Hero slider', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 4-6 5 7"/>', 'settings', 'settings'],
     '/admin/settings' => ['Site settings', '<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/>', 'settings', 'settings'],
     '/admin/integrations' => ['Integrations', '<path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5"/>', 'root', 'settings'],
@@ -58,6 +63,7 @@ const ADMIN_MENU = [
 // Dropdowns of the admin menu: key => [label, icon].
 const ADMIN_MENU_GROUPS = [
     'people' => ['People', '<circle cx="12" cy="7" r="3"/><circle cx="5" cy="9" r="2.2"/><circle cx="19" cy="9" r="2.2"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M1.5 18c0-2 1.6-3.6 3.5-3.6M22.5 18c0-2-1.6-3.6-3.5-3.6"/>'],
+    'shop' => ['Shop', '<path d="M6 7h13l-1.5 8H8L6 4H3"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>'],
     'settings' => ['Settings', '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
 ];
 
@@ -295,6 +301,20 @@ function adminPages(): array {
         '~^/admin/owners/new$~' => [$write, 'admin-owners.php', fn ($admin) => renderOwnerForm($admin, null), ['owners']],
         '~^/admin/owners/(\d+)$~' => [$write, 'admin-owners.php', fn ($admin, $id) => renderOwnerForm($admin, (int) $id), ['owners']],
         '~^/admin/owners/(\d+)/delete$~' => [$write, 'admin-owners.php', fn ($admin, $id) => renderOwnerDelete($admin, (int) $id), ['owners', 'delete']],
+        '~^/admin/shop$~' => [$read, 'admin-shop.php', fn ($admin) => shopAdminHome($admin), ['shop']],
+        '~^/admin/shop/settings$~' => [$write, 'admin-shop.php', fn ($admin) => renderAdminShopSettings($admin), ['shop']],
+        '~^/admin/shop/categories$~' => [$read, 'admin-shop.php', fn ($admin) => renderAdminShopCategories($admin), ['shop']],
+        '~^/admin/shop/categories/new$~' => [$write, 'admin-shop.php', fn ($admin) => renderAdminShopCategoryForm($admin, null), ['shop']],
+        '~^/admin/shop/categories/(\d+)$~' => [$write, 'admin-shop.php', fn ($admin, $id) => renderAdminShopCategoryForm($admin, (int) $id), ['shop']],
+        '~^/admin/shop/categories/(\d+)/delete$~' => [$write, 'admin-shop.php', fn ($admin, $id) => renderAdminShopCategoryDelete($admin, (int) $id), ['shop', 'delete']],
+        '~^/admin/shop/products$~' => [$write, 'admin-shop-products.php', fn ($admin) => renderAdminShopProducts($admin), ['shop']],
+        '~^/admin/shop/products/new$~' => [$write, 'admin-shop-products.php', fn ($admin) => renderAdminShopProductForm($admin, null), ['shop']],
+        '~^/admin/shop/products/(\d+)$~' => [$write, 'admin-shop-products.php', fn ($admin, $id) => renderAdminShopProductForm($admin, (int) $id), ['shop']],
+        '~^/admin/shop/products/(\d+)/delete$~' => [$write, 'admin-shop-products.php', fn ($admin, $id) => renderAdminShopProductDelete($admin, (int) $id), ['shop', 'delete']],
+        '~^/admin/shop/orders$~' => [$read, 'admin-shop-orders.php', fn ($admin) => renderAdminShopOrders($admin), ['shop']],
+        '~^/admin/shop/orders/export\.csv$~' => [$read, 'admin-shop-orders.php', fn ($admin) => sendAdminShopOrdersCsv($admin), ['shop']],
+        '~^/admin/shop/orders/(\d+)$~' => [$write, 'admin-shop-orders.php', fn ($admin, $id) => renderAdminShopOrder($admin, (int) $id), ['shop']],
+        '~^/admin/shop/orders/(\d+)/slip$~' => [$read, 'admin-shop-orders.php', fn ($admin, $id) => renderAdminShopOrderSlip($admin, (int) $id), ['shop']],
         '~^/admin/integrations$~' => [$write, 'admin-integrations.php', fn ($admin) => renderIntegrations($admin), ['root']],
         '~^/admin/integrations/test-email$~' => [['POST'], 'admin-integrations.php', fn ($admin) => sendIntegrationTestEmail($admin), ['root']],
         '~^/admin/integrations/check-razorpay$~' => [['POST'], 'admin-integrations.php', fn ($admin) => checkIntegrationRazorpay($admin), ['root']],

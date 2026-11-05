@@ -61,6 +61,7 @@
                 <div class="acct-actions">
                     <a class="acct-submit" href="{{BASE}}/account/edit">Edit profile</a>
                     <a class="acct-secondary" href="{{BASE}}/account/password">Change password</a>
+{!! $orders_link !!}
                     <form method="post" action="{{BASE}}/logout">
                         <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
                         <button type="submit" class="acct-secondary">Log out</button>

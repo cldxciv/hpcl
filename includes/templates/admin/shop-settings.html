@@ -1,0 +1,65 @@
+@extends('layouts.admin')
+
+@section('title', 'Shop settings')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <div class="admin-heading">
+            <h1>Shop settings</h1>
+            <p>The public shop is at <a href="{!! $shop_url !!}">{!! $shop_url !!}</a>.</p>
+        </div>
+{!! $payments !!}
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{{BASE}}/admin/shop/settings">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label class="admin-check"><input type="checkbox" name="shop_enabled" value="1"{!! $enabled !!}>The shop is open to the public</label>
+                <p class="admin-hint">When it is off, the shop menu link, its pages and the cart are hidden and return “not found”.</p>
+{!! $env_note !!}
+            </div>
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="shop_shipping_fee">Shipping fee (₹)</label>
+                    <input id="shop_shipping_fee" name="shop_shipping_fee" type="text" inputmode="decimal" value="{!! $fee !!}" required{!! $fee_invalid !!}>
+                    <p class="admin-hint">A flat fee added to every order. Use 0 for free shipping.</p>
+{!! $fee_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="shop_free_shipping_over">Free shipping from (₹) <span class="admin-optional">optional</span></label>
+                    <input id="shop_free_shipping_over" name="shop_free_shipping_over" type="text" inputmode="decimal" value="{!! $free !!}"{!! $free_invalid !!}>
+                    <p class="admin-hint">Orders at or above this subtotal ship free. Leave empty for no offer.</p>
+{!! $free_error !!}
+                </div>
+            </div>
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="shop_notify_email">Send new orders to <span class="admin-optional">optional</span></label>
+                    <input id="shop_notify_email" name="shop_notify_email" type="email" maxlength="255" value="{!! $email !!}"{!! $email_invalid !!}>
+                    <p class="admin-hint">This address gets a copy of every paid order. Empty: the site’s contact email.</p>
+{!! $email_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="shop_support_phone">Help phone / WhatsApp <span class="admin-optional">optional</span></label>
+                    <input id="shop_support_phone" name="shop_support_phone" type="text" maxlength="20" value="{!! $phone !!}"{!! $phone_invalid !!}>
+                    <p class="admin-hint">Shown on the cart and order pages for questions.</p>
+{!! $phone_error !!}
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit">Save settings</button>
+            </div>
+        </form>
+
+        <section class="admin-panel admin-section" aria-labelledby="shop-ready">
+            <h2 id="shop-ready">Before you open the shop</h2>
+{!! $checklist !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

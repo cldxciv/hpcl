@@ -90,7 +90,13 @@ function handleRazorpayWebhook(): never {
         require_once __DIR__ . '/committee.php';
         require_once __DIR__ . '/membership-join.php';
         $paise = (int) ($payment['amount'] ?? 0);
-        if (!committeePaymentReceived($payment['order_id'], $payment['id'], $paise)) membershipPaymentReceived($payment['order_id'], $payment['id'], $paise);
+        if (!committeePaymentReceived($payment['order_id'], $payment['id'], $paise) && !membershipPaymentReceived($payment['order_id'], $payment['id'], $paise)) {
+            // Neither a committee nor a membership payment: it may be a shop order (includes/shop-checkout.php).
+            if (is_file(__DIR__ . '/shop-checkout.php')) {
+                require_once __DIR__ . '/shop-checkout.php';
+                shopPaymentReceived($payment['order_id'], $payment['id'], $paise);
+            }
+        }
     }
     // Razorpay retries anything but a 2xx answer, so other events are acknowledged too.
     http_response_code(200);

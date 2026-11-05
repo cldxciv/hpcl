@@ -1,0 +1,71 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/shop/orders">&larr; All orders</a></p>
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>{!! $title !!} {!! $status_badge !!}</h1>
+                <p>Placed {!! $placed !!}</p>
+            </div>
+            <a class="admin-button-secondary" href="{!! $slip !!}">Packing slip</a>
+        </div>
+{!! $summary !!}
+        <div class="admin-columns">
+            <section class="admin-panel" aria-labelledby="order-customer">
+                <h2 id="order-customer">Customer and delivery</h2>
+                <p><strong>{!! $name !!}</strong><br><a href="mailto:{!! $email !!}">{!! $email !!}</a><br>{!! $phone !!}</p>
+                <p>{!! $address !!}</p>
+{!! $notes !!}
+            </section>
+            <section class="admin-panel" aria-labelledby="order-payment">
+                <h2 id="order-payment">Payment</h2>
+{!! $payment !!}
+            </section>
+        </div>
+
+        <section class="admin-panel admin-section" aria-labelledby="order-items">
+            <h2 id="order-items">Items</h2>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Product</th><th class="admin-num">Price</th><th class="admin-num">Qty</th><th class="admin-num">Total</th></tr></thead>
+                    <tbody>{!! $items !!}</tbody>
+                    <tfoot>
+                        <tr><th scope="row" colspan="3" class="admin-num">Subtotal</th><td class="admin-num">{!! $subtotal !!}</td></tr>
+                        <tr><th scope="row" colspan="3" class="admin-num">Shipping</th><td class="admin-num">{!! $shipping !!}</td></tr>
+                        <tr><th scope="row" colspan="3" class="admin-num">Total</th><td class="admin-num"><strong>{!! $total !!}</strong></td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <div class="admin-columns">
+            <section class="admin-panel" aria-labelledby="order-status">
+                <h2 id="order-status">Update the order</h2>
+{!! $action !!}
+            </section>
+            <section class="admin-panel" aria-labelledby="order-history">
+                <h2 id="order-history">History</h2>
+{!! $timeline !!}
+            </section>
+        </div>
+
+        <section class="admin-panel admin-section" aria-labelledby="order-note">
+            <h2 id="order-note">Internal note</h2>
+            <form class="admin-form" method="post" action="{!! $order_url !!}">
+                <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+                <input type="hidden" name="action" value="note">
+                <div class="admin-field">
+                    <label for="admin_note">Only the team sees this</label>
+                    <textarea id="admin_note" name="admin_note" rows="3" maxlength="2000">{!! $admin_note !!}</textarea>
+                </div>
+                <div class="admin-form-actions"><button type="submit" class="admin-button-secondary">Save note</button></div>
+            </form>
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

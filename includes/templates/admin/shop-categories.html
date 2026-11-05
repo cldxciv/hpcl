@@ -1,0 +1,21 @@
+@extends('layouts.admin')
+
+@section('title', 'Shop categories')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main">
+{!! $flash !!}
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>Shop categories</h1>
+                <p>{!! $summary !!}</p>
+            </div>
+            <a class="admin-button" href="{{BASE}}/admin/shop/categories/new">Add category</a>
+        </div>
+        <section class="admin-panel admin-section">
+{!! $table !!}
+        </section>
+    </main>
+@include('partials.admin-footer')
+@endsection

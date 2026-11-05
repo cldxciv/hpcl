@@ -35,6 +35,7 @@ const ACCOUNT_ROUTES = [
     '/account' => ['account-profile.php', 'handleAccountHome'],
     '/account/edit' => ['account-profile.php', 'handleAccountEdit'],
     '/account/team' => ['account-profile.php', 'handleAccountTeam'],
+    '/account/orders' => ['shop-checkout.php', 'handleAccountOrders'],
     '/account/password' => ['account-profile.php', 'handleAccountPassword'],
 ];
 
@@ -103,9 +104,11 @@ function accountEndSession(): void {
 }
 /** Signs the user in on this session (after sign-up, sign-in or a password reset). */
 function accountSignIn(array $user): void {
+    // What the visitor was doing as a guest survives signing in: the shop cart and its pending message.
+    $keep = array_intersect_key($_SESSION ?? [], array_flip(['shop_cart', 'shop_flash']));
     session_regenerate_id(true);
     $_SESSION = ['user_id' => (int) $user['id'], 'hash' => userHashFingerprint($user['password_hash']), 'login_at' => time(),
-        'csrf' => bin2hex(random_bytes(32))];
+        'csrf' => bin2hex(random_bytes(32))] + $keep;
     accountExecute('UPDATE users SET last_login_at = NOW() WHERE id = ?', [$user['id']]);
 }
 

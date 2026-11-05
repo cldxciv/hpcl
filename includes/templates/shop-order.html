@@ -1,0 +1,31 @@
+@extends('layouts.page')
+
+@section('title', 'Order {!! $order_number !!} | Pro HPCL Shop')
+@section('description', 'Your Pro HPCL shop order: status, items and delivery details.')
+@section('canonical', '{{BASE}}/shop')
+@section('robots', 'noindex, nofollow')
+@section('body_class', 'home-unified-theme')
+
+@section('head')
+    <link rel="stylesheet" href="{{BASE}}/assets/css/shop-checkout.css?v={!! $js_version !!}">
+@endsection
+
+@section('content')
+    <div class="sco-page sco-page--order">
+        <div class="container">
+            <article class="sco-card sco-order">
+{!! $detail !!}
+                <p class="sco-actions sco-noprint">
+                    <a class="sco-btn" href="{{BASE}}/shop">Continue shopping</a>
+                    <button type="button" class="sco-btn sco-btn--ghost" data-print>Print this page</button>
+                </p>
+{!! $support !!}
+                <p class="sco-small sco-muted sco-noprint">Keep this page’s link: it is the private link to your order.</p>
+            </article>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script src="{{BASE}}/assets/js/shop-checkout.js?v={!! $js_version !!}" defer></script>
+@endsection

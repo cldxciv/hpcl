@@ -1,0 +1,30 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow admin-shop-slip">
+        <p class="admin-back"><a href="{!! $back !!}">&larr; Back to the order</a></p>
+        <div class="admin-heading admin-heading--actions">
+            <div>
+                <h1>{!! $title !!}</h1>
+                <p>Placed {!! $placed !!}</p>
+            </div>
+            <button type="button" data-print>Print</button>
+        </div>
+        <section class="admin-panel">
+            <h2>Send to</h2>
+            <p class="admin-shop-slip__to"><strong>{!! $name !!}</strong><br>{!! $address !!}<br>Phone: {!! $phone !!}</p>
+{!! $notes !!}
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Item</th><th class="admin-num">Qty</th><th>Packed</th></tr></thead>
+                    <tbody>{!! $items !!}</tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script src="{{BASE}}/assets/js/admin-shop.js?v=1"></script>
+@include('partials.admin-footer')
+@endsection

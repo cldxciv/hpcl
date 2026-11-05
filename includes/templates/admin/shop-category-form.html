@@ -1,0 +1,63 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+        <p class="admin-back"><a href="{{BASE}}/admin/shop/categories">&larr; All categories</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-form admin-panel" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+
+            <div class="admin-field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" value="{!! $name !!}" maxlength="255" required{!! $name_invalid !!}>
+{!! $name_error !!}
+            </div>
+
+            <div class="admin-fields-2">
+                <div class="admin-field">
+                    <label for="parent_id">Inside <span class="admin-optional">optional</span></label>
+                    <select id="parent_id" name="parent_id"{!! $parent_invalid !!}>{!! $parent_options !!}</select>
+                    <p class="admin-hint">Make it a sub-category, such as Jerseys inside Apparel. Two levels are supported.</p>
+{!! $parent_hint !!}
+{!! $parent_error !!}
+                </div>
+                <div class="admin-field">
+                    <label for="position">Order <span class="admin-optional">optional</span></label>
+                    <input id="position" name="position" type="number" min="0" max="999" inputmode="numeric" value="{!! $position !!}"{!! $position_invalid !!}>
+                    <p class="admin-hint">Lower numbers come first.</p>
+{!! $position_error !!}
+                </div>
+            </div>
+
+            <div class="admin-field">
+                <label for="slug">Web address <span class="admin-optional">optional</span></label>
+                <input id="slug" name="slug" type="text" value="{!! $slug !!}" maxlength="120" pattern="[a-z0-9]+(-[a-z0-9]+)*"{!! $slug_invalid !!}>
+                <p class="admin-hint">Lower case letters, digits and hyphens. Leave empty to make it from the name.</p>
+{!! $slug_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label for="image">Picture <span class="admin-optional">optional</span></label>
+{!! $image_current !!}
+                <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp"{!! $image_invalid !!}>
+                <p class="admin-hint">PNG, JPEG or WebP, up to 2 MB.</p>
+{!! $image_error !!}
+            </div>
+
+            <div class="admin-field">
+                <label class="admin-check"><input type="checkbox" name="is_active" value="1"{!! $active !!}>Show in the shop</label>
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit">{!! $submit !!}</button>
+                <a class="admin-button-secondary" href="{{BASE}}/admin/shop/categories">Cancel</a>
+                {!! $delete !!}
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

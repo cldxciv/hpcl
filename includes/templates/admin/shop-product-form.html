@@ -1,0 +1,24 @@
+@extends('layouts.admin')
+
+@section('title', '{!! $title !!}')
+
+@section('content')
+@include('partials.admin-bar')
+    <main class="admin-main admin-main--narrow">
+{!! $flash !!}
+        <p class="admin-back"><a href="{{BASE}}/admin/shop/products">&larr; All products</a></p>
+        <h1>{!! $title !!}</h1>
+{!! $summary !!}
+        <form class="admin-shop-form" method="post" action="{!! $action !!}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{!! $csrf !!}">
+{!! $sections !!}
+            <div class="admin-savebar">
+                <a class="admin-button-secondary" href="{{BASE}}/admin/shop/products">Cancel</a>
+                {!! $view !!}
+                {!! $delete !!}
+                <button type="submit">{!! $submit !!}</button>
+            </div>
+        </form>
+    </main>
+@include('partials.admin-footer')
+@endsection

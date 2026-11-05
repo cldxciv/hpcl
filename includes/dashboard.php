@@ -40,10 +40,25 @@ function renderDashboard(array $admin, ?string $previousLogin): string {
         (SELECT COUNT(*) FROM teams WHERE deleted_at IS NOT NULL) + (SELECT COUNT(*) FROM players WHERE deleted_at IS NOT NULL)
             + (SELECT COUNT(*) FROM owners WHERE deleted_at IS NOT NULL) AS trash')[0];
     $siteUsers = adminCan('site_users') ? query('SELECT COUNT(*) AS total, COALESCE(SUM(created_at > NOW() - INTERVAL 7 DAY), 0) AS recent FROM users')[0] : null;
+    // The shop's work queue, for admins who manage it. The tables may not exist until the shop migration has run.
+    $shopTiles = '';
+    if (adminCan('shop')) {
+        try {
+            $shop = query("SELECT (SELECT COUNT(*) FROM shop_orders WHERE status = 'paid') AS to_pack, (SELECT COUNT(*) FROM shop_products p WHERE p.is_active = 1
+                AND COALESCE((SELECT SUM(v.stock) FROM shop_product_variants v WHERE v.product_id = p.id), p.stock) <= 5) AS low")[0];
+            $shopTiles = '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/shop/orders"><p class="admin-tile__label">Shop orders to pack</p><p class="admin-tile__value">' . dashboardNumber($shop['to_pack'])
+                . '</p><p class="admin-tile__hint">Paid and waiting</p></a>'
+                . '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/shop/products?status=low"><p class="admin-tile__label">Shop low stock</p><p class="admin-tile__value">' . dashboardNumber($shop['low'])
+                . '</p><p class="admin-tile__hint">Products with 5 or fewer left</p></a>';
+        } catch (Throwable) {
+            $shopTiles = '';
+        }
+    }
     $tiles = dashboardTile('Players', $totals['players']) . dashboardTile('Teams', $totals['teams']) . dashboardTile('Seasons', $totals['seasons'])
         . dashboardTile('Owners', $totals['owners']) . dashboardTile('Videos', $totals['videos']) . dashboardTile('Blog posts', $totals['blog_posts'])
         . dashboardTile('Sponsors', $totals['sponsors'])
         . (shopEnabled() ? dashboardTile('Shop products', $totals['products']) : dashboardTile('Shop products', $totals['products'], 'Shop is hidden'))
+        . $shopTiles
         // Website accounts made at /signup, for admins who can see them.
         . ($siteUsers ? '<a class="admin-tile admin-tile--link" href="{{BASE}}/admin/site-users"><p class="admin-tile__label">Site users</p><p class="admin-tile__value">'
             . dashboardNumber($siteUsers['total']) . '</p><p class="admin-tile__hint">' . dashboardNumber($siteUsers['recent']) . ' joined in the last 7 days</p></a>' : '')

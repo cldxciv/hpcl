@@ -28,7 +28,7 @@ const INTEGRATION_SETTINGS = [
 ];
 const INTEGRATION_GROUPS = [
     'smtp' => ['Email (SMTP)', 'The mail server the site sends email through. Values left empty here fall back to the MAIL_ settings in .env.'],
-    'razorpay' => ['Razorpay', 'Your Razorpay account’s API keys, for taking payments on the site.'],
+    'razorpay' => ['Razorpay', 'Your Razorpay account’s API keys. They take payments for the shop checkout, memberships and committee applications. Start in test mode, check the keys below, then switch to live.'],
 ];
 // The MAIL_ variable of .env each SMTP setting falls back to.
 const SMTP_ENV_FALLBACK = ['smtp_host' => 'MAIL_HOST', 'smtp_port' => 'MAIL_PORT', 'smtp_encryption' => 'MAIL_ENCRYPTION', 'smtp_username' => 'MAIL_USERNAME',

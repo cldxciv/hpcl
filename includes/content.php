@@ -59,8 +59,20 @@ viewComposer('partials.footer', function (): array {
     ];
 });
 
-// The shop's menu item, shown when SHOP_ENABLED is on.
-viewComposer('partials.header', fn (): array => ['shop_nav' => shopEnabled() ? '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop">SHOP</a></li>' : '']);
+// The shop's menu items (SHOP and CART with the number of items), shown when the shop is on. The count is only
+// read when the visitor already has the session cookie, so other visitors are not given one.
+viewComposer('partials.header', function (): array {
+    try {
+        if (!shopEnabled()) return ['shop_nav' => ''];
+        require_once __DIR__ . '/shop-cart.php';
+        $count = shopCartCount();
+    } catch (Throwable) {
+        return ['shop_nav' => ''];
+    }
+    return ['shop_nav' => '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop">SHOP</a></li>'
+        . '<li class="nav-item"><a class="nav-link " href="{{BASE}}/shop/cart" data-shop-cart-link aria-label="Cart, ' . $count . ' item' . ($count === 1 ? '' : 's') . '">CART'
+        . '<span data-cart-count aria-hidden="true" style="display:' . ($count > 0 ? 'inline-block' : 'none') . ';min-width:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:#ff7a18;color:#0b2a5b;font:700 11px/18px Barlow,sans-serif;text-align:center;vertical-align:top">' . $count . '</span></a></li>'];
+});
 
 // The copyright bar, also shown on the error pages, which do not use the database.
 viewComposer('partials.membership-popup', fn (): array => ['membership_popup' => membershipPopupHtml()]);

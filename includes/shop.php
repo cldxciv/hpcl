@@ -1,23 +1,17 @@
 <?php
 declare(strict_types=1);
 
-// Shop listing (/shop, /shop/category/{slug}[/{slug}]) and product pages, rendered from the
-// shop_* tables. There is no cart or checkout: products are shown for information.
+// The public shop: the listing (/shop, /shop/category/{slug}[/{slug}]) and product pages (/shop/{slug}),
+// rendered from the shop_* tables. Only active products in active categories are public; the admin
+// (includes/admin-shop.php) asks for everything with $includeInactive. The cart is includes/shop-cart.php
+// and the checkout is includes/shop-checkout.php.
 require_once __DIR__ . '/content.php';
 
 const SHOP_LOW_STOCK = 5;
 const SHOP_MAX_PER_LINE = 20;
+const SHOP_SORTS = ['featured' => 'Featured', 'newest' => 'Newest', 'price_asc' => 'Price: low to high', 'price_desc' => 'Price: high to low'];
 
-function shopIcon(string $paths, int $size = 18, string $strokeWidth = '2'): string {
-    return '<svg class="pdp-icon " width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' . $strokeWidth . '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths . '</svg>';
-}
-const ICON_CHECK = '<path d="M20 6 9 17l-5-5"></path>';
-const ICON_X = '<path d="M18 6 6 18M6 6l12 12"></path>';
-const ICON_CHEVRON = '<path d="m6 9 6 6 6-6"></path>';
-const ICON_HEART = '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>';
-const ICON_SPARK = '<path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6 2.1-2.1"></path>';
-
-/** ₹ amount: whole rupees without decimals, with Indian-style thousands separators as on the live site. */
+/** ₹ amount: whole rupees without decimals, with thousands separators. */
 function rupees(float|string $amount): string {
     $amount = (float) $amount;
     return '&#8377;' . number_format($amount, floor($amount) === $amount ? 0 : 2);
@@ -30,69 +24,110 @@ function productUrl(array $product): string {
     return '{{BASE}}/shop/' . rawurlencode($product['slug']);
 }
 function categoryUrl(array $category, array $categories): string {
-    $parent = $category['parent_id'] ? $categories[$category['parent_id']] : null;
+    $parent = $category['parent_id'] ? ($categories[$category['parent_id']] ?? null) : null;
     return '{{BASE}}/shop/category/' . ($parent ? rawurlencode($parent['slug']) . '/' : '') . rawurlencode($category['slug']);
 }
 /** Star rating: the filled stars cover $rating / 5 of the row. */
 function starsHtml(float $rating): string {
     $label = rtrim(rtrim(number_format($rating, 1), '0'), '.');
     $stars = '&#9733;&#9733;&#9733;&#9733;&#9733;';
-    return '<span class="pdp-stars " role="img" aria-label="Rated ' . $label . ' out of 5"><span class="pdp-stars-base" aria-hidden="true">' . $stars . '</span>'
-        . '<span class="pdp-stars-fill" style="width: ' . rtrim(rtrim(number_format($rating / 5 * 100, 2), '0'), '.') . '%" aria-hidden="true">' . $stars . '</span></span>';
+    return '<span class="shop-stars" role="img" aria-label="Rated ' . $label . ' out of 5"><span class="shop-stars__base" aria-hidden="true">' . $stars . '</span>'
+        . '<span class="shop-stars__fill" style="width: ' . rtrim(rtrim(number_format($rating / 5 * 100, 2), '0'), '.') . '%" aria-hidden="true">' . $stars . '</span></span>';
 }
 
-/** All categories by id, in display order. */
-function shopCategories(): array {
-    static $categories = null;
-    return $categories ??= array_column(query('SELECT * FROM shop_categories ORDER BY position, name'), null, 'id');
+/** A shop_* row of site_settings (shop_shipping_fee, shop_free_shipping_over, shop_notify_email, shop_support_phone, shop_enabled), or $default when unset or empty. */
+function shopSetting(string $name, string $default = ''): string {
+    static $all = null;
+    $all ??= array_column(query("SELECT name, value FROM site_settings WHERE name LIKE 'shop\\_%'"), 'value', 'name');
+    return isset($all[$name]) && trim((string) $all[$name]) !== '' ? trim((string) $all[$name]) : $default;
 }
 
-/** Products with their category, colours, variants, gallery and rating, in display order. */
-function shopProducts(): array {
-    static $products = null;
-    if ($products !== null) return $products;
+/** Categories by id, in display order. The public sees only active ones (and a child needs an active parent). */
+function shopCategories(bool $includeInactive = false): array {
+    static $cache = [];
+    if (isset($cache[(int) $includeInactive])) return $cache[(int) $includeInactive];
+    $all = array_column(query('SELECT * FROM shop_categories ORDER BY position, name'), null, 'id');
+    if (!$includeInactive) {
+        $all = array_filter($all, fn ($c) => (int) $c['is_active'] === 1 && (!$c['parent_id'] || ((int) ($all[$c['parent_id']]['is_active'] ?? 0) === 1)));
+    }
+    return $cache[(int) $includeInactive] = $all;
+}
+
+/**
+ * Products with their category, colours, variants (shop_product_variants rows incl. id), gallery and
+ * ratings, in display order. The public sees only active products whose category is active.
+ */
+function shopProducts(bool $includeInactive = false): array {
+    static $cache = [];
+    if (isset($cache[(int) $includeInactive])) return $cache[(int) $includeInactive];
+    $categories = shopCategories($includeInactive);
     $products = [];
     foreach (query('SELECT * FROM shop_products ORDER BY position, id') as $product) {
-        $product += ['colours' => [], 'variants' => [], 'images' => [$product['image']], 'reviews' => []];
+        if (!$includeInactive && ((int) $product['is_active'] !== 1 || ($product['category_id'] && !isset($categories[$product['category_id']])))) continue;
+        $product += ['colours' => [], 'variants' => [], 'images' => [], 'reviews' => []];
+        if ($product['image'] !== '') $product['images'][] = $product['image'];
         $products[$product['id']] = $product;
     }
-    foreach (query('SELECT * FROM shop_product_colours ORDER BY position, id') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['colours'][] = $row;
-    foreach (query('SELECT * FROM shop_product_variants') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['variants'][] = $row;
-    foreach (query('SELECT * FROM shop_product_images ORDER BY position') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['images'][] = $row['image'];
+    foreach (query('SELECT * FROM shop_product_colours ORDER BY position, id') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['colours'][$row['id']] = $row;
+    foreach (query('SELECT * FROM shop_product_variants ORDER BY id') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['variants'][$row['id']] = $row;
+    foreach (query('SELECT * FROM shop_product_images ORDER BY position') as $row) {
+        if (isset($products[$row['product_id']]) && !in_array($row['image'], $products[$row['product_id']]['images'], true)) $products[$row['product_id']]['images'][] = $row['image'];
+    }
     foreach (query('SELECT * FROM shop_reviews ORDER BY reviewed_on DESC, id DESC') as $row) if (isset($products[$row['product_id']])) $products[$row['product_id']]['reviews'][] = $row;
     foreach ($products as &$product) {
-        $product['in_stock'] = $product['variants'] ? array_sum(array_column($product['variants'], 'stock')) > 0 : $product['stock'] > 0;
+        $stock = $product['variants'] ? array_sum(array_column($product['variants'], 'stock')) : (int) $product['stock'];
+        $product['total_stock'] = $stock;
+        $product['in_stock'] = $stock > 0;
         $product['rating'] = $product['reviews'] ? array_sum(array_column($product['reviews'], 'rating')) / count($product['reviews']) : 0;
-        $product['category'] = shopCategories()[$product['category_id']] ?? null;
+        $product['category'] = $categories[$product['category_id']] ?? null;
     }
-    return $products;
+    return $cache[(int) $includeInactive] = $products;
 }
+
+/** The product with this id (active ones only unless $includeInactive), or null. */
+function shopProduct(int $id, bool $includeInactive = false): ?array {
+    return shopProducts($includeInactive)[$id] ?? null;
+}
+
+/** "Navy / L": the colour and size of a variant row, or '' when it has neither. */
+function shopVariantLabel(array $product, ?array $variant): string {
+    if (!$variant) return '';
+    $colour = $variant['colour_id'] ? ($product['colours'][$variant['colour_id']]['name'] ?? '') : '';
+    return implode(' / ', array_filter([$colour, (string) $variant['size']], fn ($part) => $part !== ''));
+}
+
 /** Text under the title: the short description, or the start of the description. */
 function productSummary(array $product): string {
     return trim((string) $product['short_description']) !== '' ? trim($product['short_description']) : strLimit(trim((string) $product['description']), 200);
+}
+
+/** The session's flash message for the shop ([type, text]) shown once as a banner, or ''. */
+function shopFlashHtml(): string {
+    $flash = $_SESSION['shop_flash'] ?? null;
+    unset($_SESSION['shop_flash']);
+    return is_array($flash) ? '<div class="shop-flash shop-flash--' . ($flash[0] === 'error' ? 'error' : 'ok') . '" role="' . ($flash[0] === 'error' ? 'alert' : 'status') . '">' . escape($flash[1]) . '</div>' : '';
 }
 
 function shopCard(array $product, ?array $current = null): string {
     $discount = discountPercent($product);
     $swatches = '';
     if ($product['colours']) {
-        $names = array_column($product['colours'], 'name');
-        $swatches = '<div class="shop-card-swatches" aria-label="' . count($names) . ' colour' . (count($names) === 1 ? '' : 's') . ': ' . escape(implode(', ', $names)) . '">'
-            . implode('', array_map(fn ($colour) => '<span class="shop-swatch-dot" style="background: ' . escape($colour['hex']) . '" title="' . escape($colour['name']) . '"></span>', $product['colours'])) . '</div>';
+        $swatches = '<span class="shop-card__swatches" aria-label="' . count($product['colours']) . ' colour' . (count($product['colours']) === 1 ? '' : 's') . ': ' . escape(implode(', ', array_column($product['colours'], 'name'))) . '">'
+            . implode('', array_map(fn ($colour) => '<span class="shop-swatch" style="background: ' . escape($colour['hex']) . '" aria-hidden="true"></span>', $product['colours'])) . '</span>';
     }
-    return '<a href="' . productUrl($product) . '" class="shop-card">'
-        . '<img src="' . escape(linkUrl($product['image'])) . '" alt="' . escape($product['name']) . '" class="shop-card-image" loading="lazy">'
-        . '<div class="shop-card-body">'
-        . ($product['category'] && (int) $product['category_id'] !== (int) ($current['id'] ?? 0) ? '<p class="shop-card-category">' . escape($product['category']['name']) . '</p>' : '')
-        . '<h2 class="shop-card-name">' . escape($product['name']) . '</h2>'
-        . '<div class="shop-price"><span>' . rupees($product['price']) . '</span>' . ($discount !== null ? '<span class="shop-price-compare">' . rupees($product['compare_price']) . '</span>' : '') . '</div>'
-        . $swatches
-        . (!$product['in_stock'] ? '<span class="shop-badge shop-badge-out">Out of stock</span>' : ($discount !== null ? '<span class="shop-badge shop-badge-sale">' . $discount . '% off</span>' : ''))
-        . "</div></a>\n";
+    $badge = !$product['in_stock'] ? '<span class="shop-badge shop-badge--out">Sold out</span>' : ($discount !== null ? '<span class="shop-badge shop-badge--sale">' . $discount . '% off</span>' : '');
+    return '<li class="shop-card"><a href="' . productUrl($product) . '" class="shop-card__link">'
+        . '<span class="shop-card__media"><img src="' . escape(linkUrl($product['image'])) . '" alt="" width="400" height="400" loading="lazy" decoding="async">' . $badge . '</span>'
+        . '<span class="shop-card__body">'
+        . ($product['category'] && (int) $product['category_id'] !== (int) ($current['id'] ?? 0) ? '<span class="shop-card__category">' . escape($product['category']['name']) . '</span>' : '')
+        . '<h2 class="shop-card__name">' . escape($product['name']) . '</h2>'
+        . '<span class="shop-price"><strong>' . rupees($product['price']) . '</strong>' . ($discount !== null ? '<s><span class="visually-hidden">Original price </span>' . rupees($product['compare_price']) . '</s>' : '') . '</span>'
+        . $swatches . '</span></a></li>' . "\n";
 }
 
-/** /shop and its category pages. Returns null for a 404. */
+/** /shop and its category pages (?sort=featured|newest|price_asc|price_desc). Returns null for a 404. */
 function renderShopIndex(?string $parentSlug = null, ?string $childSlug = null): ?string {
+    require_once __DIR__ . '/shop-cart.php';
     $categories = shopCategories();
     $bySlug = array_column($categories, null, 'slug');
     $category = null;
@@ -111,54 +146,67 @@ function renderShopIndex(?string $parentSlug = null, ?string $childSlug = null):
     if ($category && $category['parent_id']) $crumbs[] = ['label' => $categories[$category['parent_id']]['name'], 'url' => categoryUrl($categories[$category['parent_id']], $categories)];
     if ($category) $crumbs[] = ['label' => $category['name'], 'url' => categoryUrl($category, $categories)];
 
-    $chip = fn (string $url, string $label) => '<a href="' . $url . '" class="shop-category-chip">' . $label . '</a>';
+    $chip = fn (string $url, string $label, bool $active = false) => '<a href="' . $url . '" class="shop-chip' . ($active ? ' is-active' : '') . '"' . ($active ? ' aria-current="page"' : '') . '>' . $label . '</a>';
+    $top = array_filter($categories, fn ($c) => !$c['parent_id']);
     if (!$category) {
-        $nav = '<nav class="shop-categories" aria-label="Categories"><span class="shop-category-chip is-active" aria-current="page">All</span>'
-            . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name'])), array_filter($categories, fn ($c) => !$c['parent_id']))) . '</nav>';
+        $chips = $chip('{{BASE}}/shop', 'All', true) . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name'])), $top));
     } elseif (!$category['parent_id']) {
-        $nav = '<nav class="shop-categories" aria-label="Sub-categories">' . $chip('{{BASE}}/shop', '&larr; All products')
-            . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name'])), $children($category))) . '</nav>';
+        $chips = $chip('{{BASE}}/shop', 'All') . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name']), (int) $c['id'] === (int) $category['id']), $top))
+            . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name'])), $children($category)));
     } else {
         $parent = $categories[$category['parent_id']];
-        $nav = '<nav class="shop-categories" aria-label="Sub-categories">' . $chip(categoryUrl($parent, $categories), '&larr; ' . escape($parent['name'])) . '</nav>';
+        $chips = $chip('{{BASE}}/shop', 'All') . $chip(categoryUrl($parent, $categories), escape($parent['name']))
+            . implode('', array_map(fn ($c) => $chip(categoryUrl($c, $categories), escape($c['name']), (int) $c['id'] === (int) $category['id']), $children($parent)));
     }
 
     $ids = $category ? array_merge([(int) $category['id']], array_map('intval', array_keys($children($category)))) : null;
     $products = array_filter(shopProducts(), fn ($p) => $ids === null || in_array((int) $p['category_id'], $ids, true));
-    $grid = $products ? '<div class="shop-grid">' . "\n" . implode('', array_map(fn ($p) => shopCard($p, $category), $products)) . '</div>'
-        : '<div class="shop-empty">' . ($category ? 'No products in this category yet.' : 'No products yet.') . '</div>';
+    $sort = (string) ($_GET['sort'] ?? 'featured');
+    if (!isset(SHOP_SORTS[$sort])) $sort = 'featured';
+    if ($sort === 'newest') usort($products, fn ($a, $b) => [$b['created_at'] ?? '', $b['id']] <=> [$a['created_at'] ?? '', $a['id']]);
+    elseif ($sort === 'price_asc') usort($products, fn ($a, $b) => (float) $a['price'] <=> (float) $b['price']);
+    elseif ($sort === 'price_desc') usort($products, fn ($a, $b) => (float) $b['price'] <=> (float) $a['price']);
 
     $url = $category ? categoryUrl($category, $categories) : '{{BASE}}/shop';
+    $sorts = '';
+    foreach (SHOP_SORTS as $key => $label) {
+        $sorts .= '<a href="' . $url . ($key === 'featured' ? '' : '?sort=' . $key) . '" class="shop-sort__link' . ($key === $sort ? ' is-active' : '') . '"' . ($key === $sort ? ' aria-current="true"' : '') . '>' . $label . '</a>';
+    }
+    $grid = $products ? '<ul class="shop-grid" aria-label="Products">' . "\n" . implode('', array_map(fn ($p) => shopCard($p, $category), $products)) . '</ul>'
+        : '<div class="shop-empty"><p class="shop-empty__title">Products are coming soon</p>'
+            . '<p>' . ($category ? 'There is nothing in this category yet.' : 'The official Pro HPCL range is being stocked. Please check back shortly.') . '</p>'
+            . ($category ? '<a class="shop-btn shop-btn--ghost" href="{{BASE}}/shop">View all products</a>' : '') . '</div>';
+
+    $session = shopCartSessionStart(false);
     return view('templates.shop', [
         'title' => $category ? escape($category['name']) . ' | Pro HPCL Shop' : 'Shop | Pro HPCL',
-        'description' => $category ? 'Shop official Pro HPCL ' . escape($category['name']) . '.' : 'Official Pro HPCL merchandise: jerseys, caps, and more.',
+        'description' => $category ? 'Shop official Pro HPCL ' . escape($category['name']) . ' online.' : 'The official Pro HPCL shop: team jerseys, t-shirts, caps, accessories and cricket gear.',
         'url' => $url,
         'breadcrumb_schema' => jsonLd(autoBreadcrumbSchema($crumbs)),
         'breadcrumb' => autoBreadcrumbHtml($crumbs),
-        'heading' => $category ? '<h1 class="shop-title">' . escape($category['name']) . '</h1>' : '<h1 class="shop-title">Pro HPCL Shop</h1><p class="shop-subtitle">Official league merchandise.</p>',
-        'category_nav' => $nav,
+        'heading' => escape($category ? $category['name'] : 'Pro HPCL Shop'),
+        'subheading' => $category ? '' : 'Official league merchandise: jerseys, caps, accessories and cricket gear.',
+        'flash' => $session ? shopFlashHtml() : '',
+        'category_nav' => $chips,
+        'sort_nav' => $products ? $sorts : '',
+        'product_count' => $products ? count($products) . ' product' . (count($products) === 1 ? '' : 's') : '',
         'products' => $grid,
+        'css_version' => SHOP_ASSET_VERSION,
     ]);
 }
 
-function relatedCard(array $product): string {
-    $discount = discountPercent($product);
-    $name = escape($product['name']);
-    $action = !$product['in_stock'] ? '<button type="button" class="pdp-btn pdp-btn--sm" disabled>Out of Stock</button>'
-        : '<a href="' . productUrl($product) . '" class="pdp-btn pdp-btn--ghost pdp-btn--sm">' . ($product['variants'] ? 'Choose Options' : 'View Product') . '<span class="pdp-sr"> for ' . $name . '</span></a>';
-    return '<article class="pdp-pcard"><a href="' . productUrl($product) . '" class="pdp-pcard-media" tabindex="-1" aria-hidden="true">'
-        . '<img src="' . escape(linkUrl($product['image'])) . '" alt="" width="400" height="400" loading="lazy" decoding="async">'
-        . (!$product['in_stock'] ? '<span class="pdp-pcard-badge pdp-pcard-badge--out">Out of stock</span>' : ($discount !== null ? '<span class="pdp-pcard-badge">' . $discount . '% OFF</span>' : ''))
-        . '</a><button type="button" class="pdp-icon-btn pdp-pcard-wish" data-wishlist-toggle data-product-id="' . $product['id'] . '" aria-pressed="false" aria-label="Add ' . $name . ' to wishlist">' . shopIcon(ICON_HEART) . '</button>'
-        . '<div class="pdp-pcard-body"><h3 class="pdp-pcard-name"><a href="' . productUrl($product) . '">' . $name . '</a></h3>'
-        . ($product['reviews'] ? '<div class="pdp-pcard-rating">' . starsHtml($product['rating']) . '<span>(' . count($product['reviews']) . ')</span></div>' : '')
-        . '<div class="pdp-pcard-price"><strong>' . rupees($product['price']) . '</strong>'
-        . ($discount !== null ? '<s><span class="pdp-sr">Original price</span>' . rupees($product['compare_price']) . '</s><em>' . $discount . '% off</em>' : '') . '</div>'
-        . '<div class="pdp-pcard-action">' . $action . "</div></div></article>\n";
+/** "You may also like": other products, the same category first. */
+function shopRelated(array $product): string {
+    $others = array_filter(shopProducts(), fn ($p) => $p['id'] !== $product['id']);
+    usort($others, fn ($a, $b) => ((int) ($b['category_id'] === $product['category_id'])) <=> ((int) ($a['category_id'] === $product['category_id'])));
+    if (!$others) return '';
+    return '<section class="shop-section" aria-labelledby="shop-related"><div class="shop-section__head"><h2 id="shop-related">You may also like</h2><a href="{{BASE}}/shop" class="shop-link">View all</a></div>'
+        . '<ul class="shop-grid shop-grid--four">' . implode('', array_map(fn ($p) => shopCard($p), array_slice($others, 0, 4))) . '</ul></section>';
 }
 
 /** /shop/{slug}. Returns null for a 404. */
 function renderProductPage(string $slug): ?string {
+    require_once __DIR__ . '/shop-cart.php';
     $product = current(array_filter(shopProducts(), fn ($p) => $p['slug'] === $slug)) ?: null;
     if (!$product) return null;
     $categories = shopCategories();
@@ -166,80 +214,81 @@ function renderProductPage(string $slug): ?string {
     $url = productUrl($product);
     $discount = discountPercent($product);
     $summary = productSummary($product);
-    $images = array_map('linkUrl', $product['images']);
+    $images = array_map('linkUrl', $product['images'] ?: [$product['image']]);
     $count = count($images);
 
-    $thumbs = $slides = '';
-    foreach ($images as $i => $image) {
-        $thumbs .= '<button type="button" class="pdp-thumb" data-pdp-thumb="' . $i . '"' . ($i === 0 ? ' aria-current="true"' : '') . ' aria-label="Show image ' . ($i + 1) . ' of ' . $count . '">'
-            . '<img src="' . escape($image) . '" alt="" width="64" height="64" loading="lazy" decoding="async"></button>' . "\n";
-        $slides .= '<figure class="pdp-slide " data-pdp-slide="' . $i . '" aria-roledescription="slide" aria-label="' . ($i + 1) . ' of ' . $count . '">'
-            . '<button type="button" class="pdp-slide-btn" data-pdp-open="' . $i . '" tabindex="-1" aria-label="Enlarge image ' . ($i + 1) . '">'
-            . '<img src="' . escape($image) . '" alt="' . ($i === 0 ? $name : $name . ' &ndash; image ' . ($i + 1)) . '" width="800" height="800"' . ($i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') . ' decoding="async">'
-            . "</button></figure>\n";
+    $thumbs = '';
+    if ($count > 1) {
+        foreach ($images as $i => $image) {
+            $thumbs .= '<li><button type="button" class="shop-thumb" data-shop-thumb="' . escape($image) . '" data-alt="' . ($i === 0 ? $name : $name . ' &ndash; image ' . ($i + 1)) . '"' . ($i === 0 ? ' aria-current="true"' : '') . ' aria-label="Show image ' . ($i + 1) . ' of ' . $count . '">'
+                . '<img src="' . escape($image) . '" alt="" width="72" height="72" loading="lazy" decoding="async"></button></li>';
+        }
     }
+
+    // Options: colours and sizes drive which variant (shop_product_variants row) is bought.
+    $variants = array_values($product['variants']);
+    $firstAvailable = null;
+    foreach ($variants as $variant) if ((int) $variant['stock'] > 0) { $firstAvailable = $variant; break; }
+    $hasColours = (bool) $product['colours'];
+    $sizes = array_values(array_unique(array_filter(array_column($variants, 'size'), fn ($s) => $s !== '')));
+    $options = '';
+    if ($hasColours) {
+        $options .= '<fieldset class="shop-option"><legend>Colour: <strong data-shop-colour-name>' . escape($firstAvailable ? ($product['colours'][$firstAvailable['colour_id']]['name'] ?? '') : '') . '</strong></legend><div class="shop-option__row">';
+        foreach ($product['colours'] as $colour) {
+            $checked = $firstAvailable && (int) $firstAvailable['colour_id'] === (int) $colour['id'];
+            $options .= '<label class="shop-colour"><input type="radio" name="colour_id" value="' . (int) $colour['id'] . '" data-name="' . escape($colour['name']) . '"' . ($checked ? ' checked' : '') . '>'
+                . '<span class="shop-colour__dot" style="background: ' . escape($colour['hex']) . '"></span><span class="visually-hidden">' . escape($colour['name']) . '</span></label>';
+        }
+        $options .= '</div></fieldset>';
+    }
+    if ($sizes) {
+        $options .= '<fieldset class="shop-option"><legend>Size</legend><div class="shop-option__row">';
+        foreach ($sizes as $size) {
+            $checked = $firstAvailable && (string) $firstAvailable['size'] === (string) $size;
+            $options .= '<label class="shop-size"><input type="radio" name="size" value="' . escape($size) . '"' . ($checked ? ' checked' : '') . '><span>' . escape($size) . '</span></label>';
+        }
+        $options .= '</div></fieldset>';
+    }
+    $maxQty = $product['variants'] ? ($firstAvailable ? min((int) $firstAvailable['stock'], SHOP_MAX_PER_LINE) : 0) : min((int) $product['stock'], SHOP_MAX_PER_LINE);
+    $currentStock = $product['variants'] ? (int) ($firstAvailable['stock'] ?? 0) : (int) $product['stock'];
+    $stockText = $currentStock <= 0 ? 'Out of stock' : ($currentStock <= SHOP_LOW_STOCK ? 'Only ' . $currentStock . ' left' : 'In stock');
+    $stockClass = $currentStock <= 0 ? 'out' : ($currentStock <= SHOP_LOW_STOCK ? 'low' : 'ok');
+    $variantData = array_map(fn ($v) => ['id' => (int) $v['id'], 'colour' => $v['colour_id'] === null ? 0 : (int) $v['colour_id'], 'size' => (string) $v['size'], 'stock' => (int) $v['stock']], $variants);
+
+    $session = shopCartSessionStart();
+    $addForm = '<form class="shop-buy" method="post" action="{{BASE}}/shop/cart/add" data-shop-add data-low="' . SHOP_LOW_STOCK . '" data-max="' . SHOP_MAX_PER_LINE . '" data-stock="' . (int) $product['stock'] . '" novalidate>'
+        . '<input type="hidden" name="csrf_token" value="' . escape(accountCsrfToken()) . '"><input type="hidden" name="product_id" value="' . (int) $product['id'] . '">'
+        . $options
+        . '<div class="shop-buy__row"><div class="shop-qty"><label for="shop-qty">Quantity</label>'
+        . '<div class="shop-qty__box"><button type="button" class="shop-qty__btn" data-qty-step="-1" aria-label="Decrease quantity">&minus;</button>'
+        . '<input id="shop-qty" name="qty" type="number" inputmode="numeric" min="1" max="' . max(1, $maxQty) . '" value="1" data-shop-qty>'
+        . '<button type="button" class="shop-qty__btn" data-qty-step="1" aria-label="Increase quantity">+</button></div></div>'
+        . '<button type="submit" class="shop-btn shop-btn--primary shop-buy__add" data-shop-submit' . ($currentStock <= 0 ? ' disabled' : '') . '>' . ($currentStock <= 0 ? 'Out of stock' : 'Add to cart') . '</button></div>'
+        . '<p class="shop-buy__msg" data-shop-msg role="status" aria-live="polite"></p></form>';
+
+    // Description, features, specifications and shipping.
+    $sections = '';
+    $description = trim((string) $product['description']);
+    $features = query('SELECT feature FROM shop_product_features WHERE product_id = ? ORDER BY position', [$product['id']]);
+    if ($description !== '') $sections .= '<section class="shop-info"><h2>About this product</h2><div class="shop-prose">' . nl2br(escape($description)) . '</div></section>';
+    if ($features) $sections .= '<section class="shop-info"><h2>Key features</h2><ul class="shop-features">' . implode('', array_map(fn ($f) => '<li>' . escape($f['feature']) . '</li>', $features)) . '</ul></section>';
+    $specs = query('SELECT name, value FROM shop_product_specs WHERE product_id = ? ORDER BY position', [$product['id']]);
+    if ($specs) $sections .= '<section class="shop-info"><h2>Specifications</h2><table class="shop-specs"><tbody>' . implode('', array_map(fn ($s) => '<tr><th scope="row">' . escape($s['name']) . '</th><td>' . escape($s['value']) . '</td></tr>', $specs)) . '</tbody></table></section>';
+    $fee = (float) shopSetting('shop_shipping_fee', '60');
+    $free = (float) shopSetting('shop_free_shipping_over', '0');
+    $sections .= '<section class="shop-info"><h2>Shipping &amp; returns</h2><ul class="shop-features"><li>Delivery across India. Shipping is ' . ($fee > 0 ? rupees($fee) . ' per order' : 'free')
+        . ($fee > 0 && $free > 0 ? ', free on orders of ' . rupees($free) . ' or more' : '') . '.</li><li>All prices include GST.</li><li>Returns and refunds follow our <a href="{{BASE}}/refund_policy">refund policy</a>.</li></ul></section>';
 
     $reviews = $product['reviews'];
     $reviewCount = count($reviews);
-    $reviewsLabel = $reviewCount . ' review' . ($reviewCount === 1 ? '' : 's');
-    $ratingLabel = number_format($product['rating'], 1);
-
-    // Description, specifications and shipping tabs; the first one is open.
-    $panels = [];
-    $description = trim((string) $product['description']);
-    $features = query('SELECT feature FROM shop_product_features WHERE product_id = ? ORDER BY position', [$product['id']]);
-    if ($description !== '' || $features) {
-        $panels['description'] = ['Description', ($description !== '' ? '<div class="pdp-prose">' . escape($description) . '</div>' : '')
-            . ($features ? '<h3 class="pdp-subhead ">Key Features</h3><ul class="pdp-features">'
-                . implode('', array_map(fn ($f) => '<li>' . shopIcon(ICON_CHECK) . ' <span>' . escape($f['feature']) . '</span></li>', $features)) . '</ul>' : '')];
-    }
-    $specs = query('SELECT name, value FROM shop_product_specs WHERE product_id = ? ORDER BY position', [$product['id']]);
-    if ($specs) {
-        $panels['specifications'] = ['Specifications', '<table class="pdp-spec-table"><caption class="pdp-sr">Specifications for ' . $name . '</caption><tbody>'
-            . implode('', array_map(fn ($s) => '<tr><th scope="row">' . escape($s['name']) . '</th><td>' . escape($s['value']) . '</td></tr>', $specs)) . '</tbody></table>'];
-    }
-    $panels['shipping'] = ['Shipping &amp; Returns', '<h3 class="pdp-subhead">Shipping</h3><dl class="pdp-dl"><dt>Shipping method</dt><dd>Home delivery</dd>'
-        . '<dt>Shipping charges</dt><dd>&#8377;20 per order</dd><dt>Free shipping</dt><dd>On orders of &#8377;2,500 or more</dd></dl>'
-        . '<h3 class="pdp-subhead">Returns &amp; Refunds</h3><p class="mb-0">Returns and refunds are handled under the store\'s refund policy.</p>'
-        . '<p class="mt-2 mb-0"><a href="{{BASE}}/refund_policy" class="pdp-link-btn">Read the full refund policy</a></p>'];
-    $tabs = $panelsHtml = '';
-    $first = true;
-    foreach ($panels as $key => [$label, $body]) {
-        $tabs .= '<button type="button" class="pdp-tab" role="tab" id="pdp-tab-' . $key . '" aria-controls="pdp-panel-' . $key . '" aria-selected="' . ($first ? 'true' : 'false') . '" tabindex="' . ($first ? '0' : '-1') . '" data-pdp-tab="' . $key . '">' . $label . "</button>\n";
-        $panelsHtml .= '<div class="pdp-panel ' . ($first ? 'is-active is-open' : '') . '" id="pdp-panel-' . $key . '" data-pdp-panel="' . $key . '" aria-labelledby="pdp-tab-' . $key . '">'
-            . '<h2 class="pdp-panel-heading"><button type="button" class="pdp-acc-toggle" aria-expanded="' . ($first ? 'true' : 'false') . '" aria-controls="pdp-panel-' . $key . '-body" data-pdp-acc>' . $label . shopIcon(ICON_CHEVRON, 20) . '</button></h2>'
-            . '<div class="pdp-panel-body" id="pdp-panel-' . $key . '-body">' . $body . "</div></div>\n";
-        $first = false;
-    }
-
-    $summaryHtml = '';
-    $reviewList = '<div class="pdp-empty">' . shopIcon(ICON_SPARK, 32, '1.5') . '<p class="m-0 fw-semibold text-dark">No reviews yet</p><p class="m-0">Bought this product? Be the first to share your thoughts.</p></div>';
     if ($reviews) {
-        $summaryHtml = '<div class="pdp-rating-big"><strong>' . $ratingLabel . '</strong><span>/ 5</span></div>' . starsHtml($product['rating'])
-            . '<p class="m-0 text-secondary">Based on ' . $reviewsLabel . '</p><ul class="pdp-dist" aria-label="Rating distribution">';
-        foreach ([5, 4, 3, 2, 1] as $stars) {
-            $n = count(array_filter($reviews, fn ($r) => (int) $r['rating'] === $stars));
-            $percent = (int) round($n / $reviewCount * 100);
-            $summaryHtml .= '<li><span>' . $stars . ' &#9733;</span><span class="pdp-dist-bar" role="img" aria-label="' . $stars . ' star: ' . $n . ' review' . ($n === 1 ? '' : 's') . ' (' . $percent . '%)">'
-                . '<span style="width: ' . $percent . '%"></span></span><span class="pdp-dist-count" aria-hidden="true">' . $n . '</span></li>';
+        $sections .= '<section class="shop-info"><h2>Reviews</h2><p class="shop-rating-line">' . starsHtml($product['rating']) . ' <strong>' . number_format($product['rating'], 1) . '</strong> from ' . $reviewCount . ' review' . ($reviewCount === 1 ? '' : 's') . '</p>';
+        foreach (array_slice($reviews, 0, 5) as $review) {
+            $sections .= '<article class="shop-review"><p class="shop-review__head"><strong>' . escape($review['author_name']) . '</strong>' . ($review['verified'] ? ' <span class="shop-review__tag">Verified purchase</span>' : '') . ' ' . starsHtml((float) $review['rating']) . '</p>'
+                . ($review['title'] ? '<p class="shop-review__title">' . escape($review['title']) . '</p>' : '') . ($review['body'] ? '<p>' . escape($review['body']) . '</p>' : '') . '</article>';
         }
-        $summaryHtml .= '</ul>';
-        $reviewList = '';
-        foreach ($reviews as $review) {
-            $reviewList .= '<article class="pdp-review"><div class="pdp-review-head"><div class="pdp-review-author">'
-                . '<span class="pdp-avatar" aria-hidden="true">' . escape(mb_strtoupper(mb_substr($review['author_name'], 0, 1, 'UTF-8'), 'UTF-8')) . '</span><span>' . escape($review['author_name']) . '</span>'
-                . ($review['verified'] ? '<span class="pdp-verified">' . shopIcon(ICON_CHECK, 12, '3') . 'Verified Purchase</span>' : '') . '</div>'
-                . '<time class="pdp-review-date" datetime="' . escape($review['reviewed_on']) . '">' . date('d M Y', strtotime($review['reviewed_on'])) . '</time></div>'
-                . '<h3 class="pdp-review-title">' . starsHtml((float) $review['rating']) . ($review['title'] ? '<span>' . escape($review['title']) . '</span>' : '') . '</h3>'
-                . ($review['body'] ? '<p class="pdp-review-body">' . escape($review['body']) . '</p>' : '') . "</article>\n";
-        }
+        $sections .= '</section>';
     }
-
-    // Other products: the same category first.
-    $others = array_filter(shopProducts(), fn ($p) => $p['id'] !== $product['id']);
-    usort($others, fn ($a, $b) => ((int) ($b['category_id'] === $product['category_id'])) <=> ((int) ($a['category_id'] === $product['category_id'])));
-    $related = $others ? '<section class="pdp-section" aria-labelledby="pdp-related-title"><div class="pdp-section-head"><h2 class="pdp-section-title" id="pdp-related-title">You May Also Like</h2>'
-        . '<a href="{{BASE}}/shop" class="pdp-link-btn">View all</a></div><div class="pdp-grid">' . implode('', array_map('relatedCard', array_slice($others, 0, 4))) . '</div></section>' : '';
 
     // Breadcrumb: Home > Shop > category path > product.
     $crumbs = [['label' => 'Home', 'url' => '{{BASE}}'], ['label' => 'Shop', 'url' => '{{BASE}}/shop']];
@@ -249,54 +298,38 @@ function renderProductPage(string $slug): ?string {
         $crumbs[] = ['label' => $categories[$category['parent_id']]['name'], 'url' => categoryUrl($categories[$category['parent_id']], $categories)];
         $categoryNames[] = $categories[$category['parent_id']]['name'];
     }
-    if ($category) {
-        $crumbs[] = ['label' => $category['name'], 'url' => categoryUrl($category, $categories)];
-        $categoryNames[] = $category['name'];
-    }
+    if ($category) { $crumbs[] = ['label' => $category['name'], 'url' => categoryUrl($category, $categories)]; $categoryNames[] = $category['name']; }
     $crumbs[] = ['label' => $product['name'], 'url' => $url];
 
-    $schema = ['@context' => 'https://schema.org', '@type' => 'Product', 'name' => $product['name'], 'description' => strLimit($summary, 155), 'url' => $url,
-        'sku' => 'PROHPCL-' . $product['id'], 'brand' => ['@type' => 'Brand', 'name' => $product['brand'] ?: 'Pro HPCL'], 'category' => implode(' > ', $categoryNames)];
+    $schema = ['@context' => 'https://schema.org', '@type' => 'Product', 'name' => $product['name'], 'description' => strLimit($summary !== '' ? $summary : $product['name'], 155), 'url' => $url,
+        'sku' => 'PROHPCL-' . $product['id'], 'brand' => ['@type' => 'Brand', 'name' => $product['brand'] ?: 'Pro HPCL'], 'category' => implode(' > ', $categoryNames), 'image' => $images];
     if ($product['colours']) $schema['color'] = implode(', ', array_column($product['colours'], 'name'));
-    $schema['image'] = $images;
     $schema['offers'] = ['@type' => 'Offer', 'url' => $url, 'priceCurrency' => 'INR', 'price' => number_format((float) $product['price'], 2, '.', ''),
         'availability' => 'https://schema.org/' . ($product['in_stock'] ? 'InStock' : 'OutOfStock'), 'itemCondition' => 'https://schema.org/NewCondition', 'seller' => ['@type' => 'Organization', 'name' => 'Pro HPCL']];
     if ($reviews) {
         $schema['aggregateRating'] = ['@type' => 'AggregateRating', 'ratingValue' => jsonNumber(round($product['rating'], 1)), 'reviewCount' => $reviewCount, 'bestRating' => 5, 'worstRating' => 1];
-        $schema['review'] = array_map(fn ($r) => ['@type' => 'Review', 'author' => ['@type' => 'Person', 'name' => $r['author_name']], 'datePublished' => $r['reviewed_on'], 'name' => $r['title'],
-            'reviewBody' => $r['body'], 'reviewRating' => ['@type' => 'Rating', 'ratingValue' => (int) $r['rating'], 'bestRating' => 5, 'worstRating' => 1]], $reviews);
     }
-
-    $config = ['productName' => $product['name'], 'cartUrl' => '{{BASE}}/shop',
-        'media' => array_map(fn ($image, $i) => ['type' => 'image', 'src' => $image, 'thumb' => $image, 'alt' => $i === 0 ? $product['name'] : $product['name'] . " \u{2013} image " . ($i + 1), 'color' => null, 'embed' => null, 'external' => false], $images, array_keys($images)),
-        'hasVariants' => (bool) $product['variants'], 'inStock' => $product['in_stock'], 'simpleStock' => $product['variants'] ? null : (int) $product['stock'],
-        'lowStock' => SHOP_LOW_STOCK, 'maxPerLine' => SHOP_MAX_PER_LINE,
-        'variants' => array_map(fn ($v) => ['color' => $v['colour_id'] === null ? null : (int) $v['colour_id'], 'size' => $v['size'], 'stock' => (int) $v['stock']], $product['variants'])];
 
     // Share image size and type, read from the stored file.
     $file = __DIR__ . '/../' . $product['image'];
     $size = !preg_match('~^https?://~', $product['image']) && is_file($file) ? @getimagesize($file) : false;
 
     return view('templates.shop-product', [
-        'title' => $name . ' | Pro HPCL Shop', 'description' => escape(strLimit($summary, 155)), 'url' => $url, 'name' => $name, 'id' => $product['id'],
+        'title' => $name . ' | Pro HPCL Shop', 'description' => escape(strLimit($summary !== '' ? $summary : $product['name'], 155)), 'url' => $url, 'name' => $name,
         'image' => escape($images[0]), 'image_type' => $size['mime'] ?? 'image/jpeg', 'image_width' => $size[0] ?? 800, 'image_height' => $size[1] ?? 800,
         'price_amount' => number_format((float) $product['price'], 2, '.', ''), 'availability' => $product['in_stock'] ? 'in stock' : 'out of stock', 'brand' => escape($product['brand'] ?: 'Pro HPCL'),
         'product_schema' => jsonLd($schema), 'breadcrumb_schema' => jsonLd(autoBreadcrumbSchema($crumbs)), 'breadcrumb' => autoBreadcrumbHtml($crumbs),
-        'thumbs' => $thumbs, 'slides' => $slides, 'media_count' => $count,
-        'stage_badge' => $discount !== null ? '<span class="pdp-stage-badge">' . $discount . '% OFF</span>' : '',
-        'rating_link' => starsHtml($product['rating']) . ($reviews ? '<strong>' . $ratingLabel . '</strong><span class="pdp-divider" aria-hidden="true"></span><span>' . $reviewsLabel . '</span>' : '<span>No reviews yet</span>'),
+        'main_image' => escape($images[0]), 'thumbs' => $thumbs,
+        'badge' => !$product['in_stock'] ? '<span class="shop-badge shop-badge--out">Sold out</span>' : ($discount !== null ? '<span class="shop-badge shop-badge--sale">' . $discount . '% off</span>' : ''),
+        'rating' => $reviews ? '<p class="shop-rating-line">' . starsHtml($product['rating']) . ' <span>' . number_format($product['rating'], 1) . ' (' . $reviewCount . ')</span></p>' : '',
         'price' => rupees($product['price']),
-        'compare_price' => $discount !== null ? '<span class="pdp-sr">Original price</span><s class="pdp-price-compare">' . rupees($product['compare_price']) . '</s><span class="pdp-discount">' . $discount . '% OFF</span>' : '',
-        'price_note' => 'Inclusive of all taxes' . ($product['gst_rate'] !== null ? ' (GST ' . jsonNumber($product['gst_rate']) . '%)' : '')
-            . ($discount !== null ? ' &middot; <strong>You save ' . rupees((float) $product['compare_price'] - (float) $product['price']) . '</strong>' : ''),
-        'stock' => '<span class="pdp-stock pdp-stock--' . ($product['in_stock'] ? 'ok' : 'out') . '" data-pdp-stock aria-live="polite">' . shopIcon($product['in_stock'] ? ICON_CHECK : ICON_X, 16)
-            . '<span data-pdp-stock-text>' . ($product['in_stock'] ? 'In stock' : 'Out of stock') . '</span></span>',
-        'short_description' => $summary !== '' ? '<p class="pdp-short">' . escape($summary) . '</p>' : '',
-        'tabs' => $tabs, 'panels' => $panelsHtml, 'rating_summary' => $summaryHtml, 'reviews' => $reviewList, 'related' => $related,
-        'sticky' => $product['in_stock'] ? '<div class="pdp-sticky" data-pdp-sticky aria-hidden="true"><div class="pdp-sticky-price"><strong>' . rupees($product['price']) . '</strong>'
-            . ($discount !== null ? '<s>' . rupees($product['compare_price']) . '</s>' : '') . '</div>'
-            . '<button type="submit" form="pdp-form" class="pdp-btn pdp-btn--primary" data-pdp-add tabindex="-1"><span data-pdp-btn-label>Add to Cart</span></button>'
-            . '<button type="submit" form="pdp-form" class="pdp-btn pdp-btn--dark" name="buy_now" value="1" data-pdp-buy tabindex="-1">Buy Now</button></div>' : '',
-        'config' => jsonLd($config),
+        'compare' => $discount !== null ? '<s><span class="visually-hidden">Original price </span>' . rupees($product['compare_price']) . '</s><span class="shop-save">Save ' . rupees((float) $product['compare_price'] - (float) $product['price']) . '</span>' : '',
+        'price_note' => 'Inclusive of GST. Shipping calculated in the cart.',
+        'stock_text' => $stockText, 'stock_class' => $stockClass,
+        'short_description' => $summary !== '' ? '<p class="shop-short">' . escape($summary) . '</p>' : '',
+        'add_form' => $addForm, 'sections' => $sections, 'related' => shopRelated($product),
+        'flash' => $session ? shopFlashHtml() : '',
+        'variant_json' => jsonLd($variantData),
+        'low_stock' => SHOP_LOW_STOCK, 'max_per_line' => SHOP_MAX_PER_LINE, 'css_version' => SHOP_ASSET_VERSION,
     ]);
 }
