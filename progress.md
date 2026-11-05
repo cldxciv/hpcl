@@ -89,6 +89,15 @@ The organisers' "PRO HPCL 2026 Fixtures" PDF is published at `/fixtures` (and `/
 - **Deployed as an isolated release**: only `index.php`, `includes/teams.php`, `includes/catalog.php`, `header.html`, `footer.html` plus the new `includes/fixtures.php` and `includes/templates/fixtures.html` were changed on the server (the same edit script was applied to fresh copies of the live files, so none of the other pending work shipped). Pre-change copies of the five files are in the session backup `live_backup_20261102_fixtures`.
 - **Pending approval**: the 8 Season 4 teams that are not in the schedule (Bat Breaker Rampur, Boom Shiva, Commando The Rising Star Solan, Mountain Army by TGW, Sidhpur Warriors, Silent Killer Bilaspur, Valley Victor Jubbal, Wine Association) are still listed on the live Season 4 teams page under "Other teams". `php bin/seed-season4-fixtures.php --remove-others` (or the runner method, `seedSeason4Fixtures(true)`) takes them out of Season 4 while keeping their squads, and prints the SQL that restores them. The production permission check blocked that DB delete until the owner confirms it.
 
+### 4.10 The shop (2026-11-05, **deployed, hidden until switched on**)
+Full shop with cart, Razorpay checkout, orders and admin; the code is live but the shop answers 404 until an admin switches it on (Admin > Shop > Settings, or `site_settings.shop_enabled = 1`, or `SHOP_ENABLED=true` in `.env`).
+- Storefront: `includes/shop.php` (listing, product pages; only `is_active` products/categories are public), `includes/shop-cart.php` (session cart `shop_cart`, lineKey `productId:variantId`, server-side prices), templates `shop.html`, `shop-product.html`, `shop-cart.html`, assets `shop.css`/`shop.js`; SHOP and CART in the header (`includes/content.php`).
+- Checkout: `includes/shop-checkout.php` (`/shop/checkout`, POST `/shop/checkout/place|verify`, `/shop/order/<token>`, `shopPaymentReceived()` called from the Razorpay webhook), `includes/shop-orders.php` (`shopOrderSetStatus()` etc.), `includes/shop-mail.php` (HTML+text emails), account "My orders" (`/account/orders`). Cart survives signing in (`accountSignIn()` keeps `shop_cart`). Local-only fake-payment seam: `site_settings.shop_fake_razorpay` + `appEnv() === 'local'`; test with `bin/test-shop-flow.php` / `.py`.
+- Admin: `includes/admin-shop*.php`, `templates/admin/shop-*.html`, permission `shop`, dashboard tiles. Razorpay keys are entered at Admin > Integrations (root only) and shared with membership/committee payments.
+- Data: `database/shop.sql`, `bin/migrate-shop.php` (run on production on 2026-11-05 via the temp runner: it hid the two old demo products), tables `shop_orders`, `shop_order_items`, `shop_order_events`. Catalogue tools: `bin/import-shop-products.php` (CSV, `--dry-run`), `bin/build-shop-placeholders.php`, `bin/seed-shop-demo.php` (draft demo products, never run on production).
+- To open the shop: add real products (import the owner's list; copy the photos to `storage/uploads/shop/products/` on the server), save Razorpay keys (test first) and the SMTP password, set shipping and the notification email in Shop > Settings, place a test order, then switch the shop on.
+- Pre-change copies of the 16 replaced files: session scratchpad `live_backup_20261105_shop`.
+
 ## 5. What is live and what is not
 
 Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus the Season 4 team removal, which is a data change). The 14 new files, the 17 changed files and the database columns (`membership_applications.photo`, `.share_token`, `members.photo`, `players.cricheroes_url`, `users.team_prompted_at`) were deployed that day; the live copies replaced by the last release are in the session scratchpad (`live_backup_20261102_*`).
@@ -103,6 +112,7 @@ Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus 
 | The 8 non-fixture teams removed from Season 4 (squads kept) | yes (2026-11-02); restore SQL: `INSERT INTO season_teams (season_id, team_id, pool) VALUES (4, <id>, NULL)` for ids 44, 42, 50, 43, 31, 40, 46, 17 |
 | Season 4 shows 12 teams (`seasonPlayingTeamSql()` in `includes/site.php`: fixture teams only while a season has fixtures) | yes |
 | Homepage/season/team card refinements, player-card overlap fixes, centred owners, membership card text and slider | yes |
+| The shop (cart, Razorpay checkout, orders, admin) | code live, shop hidden (404) until switched on; no products or Razorpay keys yet |
 | Favourite-team prompt after first login (`/account/team`, `users.team_prompted_at`) and the HTML welcome email (`includes/account-mail.php`) | yes; the email needs SMTP |
 
 ## 6. Known gaps and next steps
