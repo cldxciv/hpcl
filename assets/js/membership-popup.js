@@ -1,8 +1,8 @@
-// Membership popup: opens once the page has fully loaded plus 5 seconds, then stays quiet for a week
+// Membership popup: opens as soon as the page has fully loaded, then stays quiet for a week
 // (a month after a request is sent). Esc, the backdrop and the close button dismiss it.
 (function () {
     'use strict';
-    var DELAY = 5000;
+    var DELAY = 0;
     var QUIET_AFTER_SHOWN = 7 * 24 * 3600 * 1000;
     var QUIET_AFTER_SENT = 30 * 24 * 3600 * 1000;
     var KEY = 'hpcl_mpop_until';
