@@ -110,6 +110,13 @@ Requests for Shimla Cricket Ground, approved by an admin, then paid. Public: `/b
 - `assets/ground/` holds the client's real photos of Shimla Cricket Ground (slots, gallery events/scenic/press, thumbs; source: `web-lite/` in the owner's folder). Used on the homepage "Shimla Cricket Ground" section and on /book.
 - All season pages (1 to 4) use one card grid (6 across); teams without a logo get an initials badge (`includes/team-card.php`); Season 4 lists the 8 non-playing teams under "Other Teams (Not Participating)" (they are attached with `pool NULL`; `seasonPlayingTeamSql()` keeps the Season 4 count at 12).
 
+### 4.13 Instagram reels on the home page (2026-11-17, **LIVE**)
+"Latest from Instagram" row on the home page (above Latest Videos): reel covers, a click plays the reel in Instagram's own player inside a dialog (prev/next, Esc, focus returns), arrows on desktop, swipe on mobile. Shows the newest 12 visible reels, pinned first.
+- Data: table `social_reels` (`database/social.sql`, `bin/migrate-social.php`, run on production 2026-11-17). Covers are copied to `storage/uploads/social/reels/<shortcode>.jpg` (Instagram's image links expire). The first 24 reels of @prohpcl were imported on 2026-11-17 (`bin/import-instagram-reels.php`; captions and covers read from Instagram's public embed pages).
+- Code: `includes/social.php` (model + section HTML), `assets/css/social-reels.css`, `assets/js/social-reels.js`; admin `includes/admin-social.php` at Admin > Settings > Instagram reels (permission `settings`): add by link + cover, hide, pin, edit, delete, section on/off, heading, count.
+- Automatic sync: the site cannot read Instagram by itself (pages are drawn by JavaScript and need a login), so new reels arrive only through the official Instagram API with Instagram Login. Save a long-lived token at Admin > Integrations (root, encrypted), then "Sync now" or the hourly cron `bin/sync-instagram.php` (uploaded; cron job NOT set up yet in hPanel). Until then, add new reels by link with a cover in the admin. Sync keeps hidden/pinned choices; a reel deleted in the admin comes back on the next sync if it is still on Instagram (hide it instead).
+- Tests: `bin/test-instagram-sync.php` (37 checks), browser tests of the admin (44) and the home section (24, also run on the live site).
+
 ## 5. What is live and what is not
 
 Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus the Season 4 team removal, which is a data change). The 14 new files, the 17 changed files and the database columns (`membership_applications.photo`, `.share_token`, `members.photo`, `players.cricheroes_url`, `users.team_prompted_at`) were deployed that day; the live copies replaced by the last release are in the session scratchpad (`live_backup_20261102_*`).
@@ -127,6 +134,7 @@ Everything in this repo is on prohpcl.com as of 2026-11-02 (commit d717169 plus 
 | Ground booking (`/book`, admin, payment) | code live, hidden (404) until switched on; settings and rate card seeded |
 | Real ground photos, unified season cards, Other Teams (Not Participating) | yes (2026-11-06) |
 | The shop (cart, Razorpay checkout, orders, admin) | code live, shop hidden (404) until switched on; no products or Razorpay keys yet |
+| Instagram reels section, admin, 24 reels imported | yes (2026-11-17); automatic sync needs an Instagram API token and the hPanel cron job |
 | Favourite-team prompt after first login (`/account/team`, `users.team_prompted_at`) and the HTML welcome email (`includes/account-mail.php`) | yes; the email needs SMTP |
 
 ## 6. Known gaps and next steps
