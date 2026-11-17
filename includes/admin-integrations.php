@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 // Admin integrations page (/admin/integrations; root user only): the SMTP server for outgoing
-// email and the Razorpay keys (integrations.php), with a test email and a check of the keys.
+// email, the Razorpay keys and the Instagram access token (integrations.php), with a test email
+// and a check of the Razorpay keys.
 // Secrets are write-only: the form never shows them, an empty field keeps the saved one.
 require_once __DIR__ . '/admin-forms.php';
 require_once __DIR__ . '/mailer.php';
@@ -13,7 +14,8 @@ function integrationError(string $name, string $value): ?string {
     [, $label, $kind] = INTEGRATION_SETTINGS[$name];
     if ($value === '' || $kind === 'toggle') return null;
     if (str_contains($value, "\n")) return "$label must be a single line.";
-    if (mb_strlen($value) > 255) return "$label must be 255 characters or fewer.";
+    $max = in_array($name, INTEGRATION_LONG_SECRETS, true) ? 1024 : 255;
+    if (mb_strlen($value) > $max) return "$label must be $max characters or fewer.";
     return match ($kind) {
         'host' => preg_match('~^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$~i', $value) ? null : 'Enter a server name such as smtp.hostinger.com, without https:// or a port.',
         'port' => ctype_digit($value) && (int) $value >= 1 && (int) $value <= 65535 ? null : 'Enter a port number from 1 to 65535, usually 465 or 587.',
@@ -72,6 +74,11 @@ function saveIntegrations(array $stored): array {
             else adminExecute('INSERT INTO site_settings (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)',
                 [$name, INTEGRATION_SETTINGS[$name][2] === 'secret' ? encryptSecret($value) : $value]);
         }
+        // A new Instagram token is renewed 7 days after it was saved (instagram-sync.php).
+        if (array_key_exists('instagram_access_token', $changes)) {
+            if ($changes['instagram_access_token'] === '') adminExecute("DELETE FROM site_settings WHERE name IN ('instagram_token_refreshed_at', 'instagram_token_expires_at')");
+            else adminExecute("INSERT INTO site_settings (name, value) VALUES ('instagram_token_refreshed_at', ?) ON DUPLICATE KEY UPDATE value = VALUES(value)", [date('Y-m-d H:i:s')]);
+        }
     });
     adminFlash('Saved the integrations.');
     adminRedirect('/admin/integrations');
@@ -93,7 +100,7 @@ function renderIntegrations(array $admin): string {
             'toggle' => '<label class="admin-check"><input' . $attributes . ' type="checkbox" value="1"' . ($values[$name] === '1' ? ' checked' : '') . '>' . escape($hint) . '</label>',
             'choice' => '<select' . $attributes . '>' . implode('', array_map(fn ($key, $text) => '<option value="' . $key . '"' . ($values[$name] === (string) $key || ($values[$name] === '' && $key === array_key_first(INTEGRATION_SETTINGS[$name][4])) ? ' selected' : '') . '>' . escape($text) . '</option>',
                 array_keys(INTEGRATION_SETTINGS[$name][4]), INTEGRATION_SETTINGS[$name][4])) . '</select>',
-            'secret' => '<input' . $attributes . ' type="password" value="" maxlength="255" autocomplete="new-password" spellcheck="false"' . ($saved ? ' placeholder="•••••••• saved"' : '') . '>',
+            'secret' => '<input' . $attributes . ' type="password" value="" maxlength="' . (in_array($name, INTEGRATION_LONG_SECRETS, true) ? 1024 : 255) . '" autocomplete="new-password" spellcheck="false"' . ($saved ? ' placeholder="•••••••• saved"' : '') . '>',
             'port' => '<input' . $attributes . ' type="number" min="1" max="65535" value="' . $value . '"' . $fallback . '>',
             'email' => '<input' . $attributes . ' type="email" value="' . $value . '" maxlength="255" autocomplete="off"' . $fallback . '>',
             default => '<input' . $attributes . ' type="text" value="' . $value . '" maxlength="255" autocomplete="off" spellcheck="false"' . $fallback . '>',

@@ -2,8 +2,9 @@
 declare(strict_types=1);
 
 // Settings of the services the site connects to, edited by the root user at /admin/integrations
-// (admin-integrations.php): outgoing mail over SMTP (mailer.php) and Razorpay payments
-// (razorpay.php). They are rows of site_settings named smtp_* and razorpay_*.
+// (admin-integrations.php): outgoing mail over SMTP (mailer.php), Razorpay payments
+// (razorpay.php) and the Instagram API token for the home page reels (instagram-sync.php). They
+// are rows of site_settings named smtp_*, razorpay_* and instagram_*.
 //
 // Passwords and secret keys are stored encrypted with APP_KEY from .env (AES-256-GCM), so a
 // database export alone doesn't reveal them, and they are never shown again in the admin. Without
@@ -25,11 +26,15 @@ const INTEGRATION_SETTINGS = [
     'razorpay_key_id' => ['razorpay', 'Key ID', 'razorpay_key', 'From the Razorpay Dashboard → Account & Settings → API Keys. Starts with rzp_test_ or rzp_live_.'],
     'razorpay_key_secret' => ['razorpay', 'Key secret', 'secret', 'Shown once by Razorpay when you generate the key.'],
     'razorpay_webhook_secret' => ['razorpay', 'Webhook secret', 'secret', 'Optional. The secret you choose when adding a webhook in Razorpay, used to check that payment notifications are genuine.'],
+    'instagram_access_token' => ['instagram', 'Access token', 'secret', 'A long-lived access token for @prohpcl (a professional account). In the Meta developer dashboard open your app, then Instagram → API setup with Instagram login → Generate access token, and sign in as @prohpcl. The site renews it every week, so it does not expire while the sync runs.'],
 ];
 const INTEGRATION_GROUPS = [
     'smtp' => ['Email (SMTP)', 'The mail server the site sends email through. Values left empty here fall back to the MAIL_ settings in .env.'],
     'razorpay' => ['Razorpay', 'Your Razorpay account’s API keys. They take payments for the shop checkout, memberships and committee applications. Start in test mode, check the keys below, then switch to live.'],
+    'instagram' => ['Instagram', 'Lets the site add new @prohpcl reels to the home page by itself, every hour, with their cover and caption (Admin → Instagram reels). Without a token, reels are added there by hand.'],
 ];
+// Secrets that may be longer than the usual 255 characters (access tokens).
+const INTEGRATION_LONG_SECRETS = ['instagram_access_token'];
 // The MAIL_ variable of .env each SMTP setting falls back to.
 const SMTP_ENV_FALLBACK = ['smtp_host' => 'MAIL_HOST', 'smtp_port' => 'MAIL_PORT', 'smtp_encryption' => 'MAIL_ENCRYPTION', 'smtp_username' => 'MAIL_USERNAME',
     'smtp_password' => 'MAIL_PASSWORD', 'smtp_from_address' => 'MAIL_FROM_ADDRESS', 'smtp_from_name' => 'MAIL_FROM_NAME'];
@@ -59,7 +64,7 @@ function decryptSecret(string $stored): string {
 
 /** The stored integration settings, with secrets still encrypted. */
 function integrationRows(): array {
-    return array_column(query("SELECT name, value FROM site_settings WHERE name LIKE 'smtp\\_%' OR name LIKE 'razorpay\\_%'"), 'value', 'name');
+    return array_column(query("SELECT name, value FROM site_settings WHERE name LIKE 'smtp\\_%' OR name LIKE 'razorpay\\_%' OR name LIKE 'instagram\\_%'"), 'value', 'name');
 }
 /** One integration setting as plain text (secrets decrypted), or $default when it isn't set. */
 function integrationSetting(string $name, string $default = ''): string {

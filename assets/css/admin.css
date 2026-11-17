@@ -780,3 +780,30 @@ body.admin {
 .admin-table--price td, .admin-table--price th { padding-top: 8px; padding-bottom: 8px; }
 .admin-table--price tfoot th { text-align: left; }
 .admin-alert ul { margin: 6px 0 0; padding-left: 20px; }
+
+/* Instagram reels (admin-social.php) */
+.admin-reel-thumb { display: block; width: 54px; height: 96px; object-fit: cover; border-radius: 8px; background: var(--admin-bg); }
+.admin-reel-thumb--empty { border: 1px dashed var(--admin-border); }
+.admin-reel-preview { display: block; width: 180px; height: 320px; margin: 4px 0 10px; object-fit: cover; border-radius: 12px; background: var(--admin-bg); }
+.admin-table--reels td { vertical-align: middle; }
+.admin-table--reels .admin-reel-caption { min-width: 220px; max-width: 420px; white-space: normal; line-height: 1.4; }
+.admin-reel-badges { display: flex; flex-wrap: wrap; gap: 4px; white-space: normal; }
+.admin-reel-actions { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.admin .admin-reel-actions a + a { margin-left: 0; }
+.admin-badge--reel-home { color: #065f46; background: #d1fae5; }
+.admin-badge--reel-hidden { color: #92400e; background: #fef3c7; }
+.admin-badge--reel-pinned { color: #1e40af; background: #dbeafe; }
+.admin-badge--reel-nocover { color: #991b1b; background: #fee2e2; }
+.admin-reel-form .admin-check { display: flex; margin-top: 6px; }
+@media (max-width: 760px) {
+    .admin-table--reels thead { display: none; }
+    .admin-table--reels, .admin-table--reels tbody { display: block; }
+    .admin-table--reels tr { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 6px 12px; padding: 12px 0; border-bottom: 1px solid var(--admin-bg); }
+    .admin-table--reels td { padding: 0; border: 0; white-space: normal; }
+    .admin-table--reels td:first-child { grid-row: span 5; }
+    .admin-table--reels .admin-reel-caption { min-width: 0; max-width: none; }
+    .admin-table--reels .admin-actions { text-align: left; }
+    .admin-reel-actions { justify-content: flex-start; }
+    .admin .admin-table--reels .admin-actions a { display: inline-block; }
+    .admin .admin-table--reels .admin-actions a + a { margin: 0; }
+}

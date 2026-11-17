@@ -8,6 +8,7 @@ require_once __DIR__ . '/team-card.php'; // teamLogoHtml(): the team logo circle
 require_once __DIR__ . '/videos.php';
 require_once __DIR__ . '/hero.php';
 require_once __DIR__ . '/membership.php';
+require_once __DIR__ . '/social.php';   // socialReelsSectionHtml(): the Instagram reels row
 
 /** A row of site_settings, or $default when it is missing or empty. */
 function setting(string $name, string $default = ''): string {
@@ -221,6 +222,6 @@ function renderHome(): string {
     $seasonName = $season ? 'Season ' . $season['route_key'] : '';
     return view('templates.home', [
         'slides' => $slides, 'carousel_attributes' => $carouselAttributes, 'carousel_class' => $carouselClass, 'carousel_indicators' => $carouselIndicators, 'carousel_controls' => $carouselControls, 'carousel_pause' => $carouselPause, 'retained_season' => $seasonName, 'retained_players' => $retained, 'teams_season' => $seasonName, 'teams' => $teams, 'ground_book' => bookingEnabled() ? '<a class="ground-home__btn ground-home__btn--primary" href="{{BASE}}/book">Book the ground</a>' : '',
-        'highlights_season' => escape(setting('home_highlights_season')), 'top_performers' => $performers, 'stats' => $stats, 'stat_highlights' => $highlights, 'videos' => $videos,
+        'highlights_season' => escape(setting('home_highlights_season')), 'top_performers' => $performers, 'stats' => $stats, 'stat_highlights' => $highlights, 'videos' => $videos, 'instagram_reels' => socialReelsSectionHtml(),
     ]);
 }

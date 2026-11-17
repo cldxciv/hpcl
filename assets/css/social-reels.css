@@ -1,0 +1,63 @@
+/* Home page "Latest from Instagram" section (includes/social.php, assets/js/social-reels.js). */
+.ig-reels { background: linear-gradient(180deg, #071d40 0%, #0b2a5b 100%); color: #fff; padding: 56px 0 60px; }
+.ig-reels__inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+.ig-reels__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px; margin-bottom: 22px; }
+.ig-reels__kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #ffb27a; font: 700 0.95rem/1 Roboto, sans-serif; letter-spacing: 0.06em; }
+.ig-reels__kicker svg { width: 20px; height: 20px; }
+.ig-reels__title { margin: 0; color: #fff; font: 400 clamp(2.1rem, 4vw, 3.1rem)/1 "Bebas Neue", sans-serif; letter-spacing: 0.02em; }
+.ig-reels__actions { display: flex; align-items: center; gap: 10px; }
+.ig-reels__nav { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, 0.45); border-radius: 50%; background: transparent; color: #fff; cursor: pointer; transition: background-color 0.2s, opacity 0.2s; }
+.ig-reels__nav svg, .ig-reels__dialog-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ig-reels__nav:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+.ig-reels__nav:disabled { opacity: 0.35; cursor: default; }
+.ig-reels__follow { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #ff7a18; color: #0b2a5b; font: 700 0.98rem/1 Roboto, sans-serif; text-decoration: none; transition: background-color 0.2s; }
+.ig-reels__follow:hover { background: #ffa05c; color: #0b2a5b; }
+
+.ig-reels__track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 4 * 16px) / 5); gap: 16px; margin: 0; padding: 4px 2px 14px; list-style: none;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.35) transparent; }
+.ig-reels__item { scroll-snap-align: start; min-width: 0; }
+.ig-reels__card { position: relative; display: block; aspect-ratio: 9 / 16; overflow: hidden; border-radius: 16px; background: #0b2a5b; color: #fff; text-decoration: none;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35); }
+.ig-reels__card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4, 14, 32, 0.15) 0%, rgba(4, 14, 32, 0) 30%, rgba(4, 14, 32, 0.25) 55%, rgba(4, 14, 32, 0.92) 100%); pointer-events: none; }
+.ig-reels__cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; }
+.ig-reels__play { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 58px; height: 58px; border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%;
+    background: rgba(11, 42, 91, 0.45); transform: translate(-50%, -50%); transition: background-color 0.2s, transform 0.2s; }
+.ig-reels__play svg { width: 26px; height: 26px; margin-left: 3px; fill: #fff; }
+.ig-reels__glyph { position: absolute; top: 10px; right: 10px; z-index: 2; width: 26px; height: 26px; color: #fff; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)); }
+.ig-reels__glyph svg { width: 100%; height: 100%; }
+.ig-reels__caption { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; display: -webkit-box; overflow: hidden; color: #fff; font: 500 0.92rem/1.35 Roboto, sans-serif;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.ig-reels__card:hover .ig-reels__cover { transform: scale(1.05); }
+.ig-reels__card:hover .ig-reels__play { background: #ff7a18; transform: translate(-50%, -50%) scale(1.06); }
+.ig-reels__card:focus-visible { outline: 3px solid #ff7a18; outline-offset: 3px; }
+
+.ig-reels__dialog { width: min(420px, 94vw); max-width: none; max-height: none; margin: auto; padding: 0; overflow: visible; border: 0; background: transparent; color: #fff; }
+.ig-reels__dialog::backdrop { background: rgba(3, 10, 24, 0.86); }
+.ig-reels__frame { height: min(740px, calc(100vh - 120px)); overflow: hidden; border-radius: 14px; background: #fff; }
+.ig-reels__frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.ig-reels__dialog-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.ig-reels__dialog-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 50%; background: rgba(255, 255, 255, 0.08); color: #fff; cursor: pointer; }
+.ig-reels__dialog-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.ig-reels__dialog-open { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #ff7a18; color: #0b2a5b; font: 700 0.95rem/1 Roboto, sans-serif; text-decoration: none; }
+.ig-reels__dialog-open:hover { background: #ffa05c; color: #0b2a5b; }
+.ig-reels__close { position: absolute; top: -16px; right: -16px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #0b2a5b;
+    font: 400 30px/1 Arial, sans-serif; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); }
+.ig-reels__dialog :focus-visible { outline: 3px solid #ff7a18; outline-offset: 2px; }
+
+@media (max-width: 1024px) {
+    .ig-reels__track { grid-auto-columns: calc((100% - 3 * 14px) / 3.3); gap: 14px; }
+}
+@media (max-width: 640px) {
+    .ig-reels { padding: 40px 0 44px; }
+    .ig-reels__head { align-items: flex-start; }
+    .ig-reels__nav { display: none; }
+    .ig-reels__track { grid-auto-columns: 46%; gap: 12px; }
+    .ig-reels__caption { font-size: 0.85rem; -webkit-line-clamp: 2; }
+    .ig-reels__close { top: 8px; right: 8px; }
+    .ig-reels__frame { height: calc(100vh - 110px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ig-reels__track { scroll-behavior: auto; }
+    .ig-reels__cover, .ig-reels__play { transition: none; }
+    .ig-reels__card:hover .ig-reels__cover { transform: none; }
+}

@@ -1,0 +1,11 @@
+@extends('layouts.admin')
+@section('title', 'Instagram reels')
+@section('content')
+@include('partials.admin-bar')
+<main class="admin-main">
+{!! $flash !!}
+<div class="admin-heading"><h1>Instagram reels</h1><p>The reels in the home page’s Instagram section: add them by link, hide or pin them, and connect the Instagram sync.</p></div>
+{!! $content !!}
+</main>
+@include('partials.admin-footer')
+@endsection

@@ -6,6 +6,7 @@
 @section('og_url', '{{BASE}}')
 
 @section('head')
+        <link rel="stylesheet" href="{{BASE}}/assets/css/social-reels.css?v=1">
         <style>
             /* white on the orange section is 2.8:1 */
             .teams-section__title, .teams-section__title span { color: #0b2a5b; }
@@ -135,6 +136,7 @@
             </div>
         </div>
     </section>
+{!! $instagram_reels !!}
     <section class="latest-news home-videos-section" aria-label="Latest videos">
         <div class="latest-news__dots-pattern latest-news__dots-pattern--top" aria-hidden="true"></div>
         <div class="latest-news__inner">
@@ -274,4 +276,5 @@
                 start();
             });
         </script>
+        <script src="{{BASE}}/assets/js/social-reels.js?v=1" defer></script>
 @endsection
