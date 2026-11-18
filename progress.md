@@ -116,6 +116,7 @@ Requests for Shimla Cricket Ground, approved by an admin, then paid. Public: `/b
 - Code: `includes/social.php` (model + section HTML), `assets/css/social-reels.css`, `assets/js/social-reels.js`; admin `includes/admin-social.php` at Admin > Settings > Instagram reels (permission `settings`): add by link + cover, hide, pin, edit, delete, section on/off, heading, count.
 - Automatic sync: the site cannot read Instagram by itself (pages are drawn by JavaScript and need a login), so new reels arrive only through the official Instagram API with Instagram Login. Save a long-lived token at Admin > Integrations (root, encrypted), then "Sync now" or the hourly cron `bin/sync-instagram.php` (uploaded; cron job NOT set up yet in hPanel). Until then, add new reels by link with a cover in the admin. Sync keeps hidden/pinned choices; a reel deleted in the admin comes back on the next sync if it is still on Instagram (hide it instead).
 - Tests: `bin/test-instagram-sync.php` (37 checks), browser tests of the admin (44) and the home section (24, also run on the live site).
+- 2026-11-18: the row is ordered by the real posting time. A reel's shortcode encodes when it was posted, so `socialShortcodePostedAt()` fills `posted_at` for reels added without a date (import, add-by-link); the API sync still uses Instagram's own timestamp. 14 newer reels imported (38 in the table); `Df3aaW9seWB`, a player's fan clip whose caption is only hashtags, was added hidden.
 
 ## 5. What is live and what is not
 
