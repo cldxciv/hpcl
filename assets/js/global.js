@@ -245,3 +245,5 @@
         initMenuEscape();
     });
 })();
+
+try { console.log('%cMade with love by Anshuman of Edwyz', 'color:#ff7a18;font:700 14px/1.6 sans-serif'); } catch (e) {}
