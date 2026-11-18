@@ -24,6 +24,24 @@ function socialReelShortcode(string $url): ?string {
 function socialReelPermalink(string $shortcode): string {
     return 'https://www.instagram.com/reel/' . $shortcode . '/';
 }
+/**
+ * When a post went up on Instagram, read from its shortcode: the shortcode is the media id in
+ * base 64, and the id's top bits count milliseconds since Instagram's epoch (2011-08-24 21:07:01.721
+ * UTC). Returns local time (Y-m-d H:i:s), or null for a code that doesn't decode to a sane date.
+ */
+function socialShortcodePostedAt(string $shortcode): ?string {
+    if (!preg_match('~^[A-Za-z0-9_-]{6,11}$~D', $shortcode)) return null;
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    $id = 0;
+    foreach (str_split($shortcode) as $char) {
+        $digit = strpos($alphabet, $char);
+        if ($id > intdiv(PHP_INT_MAX - $digit, 64)) return null;
+        $id = $id * 64 + $digit;
+    }
+    $seconds = intdiv(($id >> 23) + 1314220021721, 1000);
+    if ($seconds < 1314220022 || $seconds > time() + 86400) return null;
+    return (new DateTimeImmutable('@' . $seconds))->setTimezone(new DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
+}
 
 /** Tidies a caption read from Instagram: trailing "View all comments", runs of blank lines. */
 function socialCleanCaption(?string $caption): string {
@@ -71,7 +89,8 @@ function socialSaveCover(string $shortcode, string $bytes): ?string {
 /**
  * Inserts or updates a reel by shortcode and returns its id. $reel: shortcode (required), and any of
  * permalink, caption, cover, media_id, posted_at (Y-m-d H:i:s), source. Visibility and pinning set
- * in the admin are kept; empty values never overwrite stored ones.
+ * in the admin are kept; empty values never overwrite stored ones. Without a posted_at, the date
+ * comes from the shortcode, so the home page row is newest first however a reel was added.
  */
 function socialReelUpsert(array $reel): int {
     $code = socialReelShortcode((string) ($reel['shortcode'] ?? ''));
@@ -79,14 +98,15 @@ function socialReelUpsert(array $reel): int {
     $existing = query("SELECT * FROM social_reels WHERE platform = 'instagram' AND shortcode = ?", [$code])[0] ?? null;
     $value = fn (string $key) => isset($reel[$key]) && trim((string) $reel[$key]) !== '' ? trim((string) $reel[$key]) : null;
     $caption = $value('caption') !== null ? socialCleanCaption($reel['caption']) : null;
+    $decoded = socialShortcodePostedAt($code);
     if ($existing) {
         db()->prepare('UPDATE social_reels SET permalink = COALESCE(?, permalink), caption = COALESCE(?, caption), cover = COALESCE(?, cover),
-            media_id = COALESCE(?, media_id), posted_at = COALESCE(?, posted_at) WHERE id = ?')
-            ->execute([$value('permalink'), $caption, $value('cover'), $value('media_id'), $value('posted_at'), $existing['id']]);
+            media_id = COALESCE(?, media_id), posted_at = COALESCE(?, posted_at, ?) WHERE id = ?')
+            ->execute([$value('permalink'), $caption, $value('cover'), $value('media_id'), $value('posted_at'), $decoded, $existing['id']]);
         return (int) $existing['id'];
     }
     db()->prepare("INSERT INTO social_reels (platform, shortcode, permalink, caption, cover, media_id, posted_at, source) VALUES ('instagram', ?, ?, ?, ?, ?, ?, ?)")
-        ->execute([$code, $value('permalink') ?? socialReelPermalink($code), $caption, $value('cover'), $value('media_id'), $value('posted_at'), $value('source') ?? 'manual']);
+        ->execute([$code, $value('permalink') ?? socialReelPermalink($code), $caption, $value('cover'), $value('media_id'), $value('posted_at') ?? $decoded, $value('source') ?? 'manual']);
     return (int) db()->lastInsertId();
 }
 
